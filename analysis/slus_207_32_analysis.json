@@ -1,0 +1,5534 @@
+{
+  "binary": "SLUS_207.32",
+  "entry_point": "0x120008",
+  "program_headers": [
+    {
+      "index": 0,
+      "type": "0x70000000",
+      "offset": "0x222a00",
+      "vaddr": "0x341a00",
+      "filesz": "0x18",
+      "memsz": "0x18",
+      "flags": "0x4",
+      "align": "0x4"
+    },
+    {
+      "index": 1,
+      "type": "0x1",
+      "offset": "0x1000",
+      "vaddr": "0x120000",
+      "filesz": "0x221a18",
+      "memsz": "0x221a18",
+      "flags": "0x5",
+      "align": "0x1000"
+    },
+    {
+      "index": 2,
+      "type": "0x1",
+      "offset": "0x222a80",
+      "vaddr": "0x341a80",
+      "filesz": "0x22ae75",
+      "memsz": "0x372994",
+      "flags": "0x6",
+      "align": "0x1000"
+    }
+  ],
+  "main_sections": [
+    {
+      "index": 0,
+      "name": "",
+      "type": "0x0",
+      "vaddr": "0x0",
+      "offset": "0x0",
+      "size": "0x0"
+    },
+    {
+      "index": 1,
+      "name": ".stack",
+      "type": "0x1",
+      "vaddr": "0x100000",
+      "offset": "0x44d944",
+      "size": "0x20000"
+    },
+    {
+      "index": 2,
+      "name": ".text",
+      "type": "0x1",
+      "vaddr": "0x120000",
+      "offset": "0x1000",
+      "size": "0x207cec"
+    },
+    {
+      "index": 1299,
+      "name": ".vutext",
+      "type": "0x1",
+      "vaddr": "0x33ee00",
+      "offset": "0x21fe00",
+      "size": "0x2000"
+    },
+    {
+      "index": 1350,
+      "name": ".reginfo",
+      "type": "0x70000006",
+      "vaddr": "0x341a00",
+      "offset": "0x222a00",
+      "size": "0x18"
+    },
+    {
+      "index": 1351,
+      "name": ".data",
+      "type": "0x1",
+      "vaddr": "0x341a80",
+      "offset": "0x222a80",
+      "size": "0x1d6cfc"
+    },
+    {
+      "index": 1352,
+      "name": ".ctors",
+      "type": "0x1",
+      "vaddr": "0x51877c",
+      "offset": "0x3f977c",
+      "size": "0x200"
+    },
+    {
+      "index": 1353,
+      "name": ".dtors",
+      "type": "0x1",
+      "vaddr": "0x51897c",
+      "offset": "0x3f997c",
+      "size": "0x28"
+    },
+    {
+      "index": 1354,
+      "name": ".eh_frame",
+      "type": "0x1",
+      "vaddr": "0x5189a8",
+      "offset": "0x3f99a8",
+      "size": "0x20e44"
+    },
+    {
+      "index": 1681,
+      "name": ".vudata",
+      "type": "0x1",
+      "vaddr": "0x547200",
+      "offset": "0x428200",
+      "size": "0xe500"
+    },
+    {
+      "index": 1698,
+      "name": ".rodata",
+      "type": "0x1",
+      "vaddr": "0x555900",
+      "offset": "0x436900",
+      "size": "0xfb68"
+    },
+    {
+      "index": 1699,
+      "name": ".gcc_except_table",
+      "type": "0x1",
+      "vaddr": "0x565480",
+      "offset": "0x446480",
+      "size": "0xa48"
+    },
+    {
+      "index": 1700,
+      "name": ".lit4",
+      "type": "0x1",
+      "vaddr": "0x565f00",
+      "offset": "0x446f00",
+      "size": "0x4100"
+    },
+    {
+      "index": 1701,
+      "name": ".sdata",
+      "type": "0x1",
+      "vaddr": "0x56a000",
+      "offset": "0x44b000",
+      "size": "0x28f5"
+    },
+    {
+      "index": 1702,
+      "name": ".sbss",
+      "type": "0x8",
+      "vaddr": "0x56c900",
+      "offset": "0x44d900",
+      "size": "0x23c"
+    },
+    {
+      "index": 1703,
+      "name": ".bss",
+      "type": "0x8",
+      "vaddr": "0x56cb80",
+      "offset": "0x44d944",
+      "size": "0x147894"
+    },
+    {
+      "index": 1704,
+      "name": ".vubss",
+      "type": "0x8",
+      "vaddr": "0x6b4414",
+      "offset": "0x44d944",
+      "size": "0x0"
+    },
+    {
+      "index": 1705,
+      "name": ".local_heap",
+      "type": "0x1",
+      "vaddr": "0x6bc480",
+      "offset": "0x46d944",
+      "size": "0x0"
+    },
+    {
+      "index": 1706,
+      "name": ".mdebug.eabi64",
+      "type": "0x1",
+      "vaddr": "0x0",
+      "offset": "0x46d944",
+      "size": "0x0"
+    },
+    {
+      "index": 1707,
+      "name": ".DVP.ovlytab",
+      "type": "0x7ffff420",
+      "vaddr": "0x0",
+      "offset": "0x46d944",
+      "size": "0x27c"
+    },
+    {
+      "index": 1708,
+      "name": ".DVP.ovlystrtab",
+      "type": "0x3",
+      "vaddr": "0x0",
+      "offset": "0x46dbc0",
+      "size": "0x7b4"
+    },
+    {
+      "index": 1762,
+      "name": ".shstrtab",
+      "type": "0x3",
+      "vaddr": "0x0",
+      "offset": "0x47cd54",
+      "size": "0x12d75"
+    }
+  ],
+  "summary": {
+    "total_sections": 1763,
+    "main_section_count": 22,
+    "gnu_linkonce_count": 1688,
+    "discovered_cpp_classes": 280,
+    "eh_frame_translation_units_cies": 358,
+    "eh_frame_functions_fdes": 3840,
+    "vu1_microcode_overlays": 53
+  },
+  "cpp_classes": {
+    "mc_effs_null": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 35,
+      "methods": [
+        {
+          "signature": "mc_effs_null::size()",
+          "vaddr": "0x33c684",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::time()",
+          "vaddr": "0x33c68c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::is_active()",
+          "vaddr": "0x33c694",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::view_mode_active(i)",
+          "vaddr": "0x33c69c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::IsUpdate(i)",
+          "vaddr": "0x33c6a4",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::IsEternal(i)",
+          "vaddr": "0x33c6ac",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::IsEffectEternal(i)",
+          "vaddr": "0x33c6b4",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::setup()",
+          "vaddr": "0x33c6bc",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_base_color(cccc)",
+          "vaddr": "0x33c6c4",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_camera(P8CFmatrixT1)",
+          "vaddr": "0x33c6cc",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_position(ifff)",
+          "vaddr": "0x33c6d4",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_position(iR8CFmatrix)",
+          "vaddr": "0x33c6dc",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_frameVelocity(f)",
+          "vaddr": "0x33c6e4",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_image(PUci)",
+          "vaddr": "0x33c6ec",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::add_image(PUci)",
+          "vaddr": "0x33c6f4",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::update()",
+          "vaddr": "0x33c6fc",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::setback()",
+          "vaddr": "0x33c704",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::active()",
+          "vaddr": "0x33c70c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::inactive()",
+          "vaddr": "0x33c714",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::draw()",
+          "vaddr": "0x33c71c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::init(i)",
+          "vaddr": "0x33c724",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::forward()",
+          "vaddr": "0x33c72c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::forward(f)",
+          "vaddr": "0x33c734",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::effect(ifff)",
+          "vaddr": "0x33c73c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::effect(iR8CFmatrix)",
+          "vaddr": "0x33c744",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_parm(i)",
+          "vaddr": "0x33c74c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_parm(iR8CFmatrix)",
+          "vaddr": "0x33c754",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_parm(ifff)",
+          "vaddr": "0x33c75c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::effect(iP5CFmatP5CFvec)",
+          "vaddr": "0x33c764",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::set_parm(iP5CFmatP5CFvec)",
+          "vaddr": "0x33c76c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::release(i)",
+          "vaddr": "0x33c774",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::release_all()",
+          "vaddr": "0x33c77c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::get_control_type()",
+          "vaddr": "0x33c784",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::get_camera()",
+          "vaddr": "0x33c78c",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs_null::get_vsm()",
+          "vaddr": "0x33c794",
+          "size": 8
+        }
+      ]
+    },
+    "CEneCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 29,
+      "methods": [
+        {
+          "signature": "CEneCtrl::CEneCtrl()",
+          "vaddr": "0x32e108",
+          "size": 948
+        },
+        {
+          "signature": "CEneCtrl::IsRealModel() const",
+          "vaddr": "0x32e51c",
+          "size": 32
+        },
+        {
+          "signature": "CEneCtrl::IsForceRealModel() const",
+          "vaddr": "0x32e53c",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::AttachModel(P17CSkyEneBaseMotion)",
+          "vaddr": "0x32e544",
+          "size": 16
+        },
+        {
+          "signature": "CEneCtrl::DetachModel()",
+          "vaddr": "0x32e554",
+          "size": 12
+        },
+        {
+          "signature": "CEneCtrl::SetTarget(P8CEneCtrlRC8CFvector)",
+          "vaddr": "0x32e560",
+          "size": 24
+        },
+        {
+          "signature": "CEneCtrl::ResetTarget()",
+          "vaddr": "0x32e578",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::SetMotion(iP8CFvector)",
+          "vaddr": "0x32e580",
+          "size": 56
+        },
+        {
+          "signature": "CEneCtrl::ExecutePreAct(i)",
+          "vaddr": "0x32e5b8",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecuteNormal(i)",
+          "vaddr": "0x32e5c0",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecuteWait(i)",
+          "vaddr": "0x32e5c8",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecuteAttackWait(i)",
+          "vaddr": "0x32e5d0",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecuteAttack(i)",
+          "vaddr": "0x32e5d8",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecuteBillBoard(i)",
+          "vaddr": "0x32e5e0",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecutePostAct(i)",
+          "vaddr": "0x32e5e8",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::ExecuteExtra(i)",
+          "vaddr": "0x32e5f0",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::SetRealModelEvent()",
+          "vaddr": "0x32e5f8",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::OnMessage(if)",
+          "vaddr": "0x32e600",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::OnDestroy()",
+          "vaddr": "0x32e608",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::SetParentCtrl(P8CEneCtrl)",
+          "vaddr": "0x32e610",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::SetMyMatrix(RC8CFmatrix)",
+          "vaddr": "0x32e618",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::SetParentMatrix(RC8CFmatrix)",
+          "vaddr": "0x32e620",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::GetParentCtrl()",
+          "vaddr": "0x32e628",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::GetExtPointPos(i)",
+          "vaddr": "0x32e630",
+          "size": 104
+        },
+        {
+          "signature": "CEneCtrl::GetExtPointNormal(i)",
+          "vaddr": "0x32e698",
+          "size": 108
+        },
+        {
+          "signature": "CEneCtrl::SetSpeed(f)",
+          "vaddr": "0x32e704",
+          "size": 16
+        },
+        {
+          "signature": "CEneCtrl::GetSpeed() const",
+          "vaddr": "0x32e714",
+          "size": 8
+        },
+        {
+          "signature": "CEneCtrl::IsInGunSight(G8CIvector) const",
+          "vaddr": "0x32e71c",
+          "size": 176
+        },
+        {
+          "signature": "CEneCtrl::ExecuteToTarget(G8CFvectori)",
+          "vaddr": "0x32e7cc",
+          "size": 16
+        }
+      ]
+    },
+    "CGObj": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 25,
+      "methods": [
+        {
+          "signature": "CGObj::exec_stage1()",
+          "vaddr": "0x328920",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::exec_stagem()",
+          "vaddr": "0x328928",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::draw_stage()",
+          "vaddr": "0x328930",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::on_entry()",
+          "vaddr": "0x328938",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::on_delete()",
+          "vaddr": "0x328940",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::on_active()",
+          "vaddr": "0x328948",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::on_disactive()",
+          "vaddr": "0x328950",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::on_remove()",
+          "vaddr": "0x328958",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::remove()",
+          "vaddr": "0x328960",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::invalid()",
+          "vaddr": "0x328968",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::valid()",
+          "vaddr": "0x328978",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::active()",
+          "vaddr": "0x328988",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::disactive()",
+          "vaddr": "0x328998",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::display_on()",
+          "vaddr": "0x3289a8",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::display_off()",
+          "vaddr": "0x3289b8",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::is_valid()",
+          "vaddr": "0x3289c8",
+          "size": 12
+        },
+        {
+          "signature": "CGObj::is_active()",
+          "vaddr": "0x3289d4",
+          "size": 12
+        },
+        {
+          "signature": "CGObj::is_display()",
+          "vaddr": "0x3289e0",
+          "size": 12
+        },
+        {
+          "signature": "CGObj::req_remove()",
+          "vaddr": "0x3289ec",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::req_display_on()",
+          "vaddr": "0x3289fc",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::req_display_off()",
+          "vaddr": "0x328a0c",
+          "size": 16
+        },
+        {
+          "signature": "CGObj::set_object_id(Us)",
+          "vaddr": "0x328a1c",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::set_model_id(Us)",
+          "vaddr": "0x328a24",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::set_attrib(Ui)",
+          "vaddr": "0x328a2c",
+          "size": 8
+        },
+        {
+          "signature": "CGObj::__nw(UiPv)",
+          "vaddr": "0x328a34",
+          "size": 8
+        }
+      ]
+    },
+    "CDragonCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 22,
+      "methods": [
+        {
+          "signature": "CDragonCtrl::Release()",
+          "vaddr": "0x32d9b8",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::IsInit()",
+          "vaddr": "0x32d9c0",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::GndSeUpdate()",
+          "vaddr": "0x32d9c8",
+          "size": 52
+        },
+        {
+          "signature": "CDragonCtrl::IsInBreath() const",
+          "vaddr": "0x32d9fc",
+          "size": 12
+        },
+        {
+          "signature": "CDragonCtrl::SetBreathAbleFlag(b)",
+          "vaddr": "0x32da08",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::IsUseMagic() const",
+          "vaddr": "0x32da10",
+          "size": 12
+        },
+        {
+          "signature": "CDragonCtrl::GetUseMagicCount() const",
+          "vaddr": "0x32da1c",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::SetGndFireDisableFrame(i)",
+          "vaddr": "0x32da24",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::SetTargetForceFlag(i)",
+          "vaddr": "0x32da2c",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::AttachPathAnim(PUI80)",
+          "vaddr": "0x32da34",
+          "size": 28
+        },
+        {
+          "signature": "CDragonCtrl::PlayPathAnim(if)",
+          "vaddr": "0x32da50",
+          "size": 24
+        },
+        {
+          "signature": "CDragonCtrl::IsPlayPathAnim() const",
+          "vaddr": "0x32da68",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::StopPathAnim()",
+          "vaddr": "0x32da70",
+          "size": 16
+        },
+        {
+          "signature": "CDragonCtrl::SetLwMatrix(RC8CFmatrix)",
+          "vaddr": "0x32da80",
+          "size": 44
+        },
+        {
+          "signature": "CDragonCtrl::GetSpeed() const",
+          "vaddr": "0x32daac",
+          "size": 24
+        },
+        {
+          "signature": "CDragonCtrl::IsInDrift() const",
+          "vaddr": "0x32dac4",
+          "size": 12
+        },
+        {
+          "signature": "CDragonCtrl::IsInDriftRoll() const",
+          "vaddr": "0x32dad0",
+          "size": 8
+        },
+        {
+          "signature": "CDragonCtrl::Draw()",
+          "vaddr": "0x32dad8",
+          "size": 32
+        },
+        {
+          "signature": "CDragonCtrl::Draw(RC8CFmatrix)",
+          "vaddr": "0x32daf8",
+          "size": 136
+        },
+        {
+          "signature": "CDragonCtrl::GetExtPointPos(i)",
+          "vaddr": "0x32db80",
+          "size": 76
+        },
+        {
+          "signature": "CDragonCtrl::GetExtPointNormal(i)",
+          "vaddr": "0x32dbcc",
+          "size": 80
+        },
+        {
+          "signature": "CDragonCtrl::SetRingDisableTime(i)",
+          "vaddr": "0x32dc1c",
+          "size": 8
+        }
+      ]
+    },
+    "CTkSpEffect": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 20,
+      "methods": [
+        {
+          "signature": "CTkSpEffect::Execute(i)",
+          "vaddr": "0x337fd8",
+          "size": 104
+        },
+        {
+          "signature": "CTkSpEffect::SetPosition(RC8CFvector)",
+          "vaddr": "0x338040",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetPosition(RC8CFvectorT1)",
+          "vaddr": "0x338048",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetColor(RC8CIvector)",
+          "vaddr": "0x338050",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetSize(f)",
+          "vaddr": "0x338058",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetLength(i)",
+          "vaddr": "0x338060",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetNum(i)",
+          "vaddr": "0x338068",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetAlphaMode(20ETkSpEffectAlphaMode)",
+          "vaddr": "0x338070",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetType(i)",
+          "vaddr": "0x338078",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetAlpha(i)",
+          "vaddr": "0x338080",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetRate(f)",
+          "vaddr": "0x338088",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetFrame(i)",
+          "vaddr": "0x338090",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetSpeed(f)",
+          "vaddr": "0x338098",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::SetDirection(RC8CFvector)",
+          "vaddr": "0x3380a0",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::CreateInstance()",
+          "vaddr": "0x3380a8",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::LocalExecute(i)",
+          "vaddr": "0x3380b0",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::CheckDelete()",
+          "vaddr": "0x3380b8",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::Draw()",
+          "vaddr": "0x3380c0",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::OnDestroy()",
+          "vaddr": "0x3380c8",
+          "size": 8
+        },
+        {
+          "signature": "CTkSpEffect::LocalInit()",
+          "vaddr": "0x338804",
+          "size": 8
+        }
+      ]
+    },
+    "CTargetCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 15,
+      "methods": [
+        {
+          "signature": "CTargetCamera::CTargetCamera()",
+          "vaddr": "0x337b30",
+          "size": 780
+        },
+        {
+          "signature": "CTargetCamera::Init()",
+          "vaddr": "0x337e70",
+          "size": 8
+        },
+        {
+          "signature": "CTargetCamera::SetActivate(b)",
+          "vaddr": "0x337e78",
+          "size": 8
+        },
+        {
+          "signature": "CTargetCamera::IsActive() const",
+          "vaddr": "0x337e80",
+          "size": 8
+        },
+        {
+          "signature": "CTargetCamera::SetRoll(f)",
+          "vaddr": "0x337e88",
+          "size": 16
+        },
+        {
+          "signature": "CTargetCamera::SetChaseRate(f)",
+          "vaddr": "0x337e98",
+          "size": 16
+        },
+        {
+          "signature": "CTargetCamera::GetCameraDirec() const",
+          "vaddr": "0x337ea8",
+          "size": 24
+        },
+        {
+          "signature": "CTargetCamera::GetSpeedVector() const",
+          "vaddr": "0x337ec0",
+          "size": 24
+        },
+        {
+          "signature": "CTargetCamera::SetPositionDirect(RC8CFvector)",
+          "vaddr": "0x337ed8",
+          "size": 36
+        },
+        {
+          "signature": "CTargetCamera::LocalExecute(i)",
+          "vaddr": "0x337efc",
+          "size": 8
+        },
+        {
+          "signature": "CTargetCamera::LocalPostExecute(i)",
+          "vaddr": "0x337f04",
+          "size": 8
+        },
+        {
+          "signature": "CTargetCamera::GetMatrix() const",
+          "vaddr": "0x337f0c",
+          "size": 72
+        },
+        {
+          "signature": "CTargetCamera::GetMatrix()",
+          "vaddr": "0x337f54",
+          "size": 8
+        },
+        {
+          "signature": "CTargetCamera::SetTarget(RC8CFvector)",
+          "vaddr": "0x337f5c",
+          "size": 20
+        },
+        {
+          "signature": "CTargetCamera::SetCameraDistance(f)",
+          "vaddr": "0x337f70",
+          "size": 104
+        }
+      ]
+    },
+    "CCharaCtrlBase": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 13,
+      "methods": [
+        {
+          "signature": "CCharaCtrlBase::__nw(UiPv)",
+          "vaddr": "0x32c054",
+          "size": 8
+        },
+        {
+          "signature": "CCharaCtrlBase::CCharaCtrlBase()",
+          "vaddr": "0x32c05c",
+          "size": 472
+        },
+        {
+          "signature": "CCharaCtrlBase::ClearAllEffect()",
+          "vaddr": "0x32c234",
+          "size": 84
+        },
+        {
+          "signature": "CCharaCtrlBase::GetMatrix()",
+          "vaddr": "0x32c288",
+          "size": 124
+        },
+        {
+          "signature": "CCharaCtrlBase::Execute(i)",
+          "vaddr": "0x32c304",
+          "size": 184
+        },
+        {
+          "signature": "CCharaCtrlBase::LocalPreExecute(i)",
+          "vaddr": "0x32c3bc",
+          "size": 8
+        },
+        {
+          "signature": "CCharaCtrlBase::LocalPostExecute(i)",
+          "vaddr": "0x32c3c4",
+          "size": 8
+        },
+        {
+          "signature": "CCharaCtrlBase::Draw()",
+          "vaddr": "0x32c3cc",
+          "size": 8
+        },
+        {
+          "signature": "CCharaCtrlBase::Input(R13CGPlayerInput)",
+          "vaddr": "0x32c3d4",
+          "size": 8
+        },
+        {
+          "signature": "CCharaCtrlBase::CheckHit()",
+          "vaddr": "0x32c3dc",
+          "size": 8
+        },
+        {
+          "signature": "CCharaCtrlBase::GetExtPointPos(i)",
+          "vaddr": "0x32c3e4",
+          "size": 24
+        },
+        {
+          "signature": "CCharaCtrlBase::GetExtPointNormal(i)",
+          "vaddr": "0x32c3fc",
+          "size": 28
+        },
+        {
+          "signature": "CCharaCtrlBase::CreateLwMat()",
+          "vaddr": "0x32c418",
+          "size": 1288
+        }
+      ]
+    },
+    "CGActiveObj": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 13,
+      "methods": [
+        {
+          "signature": "CGActiveObj::action_order(UiP15_aciton_command)",
+          "vaddr": "0x328bec",
+          "size": 8
+        },
+        {
+          "signature": "CGActiveObj::set_next_state(Ui)",
+          "vaddr": "0x328bf4",
+          "size": 8
+        },
+        {
+          "signature": "CGActiveObj::set_next_mode(Ui)",
+          "vaddr": "0x328bfc",
+          "size": 8
+        },
+        {
+          "signature": "CGActiveObj::set_next_submode(Ui)",
+          "vaddr": "0x328c04",
+          "size": 8
+        },
+        {
+          "signature": "CGActiveObj::on_move()",
+          "vaddr": "0x328c0c",
+          "size": 8
+        },
+        {
+          "signature": "CGActiveObj::set_motion_model(Ui)",
+          "vaddr": "0x328c14",
+          "size": 24
+        },
+        {
+          "signature": "CGActiveObj::set_motion(UsUsUsUsUs)",
+          "vaddr": "0x328c2c",
+          "size": 32
+        },
+        {
+          "signature": "CGActiveObj::set_motion_one(UsUsUsUsUs)",
+          "vaddr": "0x328c4c",
+          "size": 32
+        },
+        {
+          "signature": "CGActiveObj::set_motion_sync(UsUsUsUs)",
+          "vaddr": "0x328c6c",
+          "size": 28
+        },
+        {
+          "signature": "CGActiveObj::set_motion_sync_one(UsUsUsUsUs)",
+          "vaddr": "0x328c88",
+          "size": 28
+        },
+        {
+          "signature": "CGActiveObj::set_motion_time(Us)",
+          "vaddr": "0x328ca4",
+          "size": 16
+        },
+        {
+          "signature": "CGActiveObj::get_motion_frame(Us)",
+          "vaddr": "0x328cb4",
+          "size": 60
+        },
+        {
+          "signature": "CGActiveObj::get_motion_status()",
+          "vaddr": "0x328cf0",
+          "size": 8
+        }
+      ]
+    },
+    "CDragonMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 11,
+      "methods": [
+        {
+          "signature": "CDragonMotion::CDragonMotion()",
+          "vaddr": "0x32dc78",
+          "size": 456
+        },
+        {
+          "signature": "CDragonMotion::Init(PUI80i)",
+          "vaddr": "0x32de40",
+          "size": 36
+        },
+        {
+          "signature": "CDragonMotion::GetExtBodyDiffNAll(P8CFvectorT1)",
+          "vaddr": "0x32de64",
+          "size": 68
+        },
+        {
+          "signature": "CDragonMotion::GetMotion()",
+          "vaddr": "0x32dea8",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotion::GetFlapSpeed() const",
+          "vaddr": "0x32deb0",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotion::GetFlapTargetSpeed() const",
+          "vaddr": "0x32deb8",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotion::Draw()",
+          "vaddr": "0x32dec0",
+          "size": 28
+        },
+        {
+          "signature": "CDragonMotion::Draw(G8CFmatrix)",
+          "vaddr": "0x32dedc",
+          "size": 132
+        },
+        {
+          "signature": "CDragonMotion::LocalPostExecute(i)",
+          "vaddr": "0x32df60",
+          "size": 72
+        },
+        {
+          "signature": "CDragonMotion::LocalPreDraw()",
+          "vaddr": "0x32dfa8",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotion::LocalPostDraw()",
+          "vaddr": "0x32dfb0",
+          "size": 8
+        }
+      ]
+    },
+    "CTargetAnimCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 11,
+      "methods": [
+        {
+          "signature": "CTargetAnimCamera::CTargetAnimCamera()",
+          "vaddr": "0x3312b0",
+          "size": 848
+        },
+        {
+          "signature": "CTargetAnimCamera::Attach(PUI80)",
+          "vaddr": "0x331634",
+          "size": 40
+        },
+        {
+          "signature": "CTargetAnimCamera::Detach()",
+          "vaddr": "0x33165c",
+          "size": 12
+        },
+        {
+          "signature": "CTargetAnimCamera::Init()",
+          "vaddr": "0x331668",
+          "size": 44
+        },
+        {
+          "signature": "CTargetAnimCamera::IsPlayAnim() const",
+          "vaddr": "0x331694",
+          "size": 76
+        },
+        {
+          "signature": "CTargetAnimCamera::SetPause()",
+          "vaddr": "0x3316e0",
+          "size": 12
+        },
+        {
+          "signature": "CTargetAnimCamera::ResetPause()",
+          "vaddr": "0x3316ec",
+          "size": 8
+        },
+        {
+          "signature": "CTargetAnimCamera::GetAnimFrame() const",
+          "vaddr": "0x3316f4",
+          "size": 8
+        },
+        {
+          "signature": "CTargetAnimCamera::GetAnimFrameNum() const",
+          "vaddr": "0x3316fc",
+          "size": 12
+        },
+        {
+          "signature": "CTargetAnimCamera::Play(fb)",
+          "vaddr": "0x331708",
+          "size": 44
+        },
+        {
+          "signature": "CTargetAnimCamera::Stop()",
+          "vaddr": "0x331734",
+          "size": 8
+        }
+      ]
+    },
+    "SceneLocusWorld": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 11,
+      "methods": [
+        {
+          "signature": "SceneLocusWorld::GetCurrent()",
+          "vaddr": "0x33b028",
+          "size": 8
+        },
+        {
+          "signature": "SceneLocusWorld::GetLength()",
+          "vaddr": "0x33b030",
+          "size": 8
+        },
+        {
+          "signature": "SceneLocusWorld::GetDivide()",
+          "vaddr": "0x33b038",
+          "size": 8
+        },
+        {
+          "signature": "SceneLocusWorld::IsLoopFrame()",
+          "vaddr": "0x33b040",
+          "size": 20
+        },
+        {
+          "signature": "SceneLocusWorld::IsEnableLoopFrameDraw()",
+          "vaddr": "0x33b054",
+          "size": 20
+        },
+        {
+          "signature": "SceneLocusWorld::SetCurrent(i)",
+          "vaddr": "0x33b068",
+          "size": 8
+        },
+        {
+          "signature": "SceneLocusWorld::SetLength(i)",
+          "vaddr": "0x33b070",
+          "size": 48
+        },
+        {
+          "signature": "SceneLocusWorld::SetDivide(i)",
+          "vaddr": "0x33b0a0",
+          "size": 8
+        },
+        {
+          "signature": "SceneLocusWorld::SetLoopFrame(b)",
+          "vaddr": "0x33b0a8",
+          "size": 32
+        },
+        {
+          "signature": "SceneLocusWorld::SetEnableLoopFrameDraw(b)",
+          "vaddr": "0x33b0c8",
+          "size": 32
+        },
+        {
+          "signature": "SceneLocusWorld::GetPoint(ii)",
+          "vaddr": "0x33b0e8",
+          "size": 24
+        }
+      ]
+    },
+    "CKzStrWin": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 10,
+      "methods": [
+        {
+          "signature": "CKzStrWin::GetDX()",
+          "vaddr": "0x33d398",
+          "size": 16
+        },
+        {
+          "signature": "CKzStrWin::GetDY()",
+          "vaddr": "0x33d3a8",
+          "size": 16
+        },
+        {
+          "signature": "CKzStrWin::GetDAlpha()",
+          "vaddr": "0x33d3b8",
+          "size": 36
+        },
+        {
+          "signature": "CKzStrWin::GetTpRate()",
+          "vaddr": "0x33d3dc",
+          "size": 52
+        },
+        {
+          "signature": "CKzStrWin::IsReady()",
+          "vaddr": "0x33d410",
+          "size": 28
+        },
+        {
+          "signature": "CKzStrWin::IsVisible()",
+          "vaddr": "0x33d42c",
+          "size": 32
+        },
+        {
+          "signature": "CKzStrWin::SetActive(b)",
+          "vaddr": "0x33d44c",
+          "size": 32
+        },
+        {
+          "signature": "CKzStrWin::GetStringParam()",
+          "vaddr": "0x33d46c",
+          "size": 8
+        },
+        {
+          "signature": "CKzStrWin::SetWX(i)",
+          "vaddr": "0x33d474",
+          "size": 8
+        },
+        {
+          "signature": "CKzStrWin::SetWY(i)",
+          "vaddr": "0x33d47c",
+          "size": 8
+        }
+      ]
+    },
+    "CSkyEneBaseMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 10,
+      "methods": [
+        {
+          "signature": "CSkyEneBaseMotion::AttachBuff(P18CMotionChannelStatP14SCharaExtPointP19CMotionChannelGroupPA2_i)",
+          "vaddr": "0x32f330",
+          "size": 20
+        },
+        {
+          "signature": "CSkyEneBaseMotion::CSkyEneBaseMotion()",
+          "vaddr": "0x32f344",
+          "size": 236
+        },
+        {
+          "signature": "CSkyEneBaseMotion::EnemyLocalInit()",
+          "vaddr": "0x32f430",
+          "size": 8
+        },
+        {
+          "signature": "CSkyEneBaseMotion::Draw(P8CFmatrix)",
+          "vaddr": "0x32f438",
+          "size": 112
+        },
+        {
+          "signature": "CSkyEneBaseMotion::CopyMotionStatus(RC17CSkyEneBaseMotion)",
+          "vaddr": "0x32f4a8",
+          "size": 332
+        },
+        {
+          "signature": "CSkyEneBaseMotion::SetBillBoardId(i)",
+          "vaddr": "0x32f5f4",
+          "size": 8
+        },
+        {
+          "signature": "CSkyEneBaseMotion::IsBillBoard() const",
+          "vaddr": "0x32f5fc",
+          "size": 16
+        },
+        {
+          "signature": "CSkyEneBaseMotion::ClearAllParam()",
+          "vaddr": "0x32f60c",
+          "size": 80
+        },
+        {
+          "signature": "CSkyEneBaseMotion::LocalClearParam()",
+          "vaddr": "0x32f65c",
+          "size": 8
+        },
+        {
+          "signature": "CSkyEneBaseMotion::SetFireLight(G8CFvectorT1ff)",
+          "vaddr": "0x32f664",
+          "size": 80
+        }
+      ]
+    },
+    "CDen2Stream": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 9,
+      "methods": [
+        {
+          "signature": "CDen2Stream::play()",
+          "vaddr": "0x327d28",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::ifPlayReady()",
+          "vaddr": "0x327d30",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::ifAlive()",
+          "vaddr": "0x327d38",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::ifPlay()",
+          "vaddr": "0x327d40",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::ifEOS()",
+          "vaddr": "0x327d48",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::getFrameNo()",
+          "vaddr": "0x327d50",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::getSubFrameNo()",
+          "vaddr": "0x327d58",
+          "size": 12
+        },
+        {
+          "signature": "CDen2Stream::setPitch(f)",
+          "vaddr": "0x327d64",
+          "size": 8
+        },
+        {
+          "signature": "CDen2Stream::setVolume(ff)",
+          "vaddr": "0x327d6c",
+          "size": 12
+        }
+      ]
+    },
+    "CSpEffectParticle": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 8,
+      "methods": [
+        {
+          "signature": "CSpEffectParticle::SetNum(i)",
+          "vaddr": "0x338710",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectParticle::SetColor(RC8CIvector)",
+          "vaddr": "0x338724",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectParticle::SetPosition(RC8CFvector)",
+          "vaddr": "0x338738",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectParticle::SetSpeed(f)",
+          "vaddr": "0x33874c",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectParticle::SetDirection(RC8CFvector)",
+          "vaddr": "0x338754",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectParticle::SetRate(f)",
+          "vaddr": "0x338768",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectParticle::SetSize(f)",
+          "vaddr": "0x338770",
+          "size": 28
+        },
+        {
+          "signature": "CSpEffectParticle::SetFrame(i)",
+          "vaddr": "0x33878c",
+          "size": 8
+        }
+      ]
+    },
+    "CTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 8,
+      "methods": [
+        {
+          "signature": "CTask::Draw()",
+          "vaddr": "0x327ea4",
+          "size": 8
+        },
+        {
+          "signature": "CTask::OnEntry()",
+          "vaddr": "0x327eac",
+          "size": 8
+        },
+        {
+          "signature": "CTask::OnActivate()",
+          "vaddr": "0x327eb4",
+          "size": 8
+        },
+        {
+          "signature": "CTask::OnDisActivate()",
+          "vaddr": "0x327ebc",
+          "size": 8
+        },
+        {
+          "signature": "CTask::OnDestroy()",
+          "vaddr": "0x327ec4",
+          "size": 8
+        },
+        {
+          "signature": "CTask::OnGetMessage(i)",
+          "vaddr": "0x327ecc",
+          "size": 8
+        },
+        {
+          "signature": "CTask::DrawDebugScreen(Ri)",
+          "vaddr": "0x327ed4",
+          "size": 8
+        },
+        {
+          "signature": "CTask::Execute(i)",
+          "vaddr": "0x33df08",
+          "size": 8
+        }
+      ]
+    },
+    "CCameraMan": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 7,
+      "methods": [
+        {
+          "signature": "CCameraMan::CCameraMan()",
+          "vaddr": "0x32b6b4",
+          "size": 72
+        },
+        {
+          "signature": "CCameraMan::RemoveAllCamera()",
+          "vaddr": "0x32b6fc",
+          "size": 36
+        },
+        {
+          "signature": "CCameraMan::GetCameraNum() const",
+          "vaddr": "0x32b720",
+          "size": 8
+        },
+        {
+          "signature": "CCameraMan::AddCamera(P17CTargetAnimCamera)",
+          "vaddr": "0x32b728",
+          "size": 32
+        },
+        {
+          "signature": "CCameraMan::GetNowCamera()",
+          "vaddr": "0x32b748",
+          "size": 8
+        },
+        {
+          "signature": "CCameraMan::GetMatrix() const",
+          "vaddr": "0x32b750",
+          "size": 72
+        },
+        {
+          "signature": "CCameraMan::GetMatrix()",
+          "vaddr": "0x32b798",
+          "size": 8
+        }
+      ]
+    },
+    "CEneBltCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 7,
+      "methods": [
+        {
+          "signature": "CEneBltCtrl::IsDanger() const",
+          "vaddr": "0x32fd6c",
+          "size": 32
+        },
+        {
+          "signature": "CEneBltCtrl::GetNowSpeedVector() const",
+          "vaddr": "0x32fd8c",
+          "size": 84
+        },
+        {
+          "signature": "CEneBltCtrl::IsModel() const",
+          "vaddr": "0x32fde0",
+          "size": 16
+        },
+        {
+          "signature": "CEneBltCtrl::IsEffect() const",
+          "vaddr": "0x32fdf0",
+          "size": 12
+        },
+        {
+          "signature": "CEneBltCtrl::GetModelNo() const",
+          "vaddr": "0x32fdfc",
+          "size": 8
+        },
+        {
+          "signature": "CEneBltCtrl::GetEffectNo() const",
+          "vaddr": "0x32fe04",
+          "size": 12
+        },
+        {
+          "signature": "CEneBltCtrl::IsLowCost() const",
+          "vaddr": "0x32fe10",
+          "size": 32
+        }
+      ]
+    },
+    "__user_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 7,
+      "methods": [
+        {
+          "signature": "__user_type_info::__user_type_info(PCc)",
+          "vaddr": "0x341068",
+          "size": 20
+        },
+        {
+          "signature": "__user_type_info::contained_p(Q216__user_type_info8sub_kind)",
+          "vaddr": "0x341080",
+          "size": 12
+        },
+        {
+          "signature": "__user_type_info::contained_public_p(Q216__user_type_info8sub_kind)",
+          "vaddr": "0x341090",
+          "size": 12
+        },
+        {
+          "signature": "__user_type_info::contained_nonpublic_p(Q216__user_type_info8sub_kind)",
+          "vaddr": "0x3410a0",
+          "size": 16
+        },
+        {
+          "signature": "__user_type_info::contained_nonvirtual_p(Q216__user_type_info8sub_kind)",
+          "vaddr": "0x3410b0",
+          "size": 16
+        },
+        {
+          "signature": "__user_type_info::contained_virtual_p(Q216__user_type_info8sub_kind)",
+          "vaddr": "0x3410c0",
+          "size": 16
+        },
+        {
+          "signature": "__user_type_info::find_public_subobj(iRC9type_infoPvT3) const",
+          "vaddr": "0x3410d0",
+          "size": 104
+        }
+      ]
+    },
+    "McSceneRing": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 6,
+      "methods": [
+        {
+          "signature": "McSceneRing::GetCurrent()",
+          "vaddr": "0x33b220",
+          "size": 8
+        },
+        {
+          "signature": "McSceneRing::GetLength()",
+          "vaddr": "0x33b228",
+          "size": 8
+        },
+        {
+          "signature": "McSceneRing::GetDivide()",
+          "vaddr": "0x33b230",
+          "size": 8
+        },
+        {
+          "signature": "McSceneRing::SetLength(i)",
+          "vaddr": "0x33b238",
+          "size": 48
+        },
+        {
+          "signature": "McSceneRing::SetDivide(i)",
+          "vaddr": "0x33b268",
+          "size": 8
+        },
+        {
+          "signature": "McSceneRing::SetPos(RC8CFvectorT1)",
+          "vaddr": "0x33b270",
+          "size": 32
+        }
+      ]
+    },
+    "CDragonMotionBase": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "CDragonMotionBase::LocalInit()",
+          "vaddr": "0x32d8c8",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotionBase::LocalPreExecute(i)",
+          "vaddr": "0x32d8d0",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotionBase::LocalPostExecute(i)",
+          "vaddr": "0x32d8d8",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotionBase::LocalPreDraw()",
+          "vaddr": "0x32d8e0",
+          "size": 8
+        },
+        {
+          "signature": "CDragonMotionBase::LocalPostDraw()",
+          "vaddr": "0x32d8e8",
+          "size": 8
+        }
+      ]
+    },
+    "CEneRelationalCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "CEneRelationalCtrl::CEneRelationalCtrl()",
+          "vaddr": "0x32edd4",
+          "size": 1056
+        },
+        {
+          "signature": "CEneRelationalCtrl::IsLink() const",
+          "vaddr": "0x32f1f4",
+          "size": 8
+        },
+        {
+          "signature": "CEneRelationalCtrl::SetParentCtrl(P8CEneCtrl)",
+          "vaddr": "0x32f1fc",
+          "size": 8
+        },
+        {
+          "signature": "CEneRelationalCtrl::GetParentCtrl()",
+          "vaddr": "0x32f204",
+          "size": 8
+        },
+        {
+          "signature": "CEneRelationalCtrl::CreateLwMat()",
+          "vaddr": "0x32f20c",
+          "size": 64
+        }
+      ]
+    },
+    "CGLoadData2": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "CGLoadData2::set_data_no(Ui)",
+          "vaddr": "0x3282bc",
+          "size": 8
+        },
+        {
+          "signature": "CGLoadData2::set_data_type(Ui)",
+          "vaddr": "0x3282c4",
+          "size": 8
+        },
+        {
+          "signature": "CGLoadData2::get_data_no()",
+          "vaddr": "0x3282cc",
+          "size": 8
+        },
+        {
+          "signature": "CGLoadData2::get_load_no()",
+          "vaddr": "0x3282d4",
+          "size": 8
+        },
+        {
+          "signature": "CGLoadData2::get_asgn_adrs()",
+          "vaddr": "0x3282dc",
+          "size": 8
+        }
+      ]
+    },
+    "CSkyEffectHandle": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "CSkyEffectHandle::CSkyEffectHandle()",
+          "vaddr": "0x334e0c",
+          "size": 76
+        },
+        {
+          "signature": "CSkyEffectHandle::Clear()",
+          "vaddr": "0x334e58",
+          "size": 64
+        },
+        {
+          "signature": "CSkyEffectHandle::Set(iRC8CFmatrixb)",
+          "vaddr": "0x334e98",
+          "size": 76
+        },
+        {
+          "signature": "CSkyEffectHandle::IsActive() const",
+          "vaddr": "0x334ee4",
+          "size": 16
+        },
+        {
+          "signature": "CSkyEffectHandle::SetMatrix(RC8CFmatrix)",
+          "vaddr": "0x334ef4",
+          "size": 60
+        }
+      ]
+    },
+    "CTaskVSync": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "CTaskVSync::getCurrentInstance()",
+          "vaddr": "0x33e130",
+          "size": 8
+        },
+        {
+          "signature": "CTaskVSync::setPacketSetting(i)",
+          "vaddr": "0x33e138",
+          "size": 12
+        },
+        {
+          "signature": "CTaskVSync::playMovie(P7CEzMPEG)",
+          "vaddr": "0x33e144",
+          "size": 8
+        },
+        {
+          "signature": "CTaskVSync::ifPlayMovie()",
+          "vaddr": "0x33e14c",
+          "size": 12
+        },
+        {
+          "signature": "CTaskVSync::GetPreSpendLine() const",
+          "vaddr": "0x33e158",
+          "size": 8
+        }
+      ]
+    },
+    "OptFloat": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "OptFloat::__opRf()",
+          "vaddr": "0x33db90",
+          "size": 8
+        },
+        {
+          "signature": "OptFloat::__as(f)",
+          "vaddr": "0x33db98",
+          "size": 112
+        },
+        {
+          "signature": "OptFloat::__as(T0)",
+          "vaddr": "0x33dc08",
+          "size": 120
+        },
+        {
+          "signature": "OptFloat::reset()",
+          "vaddr": "0x33dc80",
+          "size": 16
+        },
+        {
+          "signature": "OptFloat::setMaxmin(ff)",
+          "vaddr": "0x33dc90",
+          "size": 12
+        }
+      ]
+    },
+    "OptInt": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "OptInt::__opRi()",
+          "vaddr": "0x33da38",
+          "size": 8
+        },
+        {
+          "signature": "OptInt::__as(i)",
+          "vaddr": "0x33da40",
+          "size": 112
+        },
+        {
+          "signature": "OptInt::__as(T0)",
+          "vaddr": "0x33dab0",
+          "size": 120
+        },
+        {
+          "signature": "OptInt::reset()",
+          "vaddr": "0x33db28",
+          "size": 16
+        },
+        {
+          "signature": "OptInt::setMaxmin(ii)",
+          "vaddr": "0x33db38",
+          "size": 12
+        }
+      ]
+    },
+    "OptVar": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "OptVar::inputPad()",
+          "vaddr": "0x327ff0",
+          "size": 8
+        },
+        {
+          "signature": "OptVar::setVariable(Pc)",
+          "vaddr": "0x327ff8",
+          "size": 8
+        },
+        {
+          "signature": "OptVar::getString()",
+          "vaddr": "0x328000",
+          "size": 8
+        },
+        {
+          "signature": "OptVar::reset()",
+          "vaddr": "0x328008",
+          "size": 8
+        },
+        {
+          "signature": "OptVar::writeString(Pc)",
+          "vaddr": "0x328010",
+          "size": 8
+        }
+      ]
+    },
+    "mc_effs": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 5,
+      "methods": [
+        {
+          "signature": "mc_effs::set_base_color(cccc)",
+          "vaddr": "0x33be4c",
+          "size": 56
+        },
+        {
+          "signature": "mc_effs::__nw(UiPv)",
+          "vaddr": "0x33be84",
+          "size": 8
+        },
+        {
+          "signature": "mc_effs::set_uchar_curve(R8eff_parmRQ24abest18FunctionCurveUnion1ZUcc)",
+          "vaddr": "0x33bed4",
+          "size": 228
+        },
+        {
+          "signature": "mc_effs::set_ushort_curve(R8eff_parmRQ24abest18FunctionCurveUnion1ZUs)",
+          "vaddr": "0x33bfb8",
+          "size": 224
+        },
+        {
+          "signature": "mc_effs::set_scalar_curve(R8eff_parmRQ24abest18FunctionCurveUnion1Zf)",
+          "vaddr": "0x33c098",
+          "size": 228
+        }
+      ]
+    },
+    "CBehoMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CBehoMotion::LocalClearParam()",
+          "vaddr": "0x335ea0",
+          "size": 8
+        },
+        {
+          "signature": "CBehoMotion::SetMotionIndex()",
+          "vaddr": "0x335ea8",
+          "size": 16
+        },
+        {
+          "signature": "CBehoMotion::CreateRealMotionIndex()",
+          "vaddr": "0x335eb8",
+          "size": 44
+        },
+        {
+          "signature": "CBehoMotion::LocalSetMotion(iP8CFvector)",
+          "vaddr": "0x335ee4",
+          "size": 8
+        }
+      ]
+    },
+    "CBmMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CBmMotion::InitAttachBuff()",
+          "vaddr": "0x336d00",
+          "size": 36
+        },
+        {
+          "signature": "CBmMotion::LocalInit()",
+          "vaddr": "0x336d24",
+          "size": 252
+        },
+        {
+          "signature": "CBmMotion::SetMotionIndex()",
+          "vaddr": "0x336e20",
+          "size": 16
+        },
+        {
+          "signature": "CBmMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336e30",
+          "size": 44
+        }
+      ]
+    },
+    "CCyMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CCyMotion::InitAttachBuff()",
+          "vaddr": "0x3368ec",
+          "size": 36
+        },
+        {
+          "signature": "CCyMotion::LocalInit()",
+          "vaddr": "0x336910",
+          "size": 268
+        },
+        {
+          "signature": "CCyMotion::SetMotionIndex()",
+          "vaddr": "0x336a1c",
+          "size": 16
+        },
+        {
+          "signature": "CCyMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336a2c",
+          "size": 44
+        }
+      ]
+    },
+    "CEDragonMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CEDragonMotion::LocalClearParam()",
+          "vaddr": "0x33646c",
+          "size": 8
+        },
+        {
+          "signature": "CEDragonMotion::SetMotionIndex()",
+          "vaddr": "0x336474",
+          "size": 16
+        },
+        {
+          "signature": "CEDragonMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336484",
+          "size": 44
+        },
+        {
+          "signature": "CEDragonMotion::LocalSetMotion(iP8CFvector)",
+          "vaddr": "0x3364b0",
+          "size": 8
+        }
+      ]
+    },
+    "CEneKvmCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CEneKvmCtrl::CEneKvmCtrl()",
+          "vaddr": "0x337000",
+          "size": 1036
+        },
+        {
+          "signature": "CEneKvmCtrl::NotDraw()",
+          "vaddr": "0x33740c",
+          "size": 48
+        },
+        {
+          "signature": "CEneKvmCtrl::SetDamage()",
+          "vaddr": "0x33743c",
+          "size": 8
+        },
+        {
+          "signature": "CEneKvmCtrl::CheckDamageHit(P11CWeaponCtrlRC8CFvectorT2)",
+          "vaddr": "0x337444",
+          "size": 8
+        }
+      ]
+    },
+    "CFadeMan": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CFadeMan::CFadeMan()",
+          "vaddr": "0x33d784",
+          "size": 96
+        },
+        {
+          "signature": "CFadeMan::IsFinish() const",
+          "vaddr": "0x33d7e4",
+          "size": 32
+        },
+        {
+          "signature": "CFadeMan::GetNowFadeKind() const",
+          "vaddr": "0x33d804",
+          "size": 8
+        },
+        {
+          "signature": "CFadeMan::GetNowFadeDepth()",
+          "vaddr": "0x33d80c",
+          "size": 24
+        }
+      ]
+    },
+    "CGa1Motion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CGa1Motion::LocalClearParam()",
+          "vaddr": "0x335fc8",
+          "size": 8
+        },
+        {
+          "signature": "CGa1Motion::SetMotionIndex()",
+          "vaddr": "0x335fd0",
+          "size": 16
+        },
+        {
+          "signature": "CGa1Motion::CreateRealMotionIndex()",
+          "vaddr": "0x335fe0",
+          "size": 44
+        },
+        {
+          "signature": "CGa1Motion::LocalSetMotion(iP8CFvector)",
+          "vaddr": "0x33600c",
+          "size": 8
+        }
+      ]
+    },
+    "CGa2Motion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CGa2Motion::LocalClearParam()",
+          "vaddr": "0x336064",
+          "size": 8
+        },
+        {
+          "signature": "CGa2Motion::SetMotionIndex()",
+          "vaddr": "0x33606c",
+          "size": 16
+        },
+        {
+          "signature": "CGa2Motion::CreateRealMotionIndex()",
+          "vaddr": "0x33607c",
+          "size": 44
+        },
+        {
+          "signature": "CGa2Motion::LocalSetMotion(iP8CFvector)",
+          "vaddr": "0x3360a8",
+          "size": 8
+        }
+      ]
+    },
+    "CGfMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CGfMotion::LocalClearParam()",
+          "vaddr": "0x336508",
+          "size": 8
+        },
+        {
+          "signature": "CGfMotion::SetMotionIndex()",
+          "vaddr": "0x336510",
+          "size": 16
+        },
+        {
+          "signature": "CGfMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336520",
+          "size": 44
+        },
+        {
+          "signature": "CGfMotion::LocalSetMotion(iP8CFvector)",
+          "vaddr": "0x33654c",
+          "size": 8
+        }
+      ]
+    },
+    "CMcTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CMcTask::GetCardStat()",
+          "vaddr": "0x33ea64",
+          "size": 8
+        },
+        {
+          "signature": "CMcTask::McReset()",
+          "vaddr": "0x33ea6c",
+          "size": 12
+        },
+        {
+          "signature": "CMcTask::SetMcSpflag()",
+          "vaddr": "0x33ea78",
+          "size": 12
+        },
+        {
+          "signature": "CMcTask::ClearMcSpflag()",
+          "vaddr": "0x33ea84",
+          "size": 8
+        }
+      ]
+    },
+    "CSkMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CSkMotion::InitAttachBuff()",
+          "vaddr": "0x336100",
+          "size": 36
+        },
+        {
+          "signature": "CSkMotion::LocalInit()",
+          "vaddr": "0x336124",
+          "size": 280
+        },
+        {
+          "signature": "CSkMotion::SetMotionIndex()",
+          "vaddr": "0x33623c",
+          "size": 16
+        },
+        {
+          "signature": "CSkMotion::CreateRealMotionIndex()",
+          "vaddr": "0x33624c",
+          "size": 44
+        }
+      ]
+    },
+    "CSkyTargetCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CSkyTargetCamera::SetCameraMode(14ESkyCameraMode)",
+          "vaddr": "0x3317c0",
+          "size": 8
+        },
+        {
+          "signature": "CSkyTargetCamera::SetTargetChaseRate(fb)",
+          "vaddr": "0x3317c8",
+          "size": 56
+        },
+        {
+          "signature": "CSkyTargetCamera::SetDefaultCameraDistance(ff)",
+          "vaddr": "0x331800",
+          "size": 12
+        },
+        {
+          "signature": "CSkyTargetCamera::ResetCamDist()",
+          "vaddr": "0x33180c",
+          "size": 20
+        }
+      ]
+    },
+    "CSpEffectGlare": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "CSpEffectGlare::SetFrame(i)",
+          "vaddr": "0x3381f4",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectGlare::SetColor(RC8CIvector)",
+          "vaddr": "0x3381fc",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectGlare::SetRate(f)",
+          "vaddr": "0x338210",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectGlare::SetAlpha(i)",
+          "vaddr": "0x338218",
+          "size": 16
+        }
+      ]
+    },
+    "OptBool": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 4,
+      "methods": [
+        {
+          "signature": "OptBool::__opRb()",
+          "vaddr": "0x33d93c",
+          "size": 8
+        },
+        {
+          "signature": "OptBool::__as(b)",
+          "vaddr": "0x33d944",
+          "size": 72
+        },
+        {
+          "signature": "OptBool::__as(T0)",
+          "vaddr": "0x33d98c",
+          "size": 80
+        },
+        {
+          "signature": "OptBool::reset()",
+          "vaddr": "0x33d9dc",
+          "size": 16
+        }
+      ]
+    },
+    "CCaMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CCaMotion::SetMotionIndex()",
+          "vaddr": "0x336c4c",
+          "size": 16
+        },
+        {
+          "signature": "CCaMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336c5c",
+          "size": 44
+        },
+        {
+          "signature": "CCaMotion::EnemyLocalInit()",
+          "vaddr": "0x336c88",
+          "size": 40
+        }
+      ]
+    },
+    "CCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CCamera::set_tick_time(f)",
+          "vaddr": "0x3281d8",
+          "size": 8
+        },
+        {
+          "signature": "CCamera::on_select()",
+          "vaddr": "0x3281e0",
+          "size": 8
+        },
+        {
+          "signature": "CCamera::init()",
+          "vaddr": "0x3281e8",
+          "size": 92
+        }
+      ]
+    },
+    "CEfAnimInfo": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CEfAnimInfo::Reset()",
+          "vaddr": "0x33922c",
+          "size": 44
+        },
+        {
+          "signature": "CEfAnimInfo::set_fsec(f)",
+          "vaddr": "0x339258",
+          "size": 8
+        },
+        {
+          "signature": "CEfAnimInfo::set_move(i)",
+          "vaddr": "0x339260",
+          "size": 8
+        }
+      ]
+    },
+    "CGArmDFireBallItem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CGArmDFireBallItem::init()",
+          "vaddr": "0x329bc0",
+          "size": 64
+        },
+        {
+          "signature": "CGArmDFireBallItem::set_exec_func(PM18CGArmDFireBallItemFP18CGArmDFireBallItem_v)",
+          "vaddr": "0x329c00",
+          "size": 32
+        },
+        {
+          "signature": "CGArmDFireBallItem::exec_null()",
+          "vaddr": "0x329c20",
+          "size": 8
+        }
+      ]
+    },
+    "CGArmsModeTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CGArmsModeTask::enable_angel_select()",
+          "vaddr": "0x328130",
+          "size": 12
+        },
+        {
+          "signature": "CGArmsModeTask::disable_angel_select()",
+          "vaddr": "0x32813c",
+          "size": 8
+        },
+        {
+          "signature": "CGArmsModeTask::set_arms_type(i)",
+          "vaddr": "0x328144",
+          "size": 8
+        }
+      ]
+    },
+    "CGObjCtrler": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CGObjCtrler::bundle_exec_stage()",
+          "vaddr": "0x328a78",
+          "size": 104
+        },
+        {
+          "signature": "CGObjCtrler::get_gobj()",
+          "vaddr": "0x328ae0",
+          "size": 108
+        },
+        {
+          "signature": "CGObjCtrler::get_gobj_number()",
+          "vaddr": "0x328b4c",
+          "size": 8
+        }
+      ]
+    },
+    "CSkyCameraMan": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CSkyCameraMan::CSkyCameraMan()",
+          "vaddr": "0x332e28",
+          "size": 6152
+        },
+        {
+          "signature": "CSkyCameraMan::IsStartCamera()",
+          "vaddr": "0x33468c",
+          "size": 20
+        },
+        {
+          "signature": "CSkyCameraMan::GetCameraPos() const",
+          "vaddr": "0x3346a0",
+          "size": 24
+        }
+      ]
+    },
+    "CSkyRoundCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CSkyRoundCamera::CSkyRoundCamera()",
+          "vaddr": "0x331e40",
+          "size": 940
+        },
+        {
+          "signature": "CSkyRoundCamera::GetDefaultDiffPos() const",
+          "vaddr": "0x3321ec",
+          "size": 56
+        },
+        {
+          "signature": "CSkyRoundCamera::SetDiffPos(RC8CFvector)",
+          "vaddr": "0x332224",
+          "size": 20
+        }
+      ]
+    },
+    "CSpEffectBlur": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CSpEffectBlur::SetFrame(i)",
+          "vaddr": "0x3382a8",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectBlur::SetAlpha(i)",
+          "vaddr": "0x3382b0",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectBlur::SetRate(f)",
+          "vaddr": "0x3382b8",
+          "size": 16
+        }
+      ]
+    },
+    "CSpEffectFlash": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CSpEffectFlash::SetColor(RC8CIvector)",
+          "vaddr": "0x338150",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectFlash::SetType(i)",
+          "vaddr": "0x338164",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectFlash::SetRate(f)",
+          "vaddr": "0x33816c",
+          "size": 8
+        }
+      ]
+    },
+    "CSpEffectLineTrace": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CSpEffectLineTrace::SetSize(f)",
+          "vaddr": "0x338474",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectLineTrace::SetColor(RC8CIvector)",
+          "vaddr": "0x33847c",
+          "size": 20
+        },
+        {
+          "signature": "CSpEffectLineTrace::SetLength(i)",
+          "vaddr": "0x338490",
+          "size": 24
+        }
+      ]
+    },
+    "CTrapEntry": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "CTrapEntry::execute()",
+          "vaddr": "0x33ec28",
+          "size": 8
+        },
+        {
+          "signature": "CTrapEntry::close()",
+          "vaddr": "0x33ec30",
+          "size": 8
+        },
+        {
+          "signature": "CTrapEntry::debugPrint()",
+          "vaddr": "0x33ec38",
+          "size": 8
+        }
+      ]
+    },
+    "type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 3,
+      "methods": [
+        {
+          "signature": "type_info::type_info(PCc)",
+          "vaddr": "0x340e40",
+          "size": 20
+        },
+        {
+          "signature": "type_info::name() const",
+          "vaddr": "0x340e58",
+          "size": 8
+        },
+        {
+          "signature": "type_info::__ne(RC9type_info) const",
+          "vaddr": "0x340e60",
+          "size": 32
+        }
+      ]
+    },
+    "CAbwMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CAbwMotion::SetMotionIndex()",
+          "vaddr": "0x336860",
+          "size": 16
+        },
+        {
+          "signature": "CAbwMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336870",
+          "size": 44
+        }
+      ]
+    },
+    "CAdMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CAdMotion::SetMotionIndex()",
+          "vaddr": "0x3365a4",
+          "size": 16
+        },
+        {
+          "signature": "CAdMotion::CreateRealMotionIndex()",
+          "vaddr": "0x3365b4",
+          "size": 44
+        }
+      ]
+    },
+    "CBatMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CBatMotion::SetMotionIndex()",
+          "vaddr": "0x336354",
+          "size": 16
+        },
+        {
+          "signature": "CBatMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336364",
+          "size": 44
+        }
+      ]
+    },
+    "CBdMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CBdMotion::SetMotionIndex()",
+          "vaddr": "0x3366bc",
+          "size": 16
+        },
+        {
+          "signature": "CBdMotion::CreateRealMotionIndex()",
+          "vaddr": "0x3366cc",
+          "size": 44
+        }
+      ]
+    },
+    "CBtMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CBtMotion::SetMotionIndex()",
+          "vaddr": "0x336630",
+          "size": 16
+        },
+        {
+          "signature": "CBtMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336640",
+          "size": 44
+        }
+      ]
+    },
+    "CCamEventForPlayer": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CCamEventForPlayer::shake(ff)",
+          "vaddr": "0x32a3b8",
+          "size": 12
+        },
+        {
+          "signature": "CCamEventForPlayer::reset_param(fff)",
+          "vaddr": "0x32a3c4",
+          "size": 16
+        }
+      ]
+    },
+    "CCnMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CCnMotion::SetMotionIndex()",
+          "vaddr": "0x336748",
+          "size": 16
+        },
+        {
+          "signature": "CCnMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336758",
+          "size": 44
+        }
+      ]
+    },
+    "CDragonMPEG": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CDragonMPEG::CDragonMPEG()",
+          "vaddr": "0x327e40",
+          "size": 28
+        },
+        {
+          "signature": "CDragonMPEG::set448()",
+          "vaddr": "0x327e5c",
+          "size": 12
+        }
+      ]
+    },
+    "CEneAdCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneAdCtrl::CreateRandRound()",
+          "vaddr": "0x32aa8c",
+          "size": 552
+        },
+        {
+          "signature": "CEneAdCtrl::DrawWithAlpha(iiRC8CFmatrixT3)",
+          "vaddr": "0x32acb4",
+          "size": 52
+        }
+      ]
+    },
+    "CEneBmCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneBmCtrl::NotDraw()",
+          "vaddr": "0x32b158",
+          "size": 48
+        },
+        {
+          "signature": "CEneBmCtrl::DrawWithAlpha(iiRC8CFmatrixT3)",
+          "vaddr": "0x32b188",
+          "size": 52
+        }
+      ]
+    },
+    "CEneBsCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneBsCtrl::LocalInitStatus()",
+          "vaddr": "0x32bf34",
+          "size": 124
+        },
+        {
+          "signature": "CEneBsCtrl::SetParentCtrl(P8CEneCtrl)",
+          "vaddr": "0x32bfb0",
+          "size": 8
+        }
+      ]
+    },
+    "CEneCtrlBase": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneCtrlBase::SetStatus(i)",
+          "vaddr": "0x32a9d0",
+          "size": 12
+        },
+        {
+          "signature": "CEneCtrlBase::LocalInitStatus()",
+          "vaddr": "0x32ace8",
+          "size": 8
+        }
+      ]
+    },
+    "CEneFloatBaseCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneFloatBaseCtrl::CEneFloatBaseCtrl()",
+          "vaddr": "0x32ffac",
+          "size": 1004
+        },
+        {
+          "signature": "CEneFloatBaseCtrl::LocalInitStatus()",
+          "vaddr": "0x330398",
+          "size": 148
+        }
+      ]
+    },
+    "CEneNoCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneNoCtrl::ExecuteDead(i)",
+          "vaddr": "0x32be7c",
+          "size": 8
+        },
+        {
+          "signature": "CEneNoCtrl::LocalInitStatus()",
+          "vaddr": "0x335d54",
+          "size": 112
+        }
+      ]
+    },
+    "CEneNormalFloatCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CEneNormalFloatCtrl::CEneNormalFloatCtrl()",
+          "vaddr": "0x32e88c",
+          "size": 992
+        },
+        {
+          "signature": "CEneNormalFloatCtrl::OriginalExecute(i)",
+          "vaddr": "0x32ec6c",
+          "size": 8
+        }
+      ]
+    },
+    "CF15Motion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CF15Motion::SetMotionIndex()",
+          "vaddr": "0x3362c8",
+          "size": 16
+        },
+        {
+          "signature": "CF15Motion::CreateRealMotionIndex()",
+          "vaddr": "0x3362d8",
+          "size": 44
+        }
+      ]
+    },
+    "CGArmMagicBallItem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGArmMagicBallItem::set_exec_func(PM18CGArmMagicBallItemFP18CGArmMagicBallItem_Ui)",
+          "vaddr": "0x329e3c",
+          "size": 32
+        },
+        {
+          "signature": "CGArmMagicBallItem::init()",
+          "vaddr": "0x329e5c",
+          "size": 308
+        }
+      ]
+    },
+    "CGBeast": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGBeast::action_die(i)",
+          "vaddr": "0x329148",
+          "size": 20
+        },
+        {
+          "signature": "CGBeast::action_damage(i)",
+          "vaddr": "0x32915c",
+          "size": 20
+        }
+      ]
+    },
+    "CGCavalry": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGCavalry::action_guard(i)",
+          "vaddr": "0x329844",
+          "size": 20
+        },
+        {
+          "signature": "CGCavalry::action_counter(i)",
+          "vaddr": "0x329858",
+          "size": 20
+        }
+      ]
+    },
+    "CGGoblin": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGGoblin::action_guard(i)",
+          "vaddr": "0x329394",
+          "size": 20
+        },
+        {
+          "signature": "CGGoblin::action_counter(i)",
+          "vaddr": "0x3293a8",
+          "size": 20
+        }
+      ]
+    },
+    "CGInfantry": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGInfantry::action_guard(i)",
+          "vaddr": "0x3299b4",
+          "size": 20
+        },
+        {
+          "signature": "CGInfantry::action_counter(i)",
+          "vaddr": "0x3299c8",
+          "size": 20
+        }
+      ]
+    },
+    "CGOrc": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGOrc::action_guard(i)",
+          "vaddr": "0x32952c",
+          "size": 20
+        },
+        {
+          "signature": "CGOrc::action_counter(i)",
+          "vaddr": "0x329540",
+          "size": 20
+        }
+      ]
+    },
+    "CGPriest": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGPriest::action_die(i)",
+          "vaddr": "0x3295a8",
+          "size": 20
+        },
+        {
+          "signature": "CGPriest::action_damage(i)",
+          "vaddr": "0x3295bc",
+          "size": 20
+        }
+      ]
+    },
+    "CGUndead": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGUndead::action_guard(i)",
+          "vaddr": "0x3296cc",
+          "size": 20
+        },
+        {
+          "signature": "CGUndead::action_counter(i)",
+          "vaddr": "0x3296e0",
+          "size": 20
+        }
+      ]
+    },
+    "CGhMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CGhMotion::SetMotionIndex()",
+          "vaddr": "0x3363e0",
+          "size": 16
+        },
+        {
+          "signature": "CGhMotion::CreateRealMotionIndex()",
+          "vaddr": "0x3363f0",
+          "size": 44
+        }
+      ]
+    },
+    "CKmMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CKmMotion::SetMotionIndex()",
+          "vaddr": "0x336bc0",
+          "size": 16
+        },
+        {
+          "signature": "CKmMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336bd0",
+          "size": 44
+        }
+      ]
+    },
+    "CMemorySerializer": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CMemorySerializer::setup(Pvi)",
+          "vaddr": "0x33dd74",
+          "size": 20
+        },
+        {
+          "signature": "CMemorySerializer::getPoint() const",
+          "vaddr": "0x33dd88",
+          "size": 8
+        }
+      ]
+    },
+    "CNoMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CNoMotion::SetMotionIndex()",
+          "vaddr": "0x335c24",
+          "size": 16
+        },
+        {
+          "signature": "CNoMotion::CreateRealMotionIndex()",
+          "vaddr": "0x335c34",
+          "size": 52
+        }
+      ]
+    },
+    "CPhMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CPhMotion::SetMotionIndex()",
+          "vaddr": "0x335e14",
+          "size": 16
+        },
+        {
+          "signature": "CPhMotion::CreateRealMotionIndex()",
+          "vaddr": "0x335e24",
+          "size": 44
+        }
+      ]
+    },
+    "CPoisonBehoMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CPoisonBehoMotion::SetMotionIndex()",
+          "vaddr": "0x335f3c",
+          "size": 16
+        },
+        {
+          "signature": "CPoisonBehoMotion::CreateRealMotionIndex()",
+          "vaddr": "0x335f4c",
+          "size": 44
+        }
+      ]
+    },
+    "CPpMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CPpMotion::SetMotionIndex()",
+          "vaddr": "0x3367d4",
+          "size": 16
+        },
+        {
+          "signature": "CPpMotion::CreateRealMotionIndex()",
+          "vaddr": "0x3367e4",
+          "size": 44
+        }
+      ]
+    },
+    "CSkyEneNormalMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CSkyEneNormalMotion::InitAttachBuff()",
+          "vaddr": "0x335ac4",
+          "size": 36
+        },
+        {
+          "signature": "CSkyEneNormalMotion::LocalInit()",
+          "vaddr": "0x335ae8",
+          "size": 236
+        }
+      ]
+    },
+    "CSkySoundGameCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CSkySoundGameCamera::CSkySoundGameCamera()",
+          "vaddr": "0x3326b4",
+          "size": 872
+        },
+        {
+          "signature": "CSkySoundGameCamera::CSkySoundGameCamera(RC8CFvector)",
+          "vaddr": "0x332a1c",
+          "size": 960
+        }
+      ]
+    },
+    "CSpEffectZoom": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CSpEffectZoom::SetNum(i)",
+          "vaddr": "0x33834c",
+          "size": 8
+        },
+        {
+          "signature": "CSpEffectZoom::SetSize(f)",
+          "vaddr": "0x338354",
+          "size": 16
+        }
+      ]
+    },
+    "CSpMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CSpMotion::SetMotionIndex()",
+          "vaddr": "0x336b34",
+          "size": 16
+        },
+        {
+          "signature": "CSpMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336b44",
+          "size": 44
+        }
+      ]
+    },
+    "CStaffCreditTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CStaffCreditTask::set_route(Ui)",
+          "vaddr": "0x328ff4",
+          "size": 20
+        },
+        {
+          "signature": "CStaffCreditTask::get_route()",
+          "vaddr": "0x329008",
+          "size": 8
+        }
+      ]
+    },
+    "CTaskMenu": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CTaskMenu::start(ib)",
+          "vaddr": "0x33dffc",
+          "size": 20
+        },
+        {
+          "signature": "CTaskMenu::returnToDebugMenuScreen()",
+          "vaddr": "0x33e010",
+          "size": 12
+        }
+      ]
+    },
+    "CTaskSetup": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CTaskSetup::RequestTaskAutoSatrt(iii)",
+          "vaddr": "0x33e068",
+          "size": 24
+        },
+        {
+          "signature": "CTaskSetup::SetupExecute()",
+          "vaddr": "0x33e080",
+          "size": 8
+        }
+      ]
+    },
+    "CTwMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CTwMotion::SetMotionIndex()",
+          "vaddr": "0x336aa8",
+          "size": 16
+        },
+        {
+          "signature": "CTwMotion::CreateRealMotionIndex()",
+          "vaddr": "0x336ab8",
+          "size": 44
+        }
+      ]
+    },
+    "CWbMotion": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "CWbMotion::SetMotionIndex()",
+          "vaddr": "0x335cb8",
+          "size": 16
+        },
+        {
+          "signature": "CWbMotion::CreateRealMotionIndex()",
+          "vaddr": "0x335cc8",
+          "size": 44
+        }
+      ]
+    },
+    "OptGrid": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "OptGrid::getGridX()",
+          "vaddr": "0x33dce8",
+          "size": 32
+        },
+        {
+          "signature": "OptGrid::getGridY()",
+          "vaddr": "0x33dd08",
+          "size": 32
+        }
+      ]
+    },
+    "OptString": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "OptString::setVariable(Pc)",
+          "vaddr": "0x328064",
+          "size": 120
+        },
+        {
+          "signature": "OptString::getString()",
+          "vaddr": "0x3280dc",
+          "size": 8
+        }
+      ]
+    },
+    "SceneOmm": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 2,
+      "methods": [
+        {
+          "signature": "SceneOmm::SetOmmImage(Pvi)",
+          "vaddr": "0x33b1b0",
+          "size": 12
+        },
+        {
+          "signature": "SceneOmm::update(f)",
+          "vaddr": "0x33b1bc",
+          "size": 16
+        }
+      ]
+    },
+    "CCamAirLForPlayer": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CCamAirLForPlayer::shake(fff)",
+          "vaddr": "0x32a584",
+          "size": 16
+        }
+      ]
+    },
+    "CCamGetOffDragon": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CCamGetOffDragon::shake(fff)",
+          "vaddr": "0x32a484",
+          "size": 16
+        }
+      ]
+    },
+    "CCamGndForPlayer": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CCamGndForPlayer::shake(fff)",
+          "vaddr": "0x32a424",
+          "size": 16
+        }
+      ]
+    },
+    "CCamStd": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CCamStd::set_move_time(f)",
+          "vaddr": "0x32a5e4",
+          "size": 8
+        }
+      ]
+    },
+    "CCamViewer": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CCamViewer::init()",
+          "vaddr": "0x32a68c",
+          "size": 248
+        }
+      ]
+    },
+    "CConsoleTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CConsoleTask::Execute(i)",
+          "vaddr": "0x33e80c",
+          "size": 64
+        }
+      ]
+    },
+    "CDispTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CDispTask::CDispTask()",
+          "vaddr": "0x33e9cc",
+          "size": 76
+        }
+      ]
+    },
+    "CDragonTaskSetup": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CDragonTaskSetup::CDragonTaskSetup()",
+          "vaddr": "0x327f7c",
+          "size": 56
+        }
+      ]
+    },
+    "CEneBatCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneBatCtrl::ExecutePreAct(i)",
+          "vaddr": "0x32ada0",
+          "size": 128
+        }
+      ]
+    },
+    "CEneCannonCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneCannonCtrl::SetParentCtrl(P8CEneCtrl)",
+          "vaddr": "0x32b908",
+          "size": 8
+        }
+      ]
+    },
+    "CEneDgCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneDgCtrl::CEneDgCtrl()",
+          "vaddr": "0x32cca4",
+          "size": 996
+        }
+      ]
+    },
+    "CEneF15Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneF15Ctrl::SetDamageMotion(P11CWeaponCtrliG8CFvectori)",
+          "vaddr": "0x32fef0",
+          "size": 12
+        }
+      ]
+    },
+    "CEneFgCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneFgCtrl::LocalInitStatus()",
+          "vaddr": "0x32be50",
+          "size": 44
+        }
+      ]
+    },
+    "CEneFlyNearCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneFlyNearCtrl::LocalInitStatus()",
+          "vaddr": "0x33058c",
+          "size": 76
+        }
+      ]
+    },
+    "CEneGa4Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneGa4Ctrl::ExecuteDead(i)",
+          "vaddr": "0x330a20",
+          "size": 8
+        }
+      ]
+    },
+    "CEnePhCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEnePhCtrl::DrawWithAlpha(iiRC8CFmatrixT3)",
+          "vaddr": "0x331180",
+          "size": 52
+        }
+      ]
+    },
+    "CEnePpCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEnePpCtrl::LocalInitStatus()",
+          "vaddr": "0x32bb20",
+          "size": 112
+        }
+      ]
+    },
+    "CEneRelDgCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneRelDgCtrl::CEneRelDgCtrl()",
+          "vaddr": "0x32d138",
+          "size": 980
+        }
+      ]
+    },
+    "CEneSrCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneSrCtrl::NotDraw()",
+          "vaddr": "0x337ac4",
+          "size": 48
+        }
+      ]
+    },
+    "CEneTwCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CEneTwCtrl::DrawWithAlpha(iiRC8CFmatrixT3)",
+          "vaddr": "0x338d48",
+          "size": 52
+        }
+      ]
+    },
+    "CGArmBody": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGArmBody::test_under_attack(P5CGArmP5CFvecT2)",
+          "vaddr": "0x329b68",
+          "size": 8
+        }
+      ]
+    },
+    "CGArmItem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGArmItem::init()",
+          "vaddr": "0x329d64",
+          "size": 56
+        }
+      ]
+    },
+    "CGArmParabolaItem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGArmParabolaItem::init()",
+          "vaddr": "0x32a030",
+          "size": 124
+        }
+      ]
+    },
+    "CGArmShockWaveItem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGArmShockWaveItem::init()",
+          "vaddr": "0x32a14c",
+          "size": 60
+        }
+      ]
+    },
+    "CGDragon": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGDragon::on_defult()",
+          "vaddr": "0x329264",
+          "size": 12
+        }
+      ]
+    },
+    "CGEnchanter": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGEnchanter::action_damage(i)",
+          "vaddr": "0x3292c4",
+          "size": 20
+        }
+      ]
+    },
+    "CGGhost": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGGhost::action_damage(i)",
+          "vaddr": "0x32932c",
+          "size": 20
+        }
+      ]
+    },
+    "CGGolem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGGolem::on_defult()",
+          "vaddr": "0x329410",
+          "size": 12
+        }
+      ]
+    },
+    "CGNecro": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGNecro::action_damage(i)",
+          "vaddr": "0x329470",
+          "size": 20
+        }
+      ]
+    },
+    "CGPlayerDragonObj": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGPlayerDragonObj::set_input(P13CGPlayerInput)",
+          "vaddr": "0x329a8c",
+          "size": 8
+        }
+      ]
+    },
+    "CGPlayerObj2": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGPlayerObj2::set_dragon(P17CGPlayerDragonObj)",
+          "vaddr": "0x329a30",
+          "size": 8
+        }
+      ]
+    },
+    "CGResultModeTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGResultModeTask::set_type(Ui)",
+          "vaddr": "0x328f9c",
+          "size": 12
+        }
+      ]
+    },
+    "CGSkelh": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGSkelh::set_state_func(UiPM7CGSkelhFP7CGSkelh_v)",
+          "vaddr": "0x329ae8",
+          "size": 44
+        }
+      ]
+    },
+    "CGameCoreTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGameCoreTask::CGameCoreTask()",
+          "vaddr": "0x328ec4",
+          "size": 64
+        }
+      ]
+    },
+    "CGndTargetCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CGndTargetCamera::CGndTargetCamera()",
+          "vaddr": "0x3318a4",
+          "size": 1304
+        }
+      ]
+    },
+    "CSkyStartCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CSkyStartCamera::CSkyStartCamera()",
+          "vaddr": "0x3322bc",
+          "size": 884
+        }
+      ]
+    },
+    "CSpEffectTexTrace": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CSpEffectTexTrace::SetType(i)",
+          "vaddr": "0x3385d0",
+          "size": 8
+        }
+      ]
+    },
+    "CSpEffectTexTraceRand": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CSpEffectTexTraceRand::SetWaveParam(ff)",
+          "vaddr": "0x33866c",
+          "size": 36
+        }
+      ]
+    },
+    "CStaticDragonCamera": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CStaticDragonCamera::LocalExecute(i)",
+          "vaddr": "0x33473c",
+          "size": 28
+        }
+      ]
+    },
+    "CTaskFileSelect": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CTaskFileSelect::IsSelectedFile()",
+          "vaddr": "0x33dfa8",
+          "size": 8
+        }
+      ]
+    },
+    "CTaskSound": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CTaskSound::setupToneBank()",
+          "vaddr": "0x33e0dc",
+          "size": 8
+        }
+      ]
+    },
+    "CTrapScript": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CTrapScript::CTrapScript()",
+          "vaddr": "0x33ec90",
+          "size": 72
+        }
+      ]
+    },
+    "CVideoStream": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "CVideoStream::CVideoStream()",
+          "vaddr": "0x327dc4",
+          "size": 48
+        }
+      ]
+    },
+    "MCFileSelect": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "MCFileSelect::IsSelectedFile()",
+          "vaddr": "0x3392b4",
+          "size": 8
+        }
+      ]
+    },
+    "McSceneLocusEnvByFuncCurve": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "McSceneLocusEnvByFuncCurve::AttachFuncTable(RQ226McSceneLocusEnvByFuncCurve13FunctionTable)",
+          "vaddr": "0x33af70",
+          "size": 8
+        }
+      ]
+    },
+    "McSceneLocusWEnvByFuncCurve": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "McSceneLocusWEnvByFuncCurve::AttachFuncTable(RQ227McSceneLocusWEnvByFuncCurve13FunctionTable)",
+          "vaddr": "0x33afcc",
+          "size": 8
+        }
+      ]
+    },
+    "McSceneRingEnvByFuncCurve": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "McSceneRingEnvByFuncCurve::AttachFuncTable(RQ225McSceneRingEnvByFuncCurve13FunctionTable)",
+          "vaddr": "0x33b2e4",
+          "size": 8
+        }
+      ]
+    },
+    "SceneOmmEnvByFuncCurve": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "SceneOmmEnvByFuncCurve::AttachFuncTable(RQ222SceneOmmEnvByFuncCurve13FunctionTable)",
+          "vaddr": "0x33b154",
+          "size": 8
+        }
+      ]
+    },
+    "__class_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "__class_type_info::__class_type_info(PCcPCQ217__class_type_info9base_infoUi)",
+          "vaddr": "0x3412c0",
+          "size": 28
+        }
+      ]
+    },
+    "__si_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "__si_type_info::__si_type_info(PCcRC16__user_type_info)",
+          "vaddr": "0x3411f0",
+          "size": 24
+        }
+      ]
+    },
+    "abes": {
+      "has_rtti": false,
+      "has_vtable": false,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "abes::CreateMethodFunctor__H1ZPMQ24abest15BitSetImplement2ZUlUi1FPQ24abest15BitSetImplement2ZUlUi1b_RQ24abest15BitSetImplement2ZUlUi1(X01_Q24abest13MethodFunctor1ZX01)",
+          "vaddr": "0x339308",
+          "size": 56
+        }
+      ]
+    },
+    "bad_alloc": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "bad_alloc::what() const",
+          "vaddr": "0x341990",
+          "size": 12
+        }
+      ]
+    },
+    "bad_cast": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "bad_cast::bad_cast()",
+          "vaddr": "0x340ed0",
+          "size": 16
+        }
+      ]
+    },
+    "bad_exception": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "bad_exception::bad_exception()",
+          "vaddr": "0x3413b8",
+          "size": 16
+        }
+      ]
+    },
+    "bad_typeid": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "bad_typeid::bad_typeid()",
+          "vaddr": "0x340f68",
+          "size": 16
+        }
+      ]
+    },
+    "exception": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 1,
+      "methods": [
+        {
+          "signature": "exception::exception()",
+          "vaddr": "0x341320",
+          "size": 16
+        }
+      ]
+    },
+    "CCamAirHForPlayer": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CCamDbg": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CCamDie": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CCamEvent": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CCamGetOnDragon": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CCamSwSphere": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CDraTaskVSync": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneAb2Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneAbCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneAbwCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneAmCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneBah2Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneBahCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneBdCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneBfCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneBillBoardCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneBtCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneCaCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneCn6Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneCyCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneEdCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneFlyFarCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneGa1Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneGaCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneGfCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneGhCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneKmCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneMaCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneMarCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneMb3Ctrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneMbCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneMrCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneNormalFlyCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEnePbCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneSbCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneSeaCannonCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneSkCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneSpCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneSplashCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneSsCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneWbCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEneWingAbCtrl": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CExtNoBase": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CEzMPEG": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CFmatrix": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGActiveObjCtrler": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArchery": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArm": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmCtrler": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmDFireBall": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmDrFire": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmGroupHead": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmItemC": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmMagicBall": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmParabola": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmShockWave": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmSword": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGArmSwordItem": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGAttacker": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGCataplut": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGCherub": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGCommonData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGCommonDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGCommonDataS": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGDummy": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGGroupHead": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGListItem": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGMem2": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGMisSelData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGMisSelDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeAirData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeAirDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeAirDataS": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeAirDataTest": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeArmsData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeArmsDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeEventData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeEventDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeGndData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeGndDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGModeGndDataTest": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGMovieModeTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGOcMasterFrontStage": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGOperator": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGShadow": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGStaffCreditData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGStaffCreditDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGTank": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGTitleCallTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGTitleData": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGTitleDataN": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGTreasureBox": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CGWorldMapModeTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CHlzDecode": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CHlzDecodeSpad": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CKzStrWin_EventLow": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CKzStrWin_EventSkip": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CKzStrWin_GameArms": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CKzStrWin_GameChara": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CKzStrWin_GameSerif": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CKzVrInfo": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CMemoryElement": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CPackMan": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CPostureControl": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CRecTestTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CSerializer": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "CSpEffectBroadTrace": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CSpEffectPolyTrace": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CTaskCDVD": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CTaskDebug": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "CTitleTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "Cfn_arms": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "Cfn_missel": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "FCConsoleTask": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "McSceneLocusEnv": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "SceneOmmEnv": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "__array_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "__attr_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "__builtin_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "__func_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "__pointer_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "__ptmd_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "__ptmf_type_info": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    },
+    "mc_effs_base": {
+      "has_rtti": true,
+      "has_vtable": false,
+      "method_count": 0,
+      "methods": []
+    },
+    "task_sample": {
+      "has_rtti": true,
+      "has_vtable": true,
+      "method_count": 0,
+      "methods": []
+    }
+  },
+  "vu1_overlays": [
+    {
+      "index": 1709,
+      "name": ".DVP.overlay..0x0.1803159855.19.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46e374",
+      "size": "0x3a0"
+    },
+    {
+      "index": 1710,
+      "name": ".DVP.overlay..0x0.773255940.39.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46e714",
+      "size": "0x408"
+    },
+    {
+      "index": 1711,
+      "name": ".DVP.overlay..0x0.1703417352.17.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46eb1c",
+      "size": "0x2e0"
+    },
+    {
+      "index": 1712,
+      "name": ".DVP.overlay..0x0.1703417352.32.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46edfc",
+      "size": "0x308"
+    },
+    {
+      "index": 1713,
+      "name": ".DVP.overlay..0x0.1703417352.47.2",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46f104",
+      "size": "0x308"
+    },
+    {
+      "index": 1714,
+      "name": ".DVP.overlay..0x0.1703417352.62.3",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46f40c",
+      "size": "0x330"
+    },
+    {
+      "index": 1715,
+      "name": ".DVP.overlay..0x0.1703417352.76.4",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46f73c",
+      "size": "0x2f0"
+    },
+    {
+      "index": 1716,
+      "name": ".DVP.overlay..0x0.1703417352.90.5",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46fa2c",
+      "size": "0x318"
+    },
+    {
+      "index": 1717,
+      "name": ".DVP.overlay..0x0.1348291704.14.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x46fd44",
+      "size": "0x2c0"
+    },
+    {
+      "index": 1718,
+      "name": ".DVP.overlay..0x0.3573561455.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x470004",
+      "size": "0x440"
+    },
+    {
+      "index": 1719,
+      "name": ".DVP.overlay..0x0.4213138869.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x470444",
+      "size": "0x440"
+    },
+    {
+      "index": 1720,
+      "name": ".DVP.overlay..0x0.3901186223.17.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x470884",
+      "size": "0x210"
+    },
+    {
+      "index": 1721,
+      "name": ".DVP.overlay..0x1000.111588711.24.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x470a94",
+      "size": "0x800"
+    },
+    {
+      "index": 1722,
+      "name": ".DVP.overlay..unknvma.111588711.406.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x471294",
+      "size": "0x260"
+    },
+    {
+      "index": 1723,
+      "name": ".DVP.overlay..0x1000.1431933476.22.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4714f4",
+      "size": "0x800"
+    },
+    {
+      "index": 1724,
+      "name": ".DVP.overlay..unknvma.1431933476.400.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x471cf4",
+      "size": "0x2e0"
+    },
+    {
+      "index": 1725,
+      "name": ".DVP.overlay..0x1000.2482380086.24.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x471fd4",
+      "size": "0x800"
+    },
+    {
+      "index": 1726,
+      "name": ".DVP.overlay..unknvma.2482380086.404.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4727d4",
+      "size": "0x180"
+    },
+    {
+      "index": 1727,
+      "name": ".DVP.overlay..0x1000.3802724851.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x472954",
+      "size": "0x800"
+    },
+    {
+      "index": 1728,
+      "name": ".DVP.overlay..unknvma.3802724851.399.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x473154",
+      "size": "0x280"
+    },
+    {
+      "index": 1729,
+      "name": ".DVP.overlay..0x1000.13602489.22.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4733d4",
+      "size": "0x800"
+    },
+    {
+      "index": 1730,
+      "name": ".DVP.overlay..unknvma.13602489.396.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x473bd4",
+      "size": "0x178"
+    },
+    {
+      "index": 1731,
+      "name": ".DVP.overlay..0x1000.1333947254.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x473d4c",
+      "size": "0x800"
+    },
+    {
+      "index": 1732,
+      "name": ".DVP.overlay..unknvma.1333947254.396.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47454c",
+      "size": "0x238"
+    },
+    {
+      "index": 1733,
+      "name": ".DVP.overlay..0x1000.2384393864.24.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x474784",
+      "size": "0x800"
+    },
+    {
+      "index": 1734,
+      "name": ".DVP.overlay..unknvma.2384393864.403.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x474f84",
+      "size": "0x100"
+    },
+    {
+      "index": 1735,
+      "name": ".DVP.overlay..0x1000.3704738629.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x475084",
+      "size": "0x800"
+    },
+    {
+      "index": 1736,
+      "name": ".DVP.overlay..unknvma.3704738629.396.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x475884",
+      "size": "0x1b0"
+    },
+    {
+      "index": 1737,
+      "name": ".DVP.overlay..0x1000.2634977749.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x475a34",
+      "size": "0x430"
+    },
+    {
+      "index": 1738,
+      "name": ".DVP.overlay..0x1000.1772906842.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x475e64",
+      "size": "0x328"
+    },
+    {
+      "index": 1739,
+      "name": ".DVP.overlay..0x1000.3274555163.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47618c",
+      "size": "0x320"
+    },
+    {
+      "index": 1740,
+      "name": ".DVP.overlay..0x1000.2412484256.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4764ac",
+      "size": "0x2f8"
+    },
+    {
+      "index": 1741,
+      "name": ".DVP.overlay..0x1000.3780456136.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4767a4",
+      "size": "0x2a8"
+    },
+    {
+      "index": 1742,
+      "name": ".DVP.overlay..0x0.3869772634.25.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x476a4c",
+      "size": "0x800"
+    },
+    {
+      "index": 1743,
+      "name": ".DVP.overlay..unknvma.3869772634.975.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47724c",
+      "size": "0x628"
+    },
+    {
+      "index": 1744,
+      "name": ".DVP.overlay..0x1000.1335885374.41.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x477874",
+      "size": "0x7d8"
+    },
+    {
+      "index": 1745,
+      "name": ".DVP.overlay..0x1000.2656230139.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47804c",
+      "size": "0x800"
+    },
+    {
+      "index": 1746,
+      "name": ".DVP.overlay..unknvma.2656230139.398.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47884c",
+      "size": "0x1a0"
+    },
+    {
+      "index": 1747,
+      "name": ".DVP.overlay..0x1000.3706676749.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4789ec",
+      "size": "0x7c0"
+    },
+    {
+      "index": 1748,
+      "name": ".DVP.overlay..0x1000.732054218.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4791ac",
+      "size": "0x800"
+    },
+    {
+      "index": 1749,
+      "name": ".DVP.overlay..unknvma.732054218.401.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x4799ac",
+      "size": "0xd8"
+    },
+    {
+      "index": 1750,
+      "name": ".DVP.overlay..0x1000.1237899152.21.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x479a84",
+      "size": "0x800"
+    },
+    {
+      "index": 1751,
+      "name": ".DVP.overlay..unknvma.1237899152.404.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47a284",
+      "size": "0x18"
+    },
+    {
+      "index": 1752,
+      "name": ".DVP.overlay..0x1000.2558243917.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47a29c",
+      "size": "0x800"
+    },
+    {
+      "index": 1753,
+      "name": ".DVP.overlay..unknvma.2558243917.400.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47aa9c",
+      "size": "0xd8"
+    },
+    {
+      "index": 1754,
+      "name": ".DVP.overlay..0x1000.3608690527.22.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47ab74",
+      "size": "0x768"
+    },
+    {
+      "index": 1755,
+      "name": ".DVP.overlay..0x1000.634067996.20.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47b2dc",
+      "size": "0x800"
+    },
+    {
+      "index": 1756,
+      "name": ".DVP.overlay..unknvma.634067996.403.1",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47badc",
+      "size": "0x60"
+    },
+    {
+      "index": 1757,
+      "name": ".DVP.overlay..0x1000.2845562802.19.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47bb3c",
+      "size": "0x408"
+    },
+    {
+      "index": 1758,
+      "name": ".DVP.overlay..0x1000.1983491895.31.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47bf44",
+      "size": "0x398"
+    },
+    {
+      "index": 1759,
+      "name": ".DVP.overlay..0x1000.3485140216.19.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47c2dc",
+      "size": "0x3a8"
+    },
+    {
+      "index": 1760,
+      "name": ".DVP.overlay..0x1000.2623069309.31.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47c684",
+      "size": "0x350"
+    },
+    {
+      "index": 1761,
+      "name": ".DVP.overlay..0x1000.709785503.19.0",
+      "type": "0x7ffff421",
+      "vaddr": "0x0",
+      "offset": "0x47c9d4",
+      "size": "0x380"
+    }
+  ],
+  "eh_frame_functions_sample": [
+    {
+      "vaddr": "0x120408",
+      "end_vaddr": "0x1204b8",
+      "size": 176
+    },
+    {
+      "vaddr": "0x1204b8",
+      "end_vaddr": "0x1204cc",
+      "size": 20
+    },
+    {
+      "vaddr": "0x1205bc",
+      "end_vaddr": "0x120678",
+      "size": 188
+    },
+    {
+      "vaddr": "0x120764",
+      "end_vaddr": "0x1207c0",
+      "size": 92
+    },
+    {
+      "vaddr": "0x1207c0",
+      "end_vaddr": "0x120898",
+      "size": 216
+    },
+    {
+      "vaddr": "0x120c34",
+      "end_vaddr": "0x120c8c",
+      "size": 88
+    },
+    {
+      "vaddr": "0x120c8c",
+      "end_vaddr": "0x120ce4",
+      "size": 88
+    },
+    {
+      "vaddr": "0x120ce4",
+      "end_vaddr": "0x120e0c",
+      "size": 296
+    },
+    {
+      "vaddr": "0x120e0c",
+      "end_vaddr": "0x120e74",
+      "size": 104
+    },
+    {
+      "vaddr": "0x120e74",
+      "end_vaddr": "0x120edc",
+      "size": 104
+    },
+    {
+      "vaddr": "0x120fb4",
+      "end_vaddr": "0x121008",
+      "size": 84
+    },
+    {
+      "vaddr": "0x12169c",
+      "end_vaddr": "0x12172c",
+      "size": 144
+    },
+    {
+      "vaddr": "0x12172c",
+      "end_vaddr": "0x121768",
+      "size": 60
+    },
+    {
+      "vaddr": "0x121768",
+      "end_vaddr": "0x1217c0",
+      "size": 88
+    },
+    {
+      "vaddr": "0x121cf4",
+      "end_vaddr": "0x121db4",
+      "size": 192
+    },
+    {
+      "vaddr": "0x121db4",
+      "end_vaddr": "0x121e80",
+      "size": 204
+    },
+    {
+      "vaddr": "0x121e80",
+      "end_vaddr": "0x121f2c",
+      "size": 172
+    },
+    {
+      "vaddr": "0x121f2c",
+      "end_vaddr": "0x121fec",
+      "size": 192
+    },
+    {
+      "vaddr": "0x121fec",
+      "end_vaddr": "0x1220b0",
+      "size": 196
+    },
+    {
+      "vaddr": "0x1220b0",
+      "end_vaddr": "0x122174",
+      "size": 196
+    },
+    {
+      "vaddr": "0x122174",
+      "end_vaddr": "0x122194",
+      "size": 32
+    },
+    {
+      "vaddr": "0x122194",
+      "end_vaddr": "0x1221a8",
+      "size": 20
+    },
+    {
+      "vaddr": "0x122908",
+      "end_vaddr": "0x122968",
+      "size": 96
+    },
+    {
+      "vaddr": "0x122968",
+      "end_vaddr": "0x122988",
+      "size": 32
+    },
+    {
+      "vaddr": "0x122988",
+      "end_vaddr": "0x1229b0",
+      "size": 40
+    },
+    {
+      "vaddr": "0x122ae4",
+      "end_vaddr": "0x122b70",
+      "size": 140
+    },
+    {
+      "vaddr": "0x122b70",
+      "end_vaddr": "0x122be4",
+      "size": 116
+    },
+    {
+      "vaddr": "0x122c44",
+      "end_vaddr": "0x122f40",
+      "size": 764
+    },
+    {
+      "vaddr": "0x122f40",
+      "end_vaddr": "0x1230b0",
+      "size": 368
+    },
+    {
+      "vaddr": "0x1230b0",
+      "end_vaddr": "0x123120",
+      "size": 112
+    },
+    {
+      "vaddr": "0x123604",
+      "end_vaddr": "0x123684",
+      "size": 128
+    },
+    {
+      "vaddr": "0x123864",
+      "end_vaddr": "0x123950",
+      "size": 236
+    },
+    {
+      "vaddr": "0x123950",
+      "end_vaddr": "0x123a64",
+      "size": 276
+    },
+    {
+      "vaddr": "0x123a64",
+      "end_vaddr": "0x123b54",
+      "size": 240
+    },
+    {
+      "vaddr": "0x123b54",
+      "end_vaddr": "0x123b8c",
+      "size": 56
+    },
+    {
+      "vaddr": "0x123b8c",
+      "end_vaddr": "0x123c58",
+      "size": 204
+    },
+    {
+      "vaddr": "0x123c58",
+      "end_vaddr": "0x123d2c",
+      "size": 212
+    },
+    {
+      "vaddr": "0x123d2c",
+      "end_vaddr": "0x123d40",
+      "size": 20
+    },
+    {
+      "vaddr": "0x123d40",
+      "end_vaddr": "0x123d54",
+      "size": 20
+    },
+    {
+      "vaddr": "0x123d54",
+      "end_vaddr": "0x123e50",
+      "size": 252
+    },
+    {
+      "vaddr": "0x123e50",
+      "end_vaddr": "0x123ec8",
+      "size": 120
+    },
+    {
+      "vaddr": "0x123ec8",
+      "end_vaddr": "0x1240cc",
+      "size": 516
+    },
+    {
+      "vaddr": "0x1240cc",
+      "end_vaddr": "0x1241f8",
+      "size": 300
+    },
+    {
+      "vaddr": "0x124b7c",
+      "end_vaddr": "0x124cf8",
+      "size": 380
+    },
+    {
+      "vaddr": "0x124cf8",
+      "end_vaddr": "0x124d5c",
+      "size": 100
+    },
+    {
+      "vaddr": "0x124d5c",
+      "end_vaddr": "0x124e08",
+      "size": 172
+    },
+    {
+      "vaddr": "0x124e08",
+      "end_vaddr": "0x124eb4",
+      "size": 172
+    },
+    {
+      "vaddr": "0x124f04",
+      "end_vaddr": "0x1251d4",
+      "size": 720
+    },
+    {
+      "vaddr": "0x1251d4",
+      "end_vaddr": "0x12525c",
+      "size": 136
+    },
+    {
+      "vaddr": "0x1252d4",
+      "end_vaddr": "0x12537c",
+      "size": 168
+    }
+  ],
+  "eh_frame_functions_total": 3840
+}

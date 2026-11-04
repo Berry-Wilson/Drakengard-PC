@@ -1,0 +1,36 @@
+# --- Game data (copyrighted; supply your own legally dumped ISO) ---
+iso/
+iso_extracted/
+unpacked/
+*.iso
+*.bin
+*.BIN
+
+# --- Code generated from the game's ELF (regenerate with build_recomp.ps1) ---
+recomp/output/
+recomp/batched/
+src/vu0_programs_*.cpp
+src/vu1_programs_*.cpp
+
+# --- Captures, recordings, scratch output ---
+video/
+scratch_frames/
+*.mp4
+*.bmp
+*.log
+
+# --- Build output ---
+build/
+out/
+*.exe
+*.pdb
+*.obj
+
+# --- Python / editor / OS ---
+__pycache__/
+*.pyc
+.vs/
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
