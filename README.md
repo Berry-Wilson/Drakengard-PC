@@ -14,7 +14,13 @@ This repository contains **no game data**. You need your own legally dumped copy
 | `recomp/` | PS2Recomp configs and the function map (`functions.csv`) |
 | `src/` | Game-specific runtime overrides (translated VU programs are generated here at build time) |
 | `analysis/` | ELF analysis and asset catalog output |
+| `launcher/` | Qt desktop launcher for the recompiled game (see its README) |
 | `external/` | PS2Recomp and parallel-gs, with Drakengard fixes |
+
+## Playing (Windows)
+
+Download the release zip, unzip it to a short path, and run `drakengard-launcher.exe`. It asks for your
+disc image and builds the game on your PC from it. See [launcher/README.md](launcher/README.md).
 
 ## Building (Windows)
 
