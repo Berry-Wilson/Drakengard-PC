@@ -89,7 +89,7 @@ not read `.iso` files. It runs from that folder, and the `mc0` memory card is fo
 
 | Tab | Controls |
 | --- | --- |
-| Game | Paths, VIF1/GIF worker thread, GS backend, pad input recording or replay |
+| Game | Paths, VIF1/GIF worker thread, GS backend, aspect ratio, pad input recording or replay |
 | Developer | VU1/VU0 mode, verify delay, VIF1/VU statistics, VIF verify, frame dumps |
 | Environment | Any other variable, such as `PS2X_AUTOPAD`; these override the other tabs |
 

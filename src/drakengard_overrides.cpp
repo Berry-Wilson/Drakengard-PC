@@ -5,6 +5,8 @@
 #include "ps2_recompiled_functions.h"
 #include <iostream>
 
+void applyDrakengardWidescreen(PS2Runtime &runtime); // drakengard_widescreen.cpp
+
 namespace
 {
     // func_0027ED44: VSync flag poll (*(0x48ad80) == 0).
@@ -53,6 +55,8 @@ namespace
 
         runtime.registerFunction(0x0027ED44u, hook_func_0027ED44);
         runtime.registerFunction(0x00289330u, stub_func_00289330);
+
+        applyDrakengardWidescreen(runtime);
     }
 }
 
