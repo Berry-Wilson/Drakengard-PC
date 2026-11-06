@@ -75,6 +75,10 @@ recompile = [
   "__ieee754_rem_pio2f@0x002F5BF8",
   "__kernel_cosf@0x002F70D8",
   "__kernel_sinf@0x002F7A90",
+  # libsdr: the real client, so movie audio reaches SDRDRV.IRX
+  "sceSdRemoteInit@0x00307D50",
+  "sceSdTransToIOP@0x00307E00",
+  "sceSdRemote@0x00307EA8",
 ]
 
 # Functions to stub (only names with runtime syscall/stub handlers)
