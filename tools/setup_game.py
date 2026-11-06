@@ -295,8 +295,7 @@ def generate_game_code():
     """The translated game code is only made again for a different disc or changed tools."""
     tool_hash = hashlib.sha256()
     for path in sorted((ROOT / "tools").glob("*.py")) + sorted(RECOMP_DIR.glob("*.toml")) + [RECOMP_EXE]:
-        if path.name != "drakengard.toml":
-            tool_hash.update(path.read_bytes())
+        tool_hash.update(path.read_bytes())
     stamp = ELF_SHA256 + tool_hash.hexdigest()
     if GENERATED_STAMP.is_file() and GENERATED_STAMP.read_text() == stamp:
         say("The game code is already translated.")
