@@ -1,0 +1,8 @@
+[submodule "external/PS2Recomp"]
+	path = external/PS2Recomp
+	url = https://github.com/Berry-Wilson/PS2Recomp.git
+	branch = drakengard-boot-fixes
+[submodule "external/parallel-gs"]
+	path = external/parallel-gs
+	url = https://github.com/Berry-Wilson/parallel-gs.git
+	branch = drakengard-fixes
