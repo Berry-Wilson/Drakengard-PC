@@ -15,7 +15,7 @@ This repository contains **no game data**. You need your own legally dumped copy
 | `src/` | Game-specific runtime overrides (translated VU programs are generated here at build time) |
 | `analysis/` | ELF analysis and asset catalog output |
 | `launcher/` | Qt desktop launcher for the recompiled game (see its README) |
-| `external/` | PS2Recomp and parallel-gs, with Drakengard fixes |
+| `external/` | Submodules: forks of PS2Recomp and parallel-gs, with Drakengard fixes |
 
 ## Playing (Windows)
 
@@ -24,12 +24,16 @@ disc image and builds the game on your PC from it. See [launcher/README.md](laun
 
 ## Building (Windows)
 
-1. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
-2. Configure the build:
+1. Clone with the submodules:
+   ```
+   git clone --recursive https://github.com/Berry-Wilson/Drakengard-PC.git
+   ```
+2. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
+3. Configure the build:
    ```
    cmake -S external/PS2Recomp -B external/PS2Recomp/out/build -G "Visual Studio 18 2026"
    ```
-3. Recompile and build:
+4. Recompile and build:
    ```
    powershell -File build_recomp.ps1
    ```
