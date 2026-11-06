@@ -28,12 +28,17 @@ disc image and builds the game on your PC from it. See [launcher/README.md](laun
    ```
    git clone --recursive https://github.com/Berry-Wilson/Drakengard-PC.git
    ```
-2. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
-3. Configure the build:
+2. Apply the patch for Granite, the library inside parallel-gs. It stops an error being logged for
+   threads Granite doesn't manage:
+   ```
+   git -C external/parallel-gs/Granite apply ../../../patches/granite-thread-id.patch
+   ```
+3. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
+4. Configure the build:
    ```
    cmake -S external/PS2Recomp -B external/PS2Recomp/out/build -G "Visual Studio 18 2026"
    ```
-4. Recompile and build:
+5. Recompile and build:
    ```
    powershell -File build_recomp.ps1
    ```
