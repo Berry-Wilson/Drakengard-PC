@@ -19,7 +19,8 @@ hand:
 6. Compiles the runner.
 
 A finished step is skipped when setup runs again, so Stop can be followed by Continue. The log is
-in `setup.log`. Everything derived from the game is made on the player's PC.
+in `setup.log`. Apart from the launcher's icon, everything derived from the
+game is made on the player's PC.
 
 ## Making the player's zip
 
@@ -35,6 +36,8 @@ Python. The FFmpeg DLLs are downloaded during setup.
 - `external/PS2Recomp` is taken at its `HEAD` commit, so uncommitted runtime changes aren't included.
 - `external/parallel-gs` is taken from its working tree, because Granite carries an uncommitted fix.
 - `--allow-dirty` packages uncommitted project files, which is only for testing.
+- The launcher's icon is the game's crest, the one piece of the game's art in the zip. The script
+  refuses to run if the icon file is missing or newer than the launcher build.
 
 ## Build
 
@@ -57,6 +60,14 @@ cmake -S launcher -B launcher/out/build -DCMAKE_PREFIX_PATH=C:/Qt/6.10.3/msvc202
 
 ```bash
 cmake --build launcher/out/build --config Release
+```
+
+To use the game's crest as the icon, run this before configuring (it needs Pillow, and a save
+folder in `iso_extracted/mc0`). Git ignores the `.ico`, so make it once on each checkout. Without it
+the launcher builds with Windows' default icon:
+
+```bash
+python tools/make_launcher_icon.py
 ```
 
 The build copies the Qt DLLs next to the exe, so it runs without Qt on `PATH`. It never builds the

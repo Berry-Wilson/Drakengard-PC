@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Build the player's zip: the launcher, the sources and tools setup needs, and nothing from the game.
+"""Build the player's zip: the launcher, the sources and tools setup needs. The only thing from the game
+in it is the crest used as the launcher's icon.
 
 The fork in external/PS2Recomp is taken at its HEAD commit. parallel-gs comes from its working tree,
-because it carries local fixes. The zip is refused if anything derived from the game is found in it.
+because it carries local fixes. The zip is refused if any file derived from the game is found in it.
 
 Usage: python tools/make_release.py [--allow-dirty] [--name DrakengardPC-x.y] [--no-zip]
 Build the launcher first (see launcher/README.md).
@@ -28,6 +29,7 @@ DIST = ROOT / "out" / "dist"
 FORK = ROOT / "external" / "PS2Recomp"
 GS = ROOT / "external" / "parallel-gs"
 LAUNCHER_BUILD = ROOT / "launcher" / "out" / "build" / "Release"
+GAME_ICON = ROOT / "launcher" / "res" / "drakengard.ico"
 PYTHON_VERSION = "3.12.10"
 PYTHON_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
 
@@ -51,7 +53,8 @@ SKIP_DEPENDENCY_DIRS = {"tests", "test", "fuzz", "benchmarks"}
 PLAYER_README = """Drakengard PC (work in progress)
 ================================
 
-You need your own Drakengard disc image (USA, SLUS-20732, .iso). No game files are included.
+You need your own Drakengard disc image (USA, SLUS-20732, .iso). No game files are included; the
+launcher's icon is the game's crest.
 
 1. Unzip this folder to a short path, such as C:\\Games\\Drakengard.
 2. Run drakengard-launcher.exe. Windows may warn about an unknown publisher:
@@ -80,6 +83,9 @@ toml11, nlohmann/json, libdwarf, rabbitizer, PS2Recomp, parallel-gs and Granite.
 FFmpeg (LGPL build) is downloaded during setup from https://github.com/System233/ffmpeg-msvc-prebuilt
 
 This project: GPL-3.0, see LICENSE.
+
+The launcher's icon is the crest from Drakengard's memory card icon, (C) cavia inc. / Square Enix Co., Ltd.
+It isn't covered by the licenses above.
 """
 
 GUARD_SUFFIXES = (".iso", ".irx", ".img")
@@ -180,6 +186,10 @@ def main():
         sys.exit("Build the launcher first: see launcher/README.md")
     if not args.allow_dirty and git("status", "--short").strip():
         sys.exit("The project has uncommitted changes. Commit them or pass --allow-dirty.")
+    if not GAME_ICON.is_file():
+        sys.exit("The launcher's icon is missing. Run tools/make_launcher_icon.py and rebuild the launcher.")
+    if GAME_ICON.stat().st_mtime > (LAUNCHER_BUILD / "drakengard-launcher.exe").stat().st_mtime:
+        sys.exit("The launcher's icon is newer than its build. Rebuild the launcher.")
 
     started = time.time()
     DIST.mkdir(parents=True, exist_ok=True)
@@ -208,7 +218,7 @@ def main():
     if problems:
         print("\n".join(problems[:40]))
         sys.exit(f"Refused: {len(problems)} file(s) look like game data or code. No zip was written.")
-    print("Checked: nothing in the package looks like it came from the game.")
+    print("Checked: no file in the package looks like it came from the game.")
 
     if not args.no_zip:
         target = DIST / f"{args.name}-windows.zip"

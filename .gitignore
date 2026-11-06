@@ -5,6 +5,7 @@ unpacked/
 *.iso
 *.bin
 *.BIN
+launcher/res/drakengard.ico
 
 # --- Code generated from the game's ELF (regenerate with build_recomp.ps1) ---
 recomp/output/

@@ -2,7 +2,8 @@
 """Turn a Drakengard (USA) disc image into a playable game on this PC.
 
 Checks the disc, extracts it to iso_extracted/, recompiles the game's code to C++ and builds the
-runner. Nothing derived from the game is downloaded or shipped: it is all made here from the disc.
+runner. Apart from the launcher's icon, nothing derived from the game is shipped: it is all made here
+from the disc.
 The launcher's first-run setup is a front end over this script, which also works by hand.
 
 Usage:
