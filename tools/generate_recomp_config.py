@@ -284,9 +284,12 @@ def generate_function_map(elf_path: Path, csv_out: Path, toml_out: Path, analyze
     print(f"  - JAL call targets:     {jal_count}")
     print(f"  - SCE SDK symbol names: {sce_matched}")
 
-    # Build unified drakengard.toml from drakengard_analyzer.toml
-    if analyzer_toml.exists():
-        txt = analyzer_toml.read_text(encoding="utf-8", errors="replace")
+    # drakengard.toml is hand-maintained (its recompile list isn't in the analyzer's output),
+    # so drakengard_analyzer.toml only seeds it when it's missing
+    template = toml_out if toml_out.exists() else analyzer_toml
+    if template.exists():
+        original = template.read_text(encoding="utf-8", errors="replace")
+        txt = original
         # Paths are relative to the repo root, where build_recomp.ps1 runs PS2Recomp
         repo_root = toml_out.parent.parent
         out_cpp_dir = (toml_out.parent / "output").relative_to(repo_root).as_posix()
@@ -302,8 +305,9 @@ def generate_function_map(elf_path: Path, csv_out: Path, toml_out: Path, analyze
             txt,
             count=1,
         )
-        toml_out.write_text(txt, encoding="utf-8")
-        print(f"Updated unified {toml_out} with ghidra_output + SCE stubs + 118 jump tables")
+        if template != toml_out or txt != original:
+            toml_out.write_text(txt, encoding="utf-8")
+            print(f"Updated unified {toml_out} with ghidra_output + SCE stubs + 118 jump tables")
 
 
 if __name__ == "__main__":
