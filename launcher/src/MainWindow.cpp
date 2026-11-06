@@ -69,6 +69,12 @@ namespace
         return !saved.isEmpty() && QFileInfo::exists(saved) ? saved : fallback;
     }
 
+    // The log may not exist yet, so its folder is what has to. Empty means no log file and is kept.
+    QString logPathOr(const QString &saved, const QString &fallback)
+    {
+        return saved.isEmpty() || QFileInfo(saved).absoluteDir().exists() ? saved : fallback;
+    }
+
     QWidget *pathRow(QLineEdit *edit, QPushButton *browse)
     {
         auto *row = new QWidget;
@@ -384,7 +390,8 @@ void MainWindow::loadSettings()
     m_runnerPath->setText(existingOr(s.value("paths/runner").toString(), defaultPath(m_projectRoot, kRunnerRelative)));
     m_elfPath->setText(existingOr(s.value("paths/elf").toString(), defaultPath(m_projectRoot, kElfRelative)));
     m_recordingsDir->setText(existingOr(s.value("paths/recordings").toString(), defaultPath(m_projectRoot, "input_recordings")));
-    m_consoleLogPath->setText(s.value("paths/consoleLog", defaultPath(m_projectRoot, "launch_console.log")).toString());
+    const QString defaultLog = defaultPath(m_projectRoot, "launch_console.log");
+    m_consoleLogPath->setText(logPathOr(s.value("paths/consoleLog", defaultLog).toString(), defaultLog));
 
     m_vif1Thread->setChecked(s.value("game/vif1Thread", true).toBool());
     selectData(m_gsBackend, s.value("game/gsBackend", QString()));
