@@ -65,7 +65,6 @@ launcher's icon is the game's crest.
 4. Press Play.
 
 Saves are in iso_extracted\\mc0. If setup fails, setup.log in this folder has the details.
-Sound doesn't work yet.
 """
 
 NOTICES = """Third-party software in this package
