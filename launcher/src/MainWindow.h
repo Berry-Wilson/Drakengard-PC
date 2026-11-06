@@ -64,6 +64,7 @@ private:
 
     QCheckBox *m_vif1Thread = nullptr;
     QComboBox *m_gsBackend = nullptr;
+    QComboBox *m_aspect = nullptr;
     QComboBox *m_inputMode = nullptr;
     QComboBox *m_replayFile = nullptr;
     QPushButton *m_replayBrowse = nullptr;

@@ -259,6 +259,13 @@ QWidget *MainWindow::buildGameTab()
     m_gsBackend->addItem("CPU", QString("cpu"));
     form->addRow("GS backend", m_gsBackend);
 
+    m_aspect = new QComboBox;
+    m_aspect->addItem("4:3 (original)", QString());
+    m_aspect->addItem("16:9", QString("16:9"));
+    m_aspect->setToolTip("16:9 shows more of the world and moves the HUD to the screen edges. "
+                         "Menus stay 4:3. Sets PS2X_ASPECT.");
+    form->addRow("Aspect ratio", m_aspect);
+
     m_inputMode = new QComboBox;
     m_inputMode->addItem("Off");
     m_inputMode->addItem("Record to a new timestamped file");
@@ -395,6 +402,7 @@ void MainWindow::loadSettings()
 
     m_vif1Thread->setChecked(s.value("game/vif1Thread", true).toBool());
     selectData(m_gsBackend, s.value("game/gsBackend", QString()));
+    selectData(m_aspect, s.value("game/aspect", QString()));
     m_inputMode->setCurrentIndex(s.value("game/inputMode", int(InputRecord)).toInt());
     refreshRecordings(s.value("game/replayFile").toString());
 
@@ -436,6 +444,7 @@ void MainWindow::saveSettings() const
 
     s.setValue("game/vif1Thread", m_vif1Thread->isChecked());
     s.setValue("game/gsBackend", m_gsBackend->currentData());
+    s.setValue("game/aspect", m_aspect->currentData());
     s.setValue("game/inputMode", m_inputMode->currentIndex());
     s.setValue("game/replayFile", m_replayFile->currentData());
 
@@ -529,6 +538,8 @@ QProcessEnvironment MainWindow::buildEnvironment(const QString &recordFile) cons
         env.insert("PS2X_VIF1_THREAD", "0");
     if (const QString backend = m_gsBackend->currentData().toString(); !backend.isEmpty())
         env.insert("PS2X_GS_BACKEND", backend);
+    if (const QString aspect = m_aspect->currentData().toString(); !aspect.isEmpty())
+        env.insert("PS2X_ASPECT", aspect);
 
     if (m_inputMode->currentIndex() == InputRecord)
         env.insert("PS2X_INPUT_RECORD", QDir::toNativeSeparators(recordFile));
