@@ -16,6 +16,12 @@ qt_add_executable(drakengard-launcher WIN32
 )
 target_link_libraries(drakengard-launcher PRIVATE Qt6::Widgets)
 
+# The icon is the game's art, which git ignores, so a build works without it.
+# Qt also uses the IDI_ICON1 resource for the window and taskbar.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/res/drakengard.ico")
+    target_sources(drakengard-launcher PRIVATE res/drakengard.rc)
+endif()
+
 # Copy the Qt DLLs next to the exe so it starts without Qt on PATH.
 add_custom_command(TARGET drakengard-launcher POST_BUILD
     COMMAND Qt6::windeployqt --no-translations --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler

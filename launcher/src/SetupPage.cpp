@@ -33,7 +33,7 @@ SetupPage::SetupPage(const QString &projectRoot, QWidget *parent)
 
     auto *intro = new QLabel(
         "Choose a disc image (.iso) of your own Drakengard disc (USA, SLUS-20732). Setup extracts the game "
-        "and builds it on this PC from your disc, so nothing from the game is downloaded. "
+        "and builds it on this PC from your disc, so the game itself isn't part of this download. "
         "The first time takes 20 to 60 minutes and about 10 GB of disk space. "
         "You can stop and continue later, and the disc image isn't needed afterwards.");
     intro->setWordWrap(true);
