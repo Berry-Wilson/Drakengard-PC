@@ -90,10 +90,22 @@ not read `.iso` files. It runs from that folder, and the `mc0` memory card is fo
 | Tab | Controls |
 | --- | --- |
 | Game | Paths, VIF1/GIF worker thread, pad input recording or replay |
-| Video | GS backend, aspect ratio, draw distance |
+| Video | Aspect ratio, window size, draw distance, GS backend |
 | Developer | VU1/VU0 mode, verify delay, VIF1/VU statistics, VIF verify, frame dumps |
 | Environment | Any other variable, such as `PS2X_AUTOPAD`; these override the other tabs |
 | Log | Game output and the console log file's path |
+
+Internal resolution has no control of its own yet. Add these on the Environment tab:
+
+| Variable | Values | Effect |
+| --- | --- | --- |
+| `PS2X_SSAA` | 1 (default), 2, 4, 8, 16 | Super-sampling rate, which smooths edges |
+| `PS2X_SSAA_TEXTURES` | 0 (default), 1 | Keeps the extra samples in render targets used as textures |
+| `PS2X_HIRES_SCANOUT` | 0 (default), 1 | Doubles the output resolution |
+
+Double resolution needs all three: `PS2X_SSAA=4` or more, `PS2X_SSAA_TEXTURES=1` and
+`PS2X_HIRES_SCANOUT=1`. Without the textures option the picture is squashed into the top half.
+Enlarge the window to see the extra detail. These only apply to the Vulkan GS backend.
 
 - Only the options you change from their defaults are set. `PS2X_*` variables inherited from the
   shell are removed, so the window is the only source of options.

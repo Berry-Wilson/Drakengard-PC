@@ -36,6 +36,7 @@ private:
     QWidget *buildDeveloperTab();
     QWidget *buildEnvironmentTab();
     QWidget *buildLogTab();
+    void refreshWindowSizes();
 
     void loadSettings();
     void saveSettings() const;
@@ -67,6 +68,7 @@ private:
     QCheckBox *m_vif1Thread = nullptr;
     QComboBox *m_gsBackend = nullptr;
     QComboBox *m_aspect = nullptr;
+    QComboBox *m_windowSize = nullptr;
     QComboBox *m_drawDistance = nullptr;
     QComboBox *m_inputMode = nullptr;
     QComboBox *m_replayFile = nullptr;
