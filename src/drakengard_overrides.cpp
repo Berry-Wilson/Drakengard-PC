@@ -6,6 +6,7 @@
 #include <iostream>
 
 void applyDrakengardWidescreen(PS2Runtime &runtime); // drakengard_widescreen.cpp
+void applyDrakengardDrawDistance(PS2Runtime &runtime); // drakengard_draw_distance.cpp
 
 namespace
 {
@@ -57,6 +58,7 @@ namespace
         runtime.registerFunction(0x00289330u, stub_func_00289330);
 
         applyDrakengardWidescreen(runtime);
+        applyDrakengardDrawDistance(runtime);
     }
 }
 

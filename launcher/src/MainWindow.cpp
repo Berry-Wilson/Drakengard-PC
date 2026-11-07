@@ -26,7 +26,6 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QSpinBox>
-#include <QSplitter>
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QTableWidget>
@@ -109,8 +108,10 @@ MainWindow::MainWindow()
 
     auto *tabs = new QTabWidget;
     tabs->addTab(buildGameTab(), "Game");
+    tabs->addTab(buildVideoTab(), "Video");
     tabs->addTab(buildDeveloperTab(), "Developer");
     tabs->addTab(buildEnvironmentTab(), "Environment");
+    tabs->addTab(buildLogTab(), "Log");
 
     m_play = new QPushButton("Play");
     m_play->setDefault(true);
@@ -124,27 +125,13 @@ MainWindow::MainWindow()
     buttons->addWidget(m_stop);
     buttons->addWidget(m_status, 1);
 
-    auto *top = new QWidget;
-    auto *topLayout = new QVBoxLayout(top);
-    topLayout->setContentsMargins(0, 0, 0, 0);
-    topLayout->addWidget(tabs);
-    topLayout->addLayout(buttons);
-
-    m_log = new QPlainTextEdit;
-    m_log->setReadOnly(true);
-    m_log->setMaximumBlockCount(5000);
-    m_log->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    m_log->setPlaceholderText("Game output appears here.");
-
-    auto *splitter = new QSplitter(Qt::Vertical);
-    splitter->setObjectName("mainSplitter");
-    splitter->addWidget(top);
-    splitter->addWidget(m_log);
-    splitter->setStretchFactor(1, 1);
-    splitter->setContentsMargins(9, 9, 9, 9);
+    auto *main = new QWidget;
+    auto *mainLayout = new QVBoxLayout(main);
+    mainLayout->addWidget(tabs);
+    mainLayout->addLayout(buttons);
 
     m_pages = new QStackedWidget;
-    m_pages->addWidget(splitter);
+    m_pages->addWidget(main);
     setCentralWidget(m_pages);
 
     m_process = new QProcess(this);
@@ -243,28 +230,10 @@ QWidget *MainWindow::buildGameTab()
                 m_recordingsDir->setText(path);
                 refreshRecordings();
             });
-    addPath("Console log", m_consoleLogPath, "Copy of the game output, rewritten on each start. Leave empty for no file.", [this]
-            {
-                const QString path = QFileDialog::getSaveFileName(this, "Select console log", m_consoleLogPath->text());
-                if (!path.isEmpty())
-                    m_consoleLogPath->setText(path);
-            });
 
     m_vif1Thread = new QCheckBox("VIF1/GIF worker thread");
     m_vif1Thread->setToolTip("Clearing this sets PS2X_VIF1_THREAD=0.");
     form->addRow("Performance", m_vif1Thread);
-
-    m_gsBackend = new QComboBox;
-    m_gsBackend->addItem("Vulkan (parallel-gs)", QString());
-    m_gsBackend->addItem("CPU", QString("cpu"));
-    form->addRow("GS backend", m_gsBackend);
-
-    m_aspect = new QComboBox;
-    m_aspect->addItem("4:3 (original)", QString());
-    m_aspect->addItem("16:9", QString("16:9"));
-    m_aspect->setToolTip("16:9 shows more of the world and moves the HUD to the screen edges. "
-                         "Menus stay 4:3. Sets PS2X_ASPECT.");
-    form->addRow("Aspect ratio", m_aspect);
 
     m_inputMode = new QComboBox;
     m_inputMode->addItem("Off");
@@ -290,6 +259,35 @@ QWidget *MainWindow::buildGameTab()
     m_runSetup = new QPushButton("Run setup again...");
     m_runSetup->setToolTip("Extracts the disc and builds the game again, for example after an update.");
     form->addRow("", m_runSetup);
+
+    return tab;
+}
+
+QWidget *MainWindow::buildVideoTab()
+{
+    auto *tab = new QWidget;
+    auto *form = new QFormLayout(tab);
+
+    m_gsBackend = new QComboBox;
+    m_gsBackend->addItem("Vulkan (parallel-gs)", QString());
+    m_gsBackend->addItem("CPU", QString("cpu"));
+    form->addRow("GS backend", m_gsBackend);
+
+    m_aspect = new QComboBox;
+    m_aspect->addItem("4:3 (original)", QString());
+    m_aspect->addItem("16:9", QString("16:9"));
+    m_aspect->setToolTip("16:9 shows more of the world and moves the HUD to the screen edges. "
+                         "Menus stay 4:3. Sets PS2X_ASPECT.");
+    form->addRow("Aspect ratio", m_aspect);
+
+    m_drawDistance = new QComboBox;
+    m_drawDistance->addItem("Original", QString());
+    m_drawDistance->addItem("2x", QString("2"));
+    m_drawDistance->addItem("3x", QString("3"));
+    m_drawDistance->addItem("5x", QString("5"));
+    m_drawDistance->setToolTip("Pushes the fog further away, which reveals more of the level. Soldiers may "
+                               "appear suddenly, and the level's edge may show. Sets PS2X_DRAW_DISTANCE.");
+    form->addRow("Draw distance", m_drawDistance);
 
     return tab;
 }
@@ -390,6 +388,34 @@ QWidget *MainWindow::buildEnvironmentTab()
     return tab;
 }
 
+QWidget *MainWindow::buildLogTab()
+{
+    auto *tab = new QWidget;
+    auto *layout = new QVBoxLayout(tab);
+
+    m_consoleLogPath = new QLineEdit;
+    m_consoleLogPath->setToolTip("Copy of the game output, rewritten on each start. Leave empty for no file.");
+    auto *browse = new QPushButton("Browse...");
+    connect(browse, &QPushButton::clicked, this, [this]
+            {
+                const QString path = QFileDialog::getSaveFileName(this, "Select console log", m_consoleLogPath->text());
+                if (!path.isEmpty())
+                    m_consoleLogPath->setText(path);
+            });
+    auto *form = new QFormLayout;
+    form->addRow("Console log", pathRow(m_consoleLogPath, browse));
+    layout->addLayout(form);
+
+    m_log = new QPlainTextEdit;
+    m_log->setReadOnly(true);
+    m_log->setMaximumBlockCount(5000);
+    m_log->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_log->setPlaceholderText("Game output appears here.");
+    layout->addWidget(m_log, 1);
+
+    return tab;
+}
+
 void MainWindow::loadSettings()
 {
     QSettings s(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher");
@@ -403,6 +429,7 @@ void MainWindow::loadSettings()
     m_vif1Thread->setChecked(s.value("game/vif1Thread", true).toBool());
     selectData(m_gsBackend, s.value("game/gsBackend", QString()));
     selectData(m_aspect, s.value("game/aspect", QString()));
+    selectData(m_drawDistance, s.value("game/drawDistance", QString()));
     m_inputMode->setCurrentIndex(s.value("game/inputMode", int(InputRecord)).toInt());
     refreshRecordings(s.value("game/replayFile").toString());
 
@@ -430,7 +457,6 @@ void MainWindow::loadSettings()
 
     if (!restoreGeometry(s.value("window/geometry").toByteArray()))
         resize(860, 720);
-    findChild<QSplitter *>("mainSplitter")->restoreState(s.value("window/splitter").toByteArray());
 }
 
 void MainWindow::saveSettings() const
@@ -445,6 +471,7 @@ void MainWindow::saveSettings() const
     s.setValue("game/vif1Thread", m_vif1Thread->isChecked());
     s.setValue("game/gsBackend", m_gsBackend->currentData());
     s.setValue("game/aspect", m_aspect->currentData());
+    s.setValue("game/drawDistance", m_drawDistance->currentData());
     s.setValue("game/inputMode", m_inputMode->currentIndex());
     s.setValue("game/replayFile", m_replayFile->currentData());
 
@@ -473,7 +500,6 @@ void MainWindow::saveSettings() const
     s.endArray();
 
     s.setValue("window/geometry", saveGeometry());
-    s.setValue("window/splitter", findChild<QSplitter *>("mainSplitter")->saveState());
 }
 
 // Lists the recordings folder, newest first, and keeps the selection (or selects a given file).
@@ -540,6 +566,8 @@ QProcessEnvironment MainWindow::buildEnvironment(const QString &recordFile) cons
         env.insert("PS2X_GS_BACKEND", backend);
     if (const QString aspect = m_aspect->currentData().toString(); !aspect.isEmpty())
         env.insert("PS2X_ASPECT", aspect);
+    if (const QString distance = m_drawDistance->currentData().toString(); !distance.isEmpty())
+        env.insert("PS2X_DRAW_DISTANCE", distance);
 
     if (m_inputMode->currentIndex() == InputRecord)
         env.insert("PS2X_INPUT_RECORD", QDir::toNativeSeparators(recordFile));
