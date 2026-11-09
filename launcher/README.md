@@ -103,10 +103,17 @@ Internal resolution has no control of its own yet. Add these on the Environment 
 | `PS2X_SSAA_TEXTURES` | 0 (default), 1 | Keeps the extra samples in render targets used as textures |
 | `PS2X_HIRES_SCANOUT` | 0 (default), 1 | Doubles the output resolution |
 | `PS2X_PGS_NO_MIPMAPS` | 0 (default), 1 | Always samples full-size textures instead of smaller mipmap levels |
+| `PS2X_SSAA_ORDERED` | 1 (default), 0 | 0 spreads the 4x and 16x samples in a sparse pattern instead of a grid |
+| `PS2X_SSAA_DYNAMIC` | 0 (default), 1 | Lets F5 change the super-sampling rate while playing |
+| `PS2X_PGS_BLEND_DEMOTE` | 0 (default), 1 | Skips super-sampling for passes of heavily overlapping blends, such as fog, to save GPU time |
 
 Double resolution needs all three: `PS2X_SSAA=4` or more, `PS2X_SSAA_TEXTURES=1` and
 `PS2X_HIRES_SCANOUT=1`. Without the textures option the picture is squashed into the top half.
 Enlarge the window to see the extra detail. These only apply to the Vulkan GS backend.
+
+With `PS2X_SSAA_DYNAMIC=1`, F5 steps through 1x, 2x, 4x, 8x and 16x super-sampling (up to what the
+GPU supports) and shows the new rate in the top-left corner. Double resolution switches off below
+4x and comes back at 4x or more.
 
 - Only the options you change from their defaults are set. `PS2X_*` variables inherited from the
   shell are removed, so the window is the only source of options.
