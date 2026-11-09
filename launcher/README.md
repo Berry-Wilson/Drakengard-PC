@@ -102,6 +102,7 @@ Internal resolution has no control of its own yet. Add these on the Environment 
 | `PS2X_SSAA` | 1 (default), 2, 4, 8, 16 | Super-sampling rate, which smooths edges |
 | `PS2X_SSAA_TEXTURES` | 0 (default), 1 | Keeps the extra samples in render targets used as textures |
 | `PS2X_HIRES_SCANOUT` | 0 (default), 1 | Doubles the output resolution |
+| `PS2X_PGS_NO_MIPMAPS` | 0 (default), 1 | Always samples full-size textures instead of smaller mipmap levels |
 
 Double resolution needs all three: `PS2X_SSAA=4` or more, `PS2X_SSAA_TEXTURES=1` and
 `PS2X_HIRES_SCANOUT=1`. Without the textures option the picture is squashed into the top half.
