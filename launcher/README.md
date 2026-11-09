@@ -90,6 +90,7 @@ not read `.iso` files. It runs from that folder, and the `mc0` memory card is fo
 | Tab | Controls |
 | --- | --- |
 | Game | Paths, VIF1/GIF worker thread, pad input recording or replay |
+| Controls | Keyboard and controller bindings for every PS2 button and stick direction, and which controller stick drives each PS2 stick |
 | Video | Aspect ratio, window size, draw distance, GS backend |
 | Developer | VU1/VU0 mode, verify delay, VIF1/VU statistics, VIF verify, frame dumps |
 | Environment | Any other variable, such as `PS2X_AUTOPAD`; these override the other tabs |
@@ -115,6 +116,19 @@ With `PS2X_SSAA_DYNAMIC=1`, F5 steps through 1x, 2x, 4x, 8x and 16x super-sampli
 GPU supports) and shows the new rate in the top-left corner. Double resolution switches off below
 4x and comes back at 4x or more.
 
+### Controls
+
+Click a slot, then press a key, or a controller button, trigger or stick direction. Right-click a
+slot to clear it, and press Escape to cancel. Each PS2 input takes up to two keys and two controller
+inputs, and every controller connected counts. F1, F5 and F12 are kept for the game. If a controller
+was connected after the launcher started, press **Find controllers**.
+
+Changes are saved at once to `%APPDATA%\Drakengard\controls.ini`, a readable text file, and the game
+gets its path in `PS2X_CONTROLS`. Without that variable the game reads `controls.ini` from its
+working folder if there is one, and otherwise uses the defaults shown on the tab. The launcher reads
+controllers with GLFW 3.4, the same library and version as the game, so captured buttons mean the
+same thing in both.
+
 - Only the options you change from their defaults are set. `PS2X_*` variables inherited from the
   shell are removed, so the window is the only source of options.
 - Pad input is recorded by default, to a new file in `input_recordings\` for each run.
@@ -127,4 +141,5 @@ GPU supports) and shows the new rate in the top-left corner. Double resolution s
 ## Settings
 
 Settings are saved when you press Play and when you close the launcher, in
-`%APPDATA%\Drakengard\Launcher.ini`. Delete that file to return to the defaults.
+`%APPDATA%\Drakengard\Launcher.ini`. Delete that file to return to the defaults. The controls are
+in `controls.ini` in the same folder; **Restore defaults** on the Controls tab resets them.

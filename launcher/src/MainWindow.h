@@ -18,6 +18,7 @@ class QPushButton;
 class QSpinBox;
 class QStackedWidget;
 class QTableWidget;
+class ControlsTab;
 class SetupPage;
 
 class MainWindow : public QMainWindow
@@ -87,6 +88,7 @@ private:
     QSpinBox *m_dumpCount = nullptr;
 
     QTableWidget *m_extraEnv = nullptr;
+    ControlsTab *m_controls = nullptr;
 
     QPushButton *m_play = nullptr;
     QPushButton *m_stop = nullptr;

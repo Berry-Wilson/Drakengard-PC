@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 
+#include "ControlsTab.h"
 #include "SetupPage.h"
 
 #include <QAbstractItemView>
@@ -108,6 +109,10 @@ MainWindow::MainWindow()
 
     auto *tabs = new QTabWidget;
     tabs->addTab(buildGameTab(), "Game");
+    // The controls file sits beside the launcher's own settings.
+    const QString settingsFile = QSettings(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher").fileName();
+    m_controls = new ControlsTab(QFileInfo(settingsFile).absoluteDir().filePath("controls.ini"));
+    tabs->addTab(m_controls, "Controls");
     tabs->addTab(buildVideoTab(), "Video");
     tabs->addTab(buildDeveloperTab(), "Developer");
     tabs->addTab(buildEnvironmentTab(), "Environment");
@@ -590,6 +595,9 @@ QProcessEnvironment MainWindow::buildEnvironment(const QString &recordFile) cons
         env.insert("PS2X_WINDOW_SIZE", size);
     if (const QString distance = m_drawDistance->currentData().toString(); !distance.isEmpty())
         env.insert("PS2X_DRAW_DISTANCE", distance);
+    // Until the Controls tab saves a file, the game's built-in defaults apply.
+    if (QFileInfo::exists(m_controls->filePath()))
+        env.insert("PS2X_CONTROLS", QDir::toNativeSeparators(m_controls->filePath()));
 
     if (m_inputMode->currentIndex() == InputRecord)
         env.insert("PS2X_INPUT_RECORD", QDir::toNativeSeparators(recordFile));
