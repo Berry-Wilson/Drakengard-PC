@@ -55,11 +55,20 @@ namespace drakengard_widescreen
 
     constexpr int px(int pixels) { return pixels * 16; }
 
-    // Screen-space art is drawn with every vertex in a batch at one fixed, very high depth: 65535
-    // (HUD, menus), 16777215 (dialog text), 65000 and 49999-50000 (map).
-    constexpr uint32_t kMinScreenSpaceZ = 49000u;
+    // Screen-space art is drawn with every vertex in a batch at one of a few fixed depths: 65535 (HUD,
+    // menus), 16777215 (dialog text), 65000 and 49999-50000 (map). Flat 3D sprites, such as the enemy
+    // health bar icons and some spell effects, also share one depth per batch and can come close to
+    // these, so only the exact values count.
     constexpr uint32_t kHudZ = 65535u;
     constexpr uint32_t kDialogTextZ = 16777215u;
+    constexpr uint32_t kMapGradientZ = 65000u;
+    constexpr uint32_t kMapZ = 50000u;
+    constexpr uint32_t kMapLowZ = 49999u;
+
+    constexpr bool isScreenSpaceZ(uint32_t z)
+    {
+        return z == kHudZ || z == kDialogTextZ || z == kMapGradientZ || z == kMapZ || z == kMapLowZ;
+    }
 
     constexpr uint32_t kPathVu1 = 1u;
 
@@ -88,7 +97,8 @@ namespace drakengard_widescreen
         {
             // Two frames, as the VIF1 worker can deliver a frame's packets after it is presented.
             m_draws3DPrevious.store(m_draws3D.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
-            m_overlayUp.store(false, std::memory_order_relaxed);
+            m_overlayPrevious.store(m_overlayUp.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
+            m_run.valid = false;
         }
 
         void rewrite(uint32_t path, uint8_t *data, uint32_t sizeBytes) override
@@ -215,9 +225,14 @@ namespace drakengard_widescreen
         // also reach these depths, but its depth varies.
         void adjustBatch(uint8_t *data, uint64_t prim)
         {
-            if (m_vertices.empty() || m_vertices[0].z < kMinScreenSpaceZ)
+            if (m_vertices.empty())
                 return;
             const uint32_t z = m_vertices[0].z;
+            if (!isScreenSpaceZ(z))
+            {
+                m_run.valid = false;
+                return;
+            }
             int minX = 0xFFFF;
             int maxX = 0;
             int minY = 0xFFFF;
@@ -225,7 +240,10 @@ namespace drakengard_widescreen
             for (const Vertex &vertex : m_vertices)
             {
                 if (vertex.z != z)
+                {
+                    m_run.valid = false;
                     return;
+                }
                 const int x = read16(data, vertex.xOffset);
                 const int y = read16(data, vertex.yOffset);
                 minX = std::min(minX, x);
@@ -234,20 +252,56 @@ namespace drakengard_widescreen
                 maxY = std::max(maxY, y);
             }
 
-            // A fill across the whole screen is a fade or a tint, and has to keep covering it.
+            // A fill across the whole screen is a fade or a tint, and has to keep covering it. A fill
+            // across the whole width but not the height is the backing band of a menu drawn over a
+            // mission (results, memory card), whose layout stays centred like the menus elsewhere.
             const bool textured = ((prim >> 4u) & 1u) != 0u;
             if (!textured && minX <= kScreenLeft && maxX >= kScreenRight)
+            {
+                if (maxY - minY < px(400))
+                    m_overlayUp.store(true, std::memory_order_relaxed);
+                m_run.valid = false;
                 return;
+            }
 
             if (z != kHudZ && z != kDialogTextZ)
                 m_overlayUp.store(true, std::memory_order_relaxed);
 
-            const Anchor anchor = chooseAnchor(z, (minX + maxX) / 2 - kScreenLeft, (minY + maxY) / 2 - kScreenTop);
+            const int cx = (minX + maxX) / 2 - kScreenLeft;
+            const int cy = (minY + maxY) / 2 - kScreenTop;
+            // Each letter is its own batch. Letters that continue the text drawn just before keep its
+            // anchor, so a line is never split where it crosses from one screen zone into another.
+            Anchor anchor;
+            if (continuesRun(z, minX, maxX, cy))
+                anchor = m_run.anchor;
+            else
+            {
+                anchor = chooseAnchor(z, cx, cy);
+                m_run.anchor = anchor;
+                m_run.lineStartX = minX;
+            }
+            m_run.valid = true;
+            m_run.z = z;
+            m_run.lastMaxX = maxX;
+            m_run.lastCy = cy;
             for (const Vertex &vertex : m_vertices)
             {
                 const uint16_t moved = static_cast<uint16_t>(move(read16(data, vertex.xOffset), anchor));
                 std::memcpy(data + vertex.xOffset, &moved, sizeof(moved));
             }
+        }
+
+        // True if this batch reads as the next letter on the same line as the previous batch, or the
+        // first letter of the following line of the same block.
+        bool continuesRun(uint32_t z, int minX, int maxX, int cy) const
+        {
+            if (!m_run.valid || z != m_run.z || maxX - minX > px(48))
+                return false;
+            const int dy = cy - m_run.lastCy;
+            const int gap = minX - m_run.lastMaxX;
+            if (std::abs(dy) <= px(4))
+                return gap >= -px(4) && gap <= px(40);
+            return dy > px(4) && dy <= px(40) && std::abs(minX - m_run.lineStartX) <= px(24);
         }
 
         // cx and cy are the batch's centre on screen. The game draws each letter and gauge segment
@@ -256,8 +310,10 @@ namespace drakengard_widescreen
         {
             const bool inMission = m_draws3D.load(std::memory_order_relaxed) ||
                                    m_draws3DPrevious.load(std::memory_order_relaxed);
-            // The map screen is one centred layout, and the minimap is drawn before it.
-            if (!inMission || m_overlayUp.load(std::memory_order_relaxed))
+            // The map screen and menus over a mission are centred layouts. They can be drawn after
+            // parts of the frame they cover, so the previous frame counts too.
+            if (!inMission || m_overlayUp.load(std::memory_order_relaxed) ||
+                m_overlayPrevious.load(std::memory_order_relaxed))
                 return Anchor::Centre;
             if (z == kDialogTextZ)
                 return Anchor::Left;
@@ -289,6 +345,18 @@ namespace drakengard_widescreen
         std::atomic<bool> m_draws3D{false};
         std::atomic<bool> m_draws3DPrevious{false};
         std::atomic<bool> m_overlayUp{false};
+        std::atomic<bool> m_overlayPrevious{false};
+
+        struct TextRun
+        {
+            bool valid = false;
+            uint32_t z = 0u;
+            Anchor anchor = Anchor::Centre;
+            int lineStartX = 0;
+            int lastMaxX = 0;
+            int lastCy = 0;
+        };
+        TextRun m_run;
     };
 
     void applyIfEnabled(PS2Runtime &runtime)
