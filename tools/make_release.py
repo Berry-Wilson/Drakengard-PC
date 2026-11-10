@@ -2,8 +2,8 @@
 """Build the player's zip: the launcher, the sources and tools setup needs. The only thing from the game
 in it is the crest used as the launcher's icon.
 
-The fork in external/PS2Recomp is taken at its HEAD commit. parallel-gs comes from its working tree,
-because it carries local fixes. The zip is refused if any file derived from the game is found in it.
+The fork in external/PS2Recomp is taken at its HEAD commit. The zip is refused if any file derived from
+the game is found in it.
 
 Usage: python tools/make_release.py [--allow-dirty] [--name DrakengardPC-x.y] [--no-zip]
 Build the launcher first (see launcher/README.md).
@@ -27,7 +27,6 @@ from setup_game import find_tools  # noqa: E402
 
 DIST = ROOT / "out" / "dist"
 FORK = ROOT / "external" / "PS2Recomp"
-GS = ROOT / "external" / "parallel-gs"
 LAUNCHER_BUILD = ROOT / "launcher" / "out" / "build" / "Release"
 GAME_ICON = ROOT / "launcher" / "res" / "drakengard.ico"
 PYTHON_VERSION = "3.12.10"
@@ -78,7 +77,7 @@ Python is in python\\ under the Python Software Foundation License (python\\LICE
 Microsoft Visual C++ runtime DLLs are redistributed under the Visual Studio license terms.
 
 The sources in deps\\ and external\\ carry their own license files: raylib, Dear ImGui, rlImGui, ELFIO, fmt,
-toml11, nlohmann/json, libdwarf, rabbitizer, PS2Recomp, parallel-gs and Granite.
+toml11, nlohmann/json, libdwarf, rabbitizer and PS2Recomp.
 FFmpeg (LGPL build) is downloaded during setup from https://github.com/System233/ffmpeg-msvc-prebuilt
 
 This project: GPL-3.0, see LICENSE.
@@ -207,7 +206,6 @@ def main():
     (stage / "THIRD_PARTY_NOTICES.txt").write_text(NOTICES, encoding="utf-8")
 
     stage_fork(stage / "external" / "PS2Recomp")
-    copy_tracked(GS, stage / "external" / "parallel-gs", recurse=True)
     for dep in DEPENDENCIES:
         copy_tracked(FORK / "out" / "build" / "_deps" / f"{dep}-src", stage / "deps" / dep,
                      skip=lambda name: name.split("/")[0].lower() in SKIP_DEPENDENCY_DIRS)

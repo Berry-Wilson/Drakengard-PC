@@ -15,7 +15,7 @@ This repository contains **no game data**. You need your own legally dumped copy
 | `src/` | Game-specific runtime overrides (translated VU programs are generated here at build time) |
 | `analysis/` | ELF analysis and asset catalog output |
 | `launcher/` | Qt desktop launcher for the recompiled game (see its README) |
-| `external/` | Submodules: forks of PS2Recomp and parallel-gs, with Drakengard fixes |
+| `external/` | Submodule: a fork of PS2Recomp, with Drakengard fixes |
 
 ## Playing (Windows)
 
@@ -28,21 +28,19 @@ disc image and builds the game on your PC from it. See [launcher/README.md](laun
    ```
    git clone --recursive https://github.com/Berry-Wilson/Drakengard-PC.git
    ```
-2. Apply the patch for Granite, the library inside parallel-gs. It stops an error being logged for
-   threads Granite doesn't manage:
-   ```
-   git -C external/parallel-gs/Granite apply ../../../patches/granite-thread-id.patch
-   ```
-3. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
-4. Configure the build:
+2. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
+3. Configure the build:
    ```
    cmake -S external/PS2Recomp -B external/PS2Recomp/out/build -G "Visual Studio 18 2026"
    ```
-5. Recompile and build:
+4. Recompile and build:
    ```
    powershell -File build_recomp.ps1
    ```
    The runner ends up at `external/PS2Recomp/out/build/ps2xRuntime/Release/ps2EntryRunner.exe`.
+5. Build the renderer, PCSX2's GS as `ps2x-gs.dll`, into the runner's `pcsx2-gs` folder. It is built
+   from a PCSX2 source tree; see
+   [external/PS2Recomp/ps2xRuntime/pcsx2-gs/README.md](external/PS2Recomp/ps2xRuntime/pcsx2-gs/README.md).
 
 ## Credits
 
@@ -51,7 +49,7 @@ disc image and builds the game on your PC from it. See [launcher/README.md](laun
   and debug this project, including tooling, runtime fixes and repository setup.
   Commits it worked on carry a `Co-Authored-By: Claude` trailer.
 - [PS2Recomp](https://github.com/ran-j/PS2Recomp) by ran-j and contributors.
-- [parallel-gs](https://github.com/Arntzen-software/parallel-gs) by Arntzen Software.
+- [PCSX2](https://github.com/PCSX2/pcsx2) by the PCSX2 team: its GS draws the game.
 
 ## License
 

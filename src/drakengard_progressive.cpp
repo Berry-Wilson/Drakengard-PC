@@ -16,16 +16,13 @@
 // the copy) the game starts drawing the next frame into it before the vertical blank. So the frame
 // is presented right after the flip instead of at the vertical blank (g_ps2xFinishedFrameTick).
 //
-// Only with PCSX2's renderer (PS2X_GS_BACKEND=pcsx2): it takes the GIF stream and the present on one
-// queue, in order, from the game's thread. parallel-gs presents from the host thread while its worker
-// replays the stream, so it cannot present at the flip; it keeps the full height its own way, with
-// PS2X_HIRES_SCANOUT and 4x super-sampled textures.
+// This relies on PCSX2's renderer taking the GIF stream and the present on one queue, in order, from
+// the game's thread, so a present at the flip shows exactly the frame the game just finished.
 #include "game_overrides.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
 #include "ps2_recompiled_functions.h"
 #include "runtime/ee_scheduler.h"
-#include "runtime/host_display.h"
 
 #include <atomic>
 #include <cstdlib>
@@ -86,11 +83,6 @@ void applyDrakengardProgressive(PS2Runtime &runtime)
     const char *value = std::getenv("PS2X_PROGRESSIVE");
     if (!value || value[0] != '1')
         return;
-    if (!HostDisplay::externalPresenter())
-    {
-        std::cerr << "[DrakengardPC] PS2X_PROGRESSIVE needs PCSX2's renderer (PS2X_GS_BACKEND=pcsx2); ignored" << std::endl;
-        return;
-    }
     runtime.registerFunction(0x0012445Cu, hookBuildDisplay);
     runtime.registerFunction(0x0028A964u, hookFlip);
     std::cerr << "[DrakengardPC] full-height output (640x480 frame instead of the 224-line field copy)" << std::endl;

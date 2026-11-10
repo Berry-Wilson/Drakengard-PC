@@ -34,7 +34,6 @@ Python. The FFmpeg DLLs are downloaded during setup.
 
 - The script refuses to write the zip if any file looks like game data or translated game code.
 - `external/PS2Recomp` is taken at its `HEAD` commit, so uncommitted runtime changes aren't included.
-- `external/parallel-gs` is taken from its working tree, because Granite carries an uncommitted fix.
 - `--allow-dirty` packages uncommitted project files, which is only for testing.
 - The launcher's icon is the game's crest, the one piece of the game's art in the zip. The script
   refuses to run if the icon file is missing or newer than the launcher build.
@@ -96,25 +95,18 @@ not read `.iso` files. It runs from that folder, and the `mc0` memory card is fo
 | Environment | Any other variable, such as `PS2X_AUTOPAD`; these override the other tabs |
 | Log | Game output and the console log file's path |
 
-Internal resolution has no control of its own yet. Add these on the Environment tab:
+The game is drawn by PCSX2's GS. Its settings have no controls of their own yet. Add these on the
+Environment tab:
 
 | Variable | Values | Effect |
 | --- | --- | --- |
-| `PS2X_SSAA` | 1 (default), 2, 4, 8, 16 | Super-sampling rate, which smooths edges |
-| `PS2X_SSAA_TEXTURES` | 0 (default), 1 | Keeps the extra samples in render targets used as textures |
-| `PS2X_HIRES_SCANOUT` | 0 (default), 1 | Doubles the output resolution |
-| `PS2X_PGS_NO_MIPMAPS` | 0 (default), 1 | Always samples full-size textures instead of smaller mipmap levels |
-| `PS2X_SSAA_ORDERED` | 1 (default), 0 | 0 spreads the 4x and 16x samples in a sparse pattern instead of a grid |
-| `PS2X_SSAA_DYNAMIC` | 0 (default), 1 | Lets F5 change the super-sampling rate while playing |
-| `PS2X_PGS_BLEND_DEMOTE` | 0 (default), 1 | Skips super-sampling for passes of heavily overlapping blends, such as fog, to save GPU time |
+| `PS2X_PCSX2_UPSCALE` | 1 to 8, default 2 | Internal resolution, as a multiple of the PS2's |
+| `PS2X_PROGRESSIVE` | 0 (default), 1 | Shows the game's full 480-line frame instead of its 224-line copy for TV |
+| `PS2X_PCSX2_RENDERER` | `dx11`, `dx12`, `vulkan`, `opengl`, `software` | Graphics API; unset picks one |
+| `PS2X_PCSX2_SHARPNESS` | 0 (default), 1, 2 | Sharpening: off, normal or strong |
 
-Double resolution needs all three: `PS2X_SSAA=4` or more, `PS2X_SSAA_TEXTURES=1` and
-`PS2X_HIRES_SCANOUT=1`. Without the textures option the picture is squashed into the top half.
-Enlarge the window to see the extra detail. These only apply to the Vulkan GS backend.
-
-With `PS2X_SSAA_DYNAMIC=1`, F5 steps through 1x, 2x, 4x, 8x and 16x super-sampling (up to what the
-GPU supports) and shows the new rate in the top-left corner. Double resolution switches off below
-4x and comes back at 4x or more.
+F5 steps the internal resolution from 1x to 8x while playing and shows the new one in the top-left
+corner. Enlarge the window to see the extra detail.
 
 ### Controls
 
