@@ -7,6 +7,7 @@
 
 void applyDrakengardWidescreen(PS2Runtime &runtime); // drakengard_widescreen.cpp
 void applyDrakengardDrawDistance(PS2Runtime &runtime); // drakengard_draw_distance.cpp
+void applyDrakengardProgressive(PS2Runtime &runtime); // drakengard_progressive.cpp
 
 namespace
 {
@@ -59,6 +60,7 @@ namespace
 
         applyDrakengardWidescreen(runtime);
         applyDrakengardDrawDistance(runtime);
+        applyDrakengardProgressive(runtime);
     }
 }
 
