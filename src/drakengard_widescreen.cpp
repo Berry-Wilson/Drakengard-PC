@@ -4,7 +4,10 @@
 // is drawn 3/4 as wide as it should end up:
 //  - 3D: the projection's horizontal scale is reduced, which also shows more of the world. The VU1
 //    polygon clipper has its own clip angles, computed from a fixed half width of 320, so those are
-//    widened to match or the near ground stops at the old 4:3 edges.
+//    widened to match or the near ground stops at the old 4:3 edges. The frustum that decides what
+//    is drawn at all is widened too, or terrain at the sides is left out.
+//  - Marks drawn around a projected point with offsets in screen pixels (the aiming reticle, enemy
+//    health bars, the EXP from a kill) have those offsets narrowed right after the game builds them.
 //  - Screen-space art: the GIF stream is rewritten. Each piece is anchored to the left or right edge,
 //    or stays in a centred 4:3 layout.
 #include "game_overrides.h"
@@ -45,6 +48,287 @@ namespace drakengard_widescreen
         WRITE32(camera + kClipAngleX, bits);
     }
 
+    // func_00129988 builds the view frustum's corners, which decide what terrain and objects get drawn
+    // at all, from the viewport in a1: x reaches width * far * ax / (2 * scrz). That is the 4:3 view,
+    // so the sides of the wider picture went unfilled (sky missions show it most). The function sees
+    // a 4/3 wider screen; the viewport's width itself stays 640, as menus lay themselves out from it.
+    void hookFrustumCorners(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t viewport = GPR_U32(ctx, 5);
+        const uint32_t saved = READ32(viewport);
+        float width;
+        std::memcpy(&width, &saved, sizeof(width));
+        width /= kNarrow;
+        uint32_t bits;
+        std::memcpy(&bits, &width, sizeof(bits));
+        WRITE32(viewport, bits);
+        func_00129988_0x129988(rdram, ctx, runtime);
+        WRITE32(viewport, saved);
+    }
+
+    // func_00212F78 draws the aiming reticle: its spinning arms, then (through func_00212864) its dots.
+    // Both are offsets in screen pixels from the reticle's centre on screen, which is at +0x1B0 of the
+    // object in a0 in GS units, so they come out 4/3 too wide. Everything goes into the packet builder
+    // in a1, whose write pointer is at +0x4, and every vertex has depth 0x7300:
+    //  - arms: PACKED XYZF2 qwords, x | y << 32 in the low half and the depth in the high half;
+    //  - dots: sprites in REGLIST GIF tags (RGBAQ, UV, XYZF2, UV, XYZF2), each XYZF2 a 64-bit word
+    //    x | y << 16 | z << 32.
+    constexpr uint32_t kReticleCentreX = 0x1B0u;
+    constexpr uint32_t kReticleDepth = 0x7300u;
+    constexpr uint64_t kSpriteRegs = 0x43431ull;
+
+    void hookReticle(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t reticle = GPR_U32(ctx, 4);
+        const uint32_t builder = GPR_U32(ctx, 5);
+        const uint32_t start = READ32(builder + 4u);
+        func_00212F78_0x212f78(rdram, ctx, runtime);
+        const uint32_t end = READ32(builder + 4u);
+        if (end <= start || end - start > 0x2000u)
+            return;
+        const int centre = static_cast<int32_t>(READ32(reticle + kReticleCentreX));
+        auto narrow = [&](uint32_t address)
+        {
+            const int x = READ16(address);
+            WRITE16(address, static_cast<uint16_t>(centre + (x - centre) * 3 / 4));
+        };
+        for (uint32_t q = start; q + 16u <= end; q += 16u)
+        {
+            if (READ64(q + 8u) == kReticleDepth)
+            {
+                narrow(q);
+            }
+            else if (READ64(q + 8u) == kSpriteRegs && q + 0x40u <= end &&
+                     (READ32(q + 0x24u) & 0xFFFFFFu) == kReticleDepth && (READ32(q + 0x34u) & 0xFFFFFFu) == kReticleDepth)
+            {
+                narrow(q + 0x20u);
+                narrow(q + 0x30u);
+                q += 0x30u;
+            }
+        }
+    }
+
+    // Enemy health bars (func_002AF5D0) and the EXP that floats up from a kill (func_0016609C) are also
+    // drawn around a projected point with offsets in screen pixels. Each opens a fresh packet at the
+    // buffer kSpritePacketStart points to and closes it before returning, leaving that pointer just
+    // past it. The packet is a chain of DMA cnt tags, each followed by a VIF DIRECT of GIF tags; every
+    // mark is drawn at its own depth, which is how its pieces are told apart.
+    constexpr uint32_t kSpritePacketStart = 0x004F50D4u;
+
+    struct PacketVertex
+    {
+        uint32_t address; // the x field, 16 bits
+        uint32_t z;
+    };
+
+    struct PacketBatch
+    {
+        uint32_t prim;
+        uint32_t regs;   // the GIF tag's register list
+        uint32_t format; // 0 PACKED, 1 REGLIST
+        std::vector<PacketVertex> vertices;
+    };
+
+    std::vector<PacketBatch> readPacket(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime, uint32_t start, uint32_t end)
+    {
+        std::vector<PacketBatch> batches;
+        if (end <= start || end - start > 0x40000u)
+            return batches;
+        uint32_t prim = 0u;
+        for (uint32_t chunk = start; chunk + 16u <= end;)
+        {
+            const uint32_t tag = READ32(chunk);
+            const uint32_t qwc = tag & 0xFFFFu;
+            const uint32_t id = (tag >> 28u) & 7u;
+            const uint32_t vif = READ32(chunk + 12u);
+            const uint32_t data = chunk + 16u;
+            const uint32_t dataEnd = std::min(end, data + qwc * 16u);
+            constexpr uint32_t kCnt = 1u, kNext = 2u, kRef = 3u, kRefs = 4u, kCall = 5u, kEnd = 7u;
+            if (id == kRef || id == kRefs)
+            {
+                // The data (texture images here) lives elsewhere; the next tag follows this one.
+                chunk = data;
+                continue;
+            }
+            if (id == kNext)
+            {
+                const uint32_t next = READ32(chunk + 4u) & 0x7FFFFFF0u;
+                if (next <= chunk || next >= end)
+                    break;
+                chunk = next;
+            }
+            else if (id == kCnt || id == kEnd || id == kCall)
+            {
+                // A call runs a shared chain elsewhere (texture uploads) and comes back to the tag after
+                // its own data, which is where this walk goes on.
+                chunk = data + qwc * 16u;
+            }
+            else
+            {
+                break;
+            }
+            if (((vif >> 24u) & 0x7Fu) != 0x50u && ((vif >> 24u) & 0x7Fu) != 0x51u) // DIRECT, DIRECTHL
+                continue;
+            for (uint32_t q = data; q + 16u <= dataEnd;)
+            {
+                const uint64_t tagLo = READ64(q);
+                const uint64_t tagHi = READ64(q + 8u);
+                q += 16u;
+                const uint32_t nloop = static_cast<uint32_t>(tagLo & 0x7FFFu);
+                const uint32_t format = static_cast<uint32_t>((tagLo >> 58u) & 3u);
+                uint32_t nreg = static_cast<uint32_t>((tagLo >> 60u) & 0xFu);
+                if (nreg == 0u)
+                    nreg = 16u;
+                if ((tagLo >> 46u) & 1u)
+                    prim = static_cast<uint32_t>((tagLo >> 47u) & 0x7FFu);
+                PacketBatch batch{prim, static_cast<uint32_t>(tagHi), format, {}};
+                if (format == 0u)
+                {
+                    for (uint32_t i = 0u; i < nloop * nreg && q + 16u <= dataEnd; ++i, q += 16u)
+                    {
+                        const uint32_t desc = static_cast<uint32_t>((tagHi >> ((i % nreg) * 4u)) & 0xFu);
+                        if (desc == 5u || desc == 13u) // XYZ2, XYZ3
+                            batch.vertices.push_back({q, READ32(q + 8u)});
+                        else if (desc == 4u || desc == 12u) // XYZF2, XYZF3
+                            batch.vertices.push_back({q, (READ32(q + 8u) >> 4u) & 0xFFFFFFu});
+                        else if (desc == 0u || (desc == 14u && (READ32(q + 8u) & 0xFFu) == 0u)) // PRIM, A+D PRIM
+                            batch.prim = prim = READ32(q) & 0x7FFu;
+                    }
+                }
+                else if (format == 1u)
+                {
+                    const uint32_t words = nloop * nreg;
+                    for (uint32_t k = 0u; k < words && q + k * 8u + 8u <= dataEnd; ++k)
+                    {
+                        const uint32_t at = q + k * 8u;
+                        const uint32_t desc = static_cast<uint32_t>((tagHi >> ((k % nreg) * 4u)) & 0xFu);
+                        if (desc == 5u || desc == 13u)
+                            batch.vertices.push_back({at, READ32(at + 4u)});
+                        else if (desc == 4u || desc == 12u)
+                            batch.vertices.push_back({at, READ32(at + 4u) & 0xFFFFFFu});
+                        else if (desc == 0u)
+                            batch.prim = prim = READ32(at) & 0x7FFu;
+                    }
+                    q += (words + 1u) / 2u * 16u;
+                }
+                else
+                {
+                    q += nloop * 16u;
+                }
+                if (!batch.vertices.empty())
+                    batches.push_back(std::move(batch));
+            }
+        }
+        return batches;
+    }
+
+    void narrowAbout(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime, uint32_t address, int anchor)
+    {
+        const int x = READ16(address);
+        WRITE16(address, static_cast<uint16_t>(anchor + (x - anchor) * 3 / 4));
+    }
+
+    // Each bar is an icon and a batch of four untextured sprites (backing, icon slot, empty bar, fill),
+    // plus a frame for the enemies near the player, all at the enemy's depth but not necessarily next
+    // to each other in the packet. With X the enemy's point on screen and h half the bar's length (16
+    // or 24 pixels), the third sprite of the four runs from X - h to X + h, and the frame, a sprite on
+    // its own, from X - (h + 13) to X + (h + 4), so its width gives h and then X.
+    void hookEnemyBars(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t start = READ32(kSpritePacketStart);
+        func_002AF5D0_0x2af5d0(rdram, ctx, runtime);
+        const std::vector<PacketBatch> batches = readPacket(rdram, ctx, runtime, start, READ32(kSpritePacketStart));
+        struct Bar
+        {
+            uint32_t z;
+            int anchor;
+        };
+        std::vector<Bar> bars;
+        for (const PacketBatch &batch : batches)
+        {
+            const bool untexturedSprite = (batch.prim & 7u) == 6u && ((batch.prim >> 4u) & 1u) == 0u;
+            if (!untexturedSprite)
+                continue;
+            if (batch.vertices.size() == 8u)
+            {
+                const int x0 = READ16(batch.vertices[4].address);
+                const int x1 = READ16(batch.vertices[5].address);
+                bars.push_back({batch.vertices[4].z, (x0 + x1) / 2});
+                continue;
+            }
+            if (batch.vertices.size() != 2u || batch.vertices[0].z != batch.vertices[1].z)
+                continue;
+            const int x0 = READ16(batch.vertices[0].address);
+            const int x1 = READ16(batch.vertices[1].address);
+            const int width = x1 - x0;
+            if (width != 16 * 49 && width != 16 * 65)
+                continue;
+            const int half = (width / 16 - 17) / 2;
+            bars.push_back({batch.vertices[0].z, x1 - (half + 4) * 16});
+        }
+        for (const PacketBatch &batch : batches)
+        {
+            if ((batch.prim & 7u) != 6u)
+                continue;
+            for (const PacketVertex &vertex : batch.vertices)
+            {
+                // Enemies at the same depth are told apart by which frame is nearest.
+                const int x = READ16(vertex.address);
+                const Bar *nearest = nullptr;
+                for (const Bar &bar : bars)
+                {
+                    if (bar.z == vertex.z && (!nearest || std::abs(bar.anchor - x) < std::abs(nearest->anchor - x)))
+                        nearest = &bar;
+                }
+                if (nearest)
+                    narrowAbout(rdram, ctx, runtime, vertex.address, nearest->anchor);
+            }
+        }
+    }
+
+    // The EXP text is centred on the enemy's point on screen: one sprite per letter, each with a
+    // shadow copy 3 pixels to its right, at one depth per number, and the letters show one after
+    // another. The function measures the whole string with func_002A5918 and starts it half that
+    // width (times 16 for GS units) left of the point, so the point is the first letter's left edge
+    // plus the width times 8, whichever letters are showing yet.
+    int g_expTextWidth = -1;
+
+    void hookTextWidth(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        constexpr uint32_t kFromExpText = 0x0016638Cu;
+        const bool fromExpText = GPR_U32(ctx, 31) == kFromExpText;
+        func_002A5918_0x2a5918(rdram, ctx, runtime);
+        if (fromExpText)
+            g_expTextWidth = static_cast<int32_t>(GPR_U32(ctx, 2));
+    }
+
+    void hookExpText(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t start = READ32(kSpritePacketStart);
+        g_expTextWidth = -1;
+        func_0016609C_0x16609c(rdram, ctx, runtime);
+        if (g_expTextWidth <= 0)
+            return;
+        const std::vector<PacketBatch> batches = readPacket(rdram, ctx, runtime, start, READ32(kSpritePacketStart));
+        auto isLetter = [](const PacketBatch &batch) { return (batch.prim & 7u) == 6u && ((batch.prim >> 4u) & 1u) != 0u; };
+        int left = 0x10000;
+        for (const PacketBatch &batch : batches)
+        {
+            if (isLetter(batch))
+                for (const PacketVertex &vertex : batch.vertices)
+                    left = std::min(left, static_cast<int>(READ16(vertex.address)));
+        }
+        if (left == 0x10000)
+            return;
+        const int anchor = left + g_expTextWidth * 8;
+        for (const PacketBatch &batch : batches)
+        {
+            if (isLetter(batch))
+                for (const PacketVertex &vertex : batch.vertices)
+                    narrowAbout(rdram, ctx, runtime, vertex.address, anchor);
+        }
+    }
+
     // Every draw here is offset so that (0x6C00, 0x7100) is the top left of the screen. X and Y have
     // 4 fractional bits.
     constexpr int kScreenLeft = 0x6C00;
@@ -68,6 +352,17 @@ namespace drakengard_widescreen
     constexpr bool isScreenSpaceZ(uint32_t z)
     {
         return z == kHudZ || z == kDialogTextZ || z == kMapGradientZ || z == kMapZ || z == kMapLowZ;
+    }
+
+    // The R3 menu (map, mission, status) is drawn in layers at fixed depths from 51000 up: its parchment
+    // at 51000, a marker per enemy from 53000, buttons and panels from 60000, gauges from 64000. Spell
+    // effects in a mission can use the same depths, so these count only while a menu is up; the
+    // parchment, a large textured batch at exactly 51000, shows that one is.
+    constexpr uint32_t kMenuParchmentZ = 51000u;
+
+    constexpr bool isMenuLayerZ(uint32_t z)
+    {
+        return z >= kMenuParchmentZ && z < kHudZ;
     }
 
     constexpr uint32_t kPathVu1 = 1u;
@@ -228,7 +523,18 @@ namespace drakengard_widescreen
             if (m_vertices.empty())
                 return;
             const uint32_t z = m_vertices[0].z;
-            if (!isScreenSpaceZ(z))
+            // 3D also comes this way (the dragon in the sky has no VU1 terrain under it in cloud), and
+            // unlike 2D its depth varies within a batch.
+            for (const Vertex &vertex : m_vertices)
+            {
+                if (vertex.z != z)
+                {
+                    m_draws3D.store(true, std::memory_order_relaxed);
+                    break;
+                }
+            }
+            const bool menuLayer = !isScreenSpaceZ(z) && isMenuLayerZ(z);
+            if (!isScreenSpaceZ(z) && !menuLayer)
             {
                 m_run.valid = false;
                 return;
@@ -264,8 +570,20 @@ namespace drakengard_widescreen
                 return;
             }
 
-            if (z != kHudZ && z != kDialogTextZ)
+            if (menuLayer)
+            {
+                if (z == kMenuParchmentZ && textured && maxX - minX >= px(400) && maxY - minY >= px(400))
+                    m_overlayUp.store(true, std::memory_order_relaxed);
+                if (!overlayActive())
+                {
+                    m_run.valid = false;
+                    return;
+                }
+            }
+            else if (z != kHudZ && z != kDialogTextZ)
+            {
                 m_overlayUp.store(true, std::memory_order_relaxed);
+            }
 
             const int cx = (minX + maxX) / 2 - kScreenLeft;
             const int cy = (minY + maxY) / 2 - kScreenTop;
@@ -306,14 +624,18 @@ namespace drakengard_widescreen
 
         // cx and cy are the batch's centre on screen. The game draws each letter and gauge segment
         // as its own batch, so pieces of one element are told apart by where the element sits.
+        bool overlayActive() const
+        {
+            return m_overlayUp.load(std::memory_order_relaxed) || m_overlayPrevious.load(std::memory_order_relaxed);
+        }
+
         Anchor chooseAnchor(uint32_t z, int cx, int cy) const
         {
             const bool inMission = m_draws3D.load(std::memory_order_relaxed) ||
                                    m_draws3DPrevious.load(std::memory_order_relaxed);
             // The map screen and menus over a mission are centred layouts. They can be drawn after
             // parts of the frame they cover, so the previous frame counts too.
-            if (!inMission || m_overlayUp.load(std::memory_order_relaxed) ||
-                m_overlayPrevious.load(std::memory_order_relaxed))
+            if (!inMission || overlayActive())
                 return Anchor::Centre;
             if (z == kDialogTextZ)
                 return Anchor::Left;
@@ -365,6 +687,11 @@ namespace drakengard_widescreen
             return;
         runtime.registerFunction(0x002FCFD0u, hookViewScreenMatrix);
         runtime.registerFunction(0x00263F44u, hookSetClipAngles);
+        runtime.registerFunction(0x00129988u, hookFrustumCorners);
+        runtime.registerFunction(0x00212F78u, hookReticle);
+        runtime.registerFunction(0x002AF5D0u, hookEnemyBars);
+        runtime.registerFunction(0x0016609Cu, hookExpText);
+        runtime.registerFunction(0x002A5918u, hookTextWidth);
         static HudRewriter rewriter;
         ps2xSetGifRewriter(&rewriter);
         std::cerr << "[DrakengardPC] 16:9 mode on" << std::endl;
