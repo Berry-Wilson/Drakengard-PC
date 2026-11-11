@@ -104,6 +104,7 @@ Environment tab:
 | `PS2X_PROGRESSIVE` | 0 (default), 1 | Shows the game's full 480-line frame instead of its 224-line copy for TV |
 | `PS2X_PCSX2_RENDERER` | `dx11`, `dx12`, `vulkan`, `opengl`, `software` | Graphics API; unset picks one |
 | `PS2X_PCSX2_SHARPNESS` | 0 (default), 1, 2 | Sharpening: off, normal or strong |
+| `PS2X_PCSX2_MOVIE_RENDERER` | unset (default), `hardware` | Movies use PCSX2's software renderer, as the GPU renderers garble them (see `docs/movie-corruption.md`); `hardware` keeps the GPU renderer |
 
 F5 steps the internal resolution from 1x to 8x while playing and shows the new one in the top-left
 corner. Enlarge the window to see the extra detail.

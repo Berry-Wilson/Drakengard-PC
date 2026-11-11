@@ -394,6 +394,7 @@ namespace drakengard_widescreen
             m_draws3DPrevious.store(m_draws3D.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
             m_overlayPrevious.store(m_overlayUp.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
             m_run.valid = false;
+            m_lines.clear();
         }
 
         void rewrite(uint32_t path, uint8_t *data, uint32_t sizeBytes) override
@@ -534,11 +535,10 @@ namespace drakengard_widescreen
                 }
             }
             const bool menuLayer = !isScreenSpaceZ(z) && isMenuLayerZ(z);
+            // 3D drawn between two letters leaves the line of text alone: a run only goes on with a
+            // letter right next to the last one anyway.
             if (!isScreenSpaceZ(z) && !menuLayer)
-            {
-                m_run.valid = false;
                 return;
-            }
             int minX = 0xFFFF;
             int maxX = 0;
             int minY = 0xFFFF;
@@ -546,10 +546,7 @@ namespace drakengard_widescreen
             for (const Vertex &vertex : m_vertices)
             {
                 if (vertex.z != z)
-                {
-                    m_run.valid = false;
                     return;
-                }
                 const int x = read16(data, vertex.xOffset);
                 const int y = read16(data, vertex.yOffset);
                 minX = std::min(minX, x);
@@ -560,11 +557,15 @@ namespace drakengard_widescreen
 
             // A fill across the whole screen is a fade or a tint, and has to keep covering it. A fill
             // across the whole width but not the height is the backing band of a menu drawn over a
-            // mission (results, memory card), whose layout stays centred like the menus elsewhere.
+            // mission (results, memory card), whose layout stays centred like the menus elsewhere,
+            // unless it is shaded and runs to the top or bottom edge: that is a tint over the scene,
+            // such as the darkening behind a mission's opening lines (rows 200-480, Z 65000).
             const bool textured = ((prim >> 4u) & 1u) != 0u;
             if (!textured && minX <= kScreenLeft && maxX >= kScreenRight)
             {
-                if (maxY - minY < px(400))
+                const bool shaded = ((prim >> 3u) & 1u) != 0u;
+                const bool reachesEdge = minY <= kScreenTop || maxY >= kScreenTop + px(440);
+                if (maxY - minY < px(400) && !(shaded && reachesEdge))
                     m_overlayUp.store(true, std::memory_order_relaxed);
                 m_run.valid = false;
                 return;
@@ -589,14 +590,29 @@ namespace drakengard_widescreen
             const int cy = (minY + maxY) / 2 - kScreenTop;
             // Each letter is its own batch. Letters that continue the text drawn just before keep its
             // anchor, so a line is never split where it crosses from one screen zone into another.
+            // The game can also draw a line's letters out of order (grouped by font page), coming back
+            // to a line after drawing others, so earlier lines of the frame are remembered too.
             Anchor anchor;
             if (continuesRun(z, minX, maxX, cy))
                 anchor = m_run.anchor;
             else
             {
-                anchor = chooseAnchor(z, cx, cy);
-                m_run.anchor = anchor;
-                m_run.lineStartX = minX;
+                if (m_run.valid && m_lines.size() < 64u)
+                    m_lines.push_back(m_run);
+                auto line = std::find_if(m_lines.begin(), m_lines.end(), [&](const TextRun &run)
+                                         { return continuesLine(run, z, minX, maxX, cy); });
+                if (line != m_lines.end())
+                {
+                    m_run = *line;
+                    m_lines.erase(line);
+                    anchor = m_run.anchor;
+                }
+                else
+                {
+                    anchor = chooseAnchor(z, cx, cy);
+                    m_run.anchor = anchor;
+                    m_run.lineStartX = minX;
+                }
             }
             m_run.valid = true;
             m_run.z = z;
@@ -611,6 +627,25 @@ namespace drakengard_widescreen
 
         // True if this batch reads as the next letter on the same line as the previous batch, or the
         // first letter of the following line of the same block.
+        struct TextRun
+        {
+            bool valid = false;
+            uint32_t z = 0u;
+            Anchor anchor = Anchor::Centre;
+            int lineStartX = 0;
+            int lastMaxX = 0;
+            int lastCy = 0;
+        };
+
+        // True if this batch is the next letter on the same line as `run`'s last one.
+        static bool continuesLine(const TextRun &run, uint32_t z, int minX, int maxX, int cy)
+        {
+            if (z != run.z || maxX - minX > px(48) || std::abs(cy - run.lastCy) > px(4))
+                return false;
+            const int gap = minX - run.lastMaxX;
+            return gap >= -px(4) && gap <= px(40);
+        }
+
         bool continuesRun(uint32_t z, int minX, int maxX, int cy) const
         {
             if (!m_run.valid || z != m_run.z || maxX - minX > px(48))
@@ -669,16 +704,8 @@ namespace drakengard_widescreen
         std::atomic<bool> m_overlayUp{false};
         std::atomic<bool> m_overlayPrevious{false};
 
-        struct TextRun
-        {
-            bool valid = false;
-            uint32_t z = 0u;
-            Anchor anchor = Anchor::Centre;
-            int lineStartX = 0;
-            int lastMaxX = 0;
-            int lastCy = 0;
-        };
         TextRun m_run;
+        std::vector<TextRun> m_lines; // the frame's earlier lines of text
     };
 
     void applyIfEnabled(PS2Runtime &runtime)
