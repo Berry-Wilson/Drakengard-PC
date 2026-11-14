@@ -57,7 +57,8 @@ PS2X_PROGRESSIVE=1
 PS2X_PCSX2_UPSCALE=4
 ```
 
-While playing: F5 steps the internal resolution, F12 saves a screenshot to `screenshots\` in the
+While playing: F1 shows PCSX2's statistics, F3 shows the game's speed (VSync/s, 60 is full speed), F5
+steps the internal resolution, F12 saves a screenshot to `screenshots\` in the
 game's folder.
 
 ## Troubleshooting
@@ -65,7 +66,7 @@ game's folder.
 | Problem | What to do |
 | --- | --- |
 | The window opens but stays black, or the log says `PCSX2's GS did not start` | The renderer DLL, its DLLs or PCSX2's `resources` folder are missing from `pcsx2-gs\` next to the runner (build step 5). Try another graphics API with `PS2X_PCSX2_RENDERER=dx11`. |
-| The game runs below 60 VSync/s (the counter in the top-left corner) | Lower the internal resolution with F5. Check the runner was built as Release. |
+| The game runs below 60 VSync/s (F3 shows the counter in the top-left corner) | Lower the internal resolution with F5. Check the runner was built as Release. |
 | A movie stutters when it starts or ends | Movies switch to PCSX2's software renderer and back, see [docs/movie-corruption.md](docs/movie-corruption.md). |
 | Something on screen is stretched or misplaced in 16:9 | 16:9 is experimental. Press F12 and report it with the screenshot; 4:3 is unaffected. |
 | The game closes with no message | Run `launch_game.bat` and look at `launch_console.log`. |

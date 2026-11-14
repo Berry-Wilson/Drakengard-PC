@@ -10,7 +10,7 @@
     {"name": "PS2X_GS_BACKEND", "group": "Video", "values": "cpu, software", "default": "", "help": "Older name for PS2X_PCSX2_RENDERER=software. Any other value is ignored."},
     {"name": "PS2X_PCSX2_SHARPNESS", "group": "Video", "values": "0, 1, 2", "default": "0", "help": "Sharpening and anisotropic filtering: off, normal or strong."},
     {"name": "PS2X_PCSX2_MOVIE_RENDERER", "group": "Video", "values": "hardware", "default": "software during movies", "help": "Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer."},
-    {"name": "PS2X_PCSX2_OSD", "group": "Video", "values": "0, 1", "default": "0", "help": "1 shows PCSX2's own statistics overlay."},
+    {"name": "PS2X_PCSX2_OSD", "group": "Video", "values": "0, 1", "default": "0", "help": "1 starts with PCSX2's own statistics overlay showing. F1 shows and hides it while playing."},
 
     {"name": "PS2X_PCSX2_BLENDING", "group": "PCSX2 picture settings", "values": "0 (minimum) to 5 (maximum)", "default": "the level PCSX2's game database recommends (2)", "help": "Blending accuracy."},
     {"name": "PS2X_PCSX2_TEXTURE_FILTER", "group": "PCSX2 picture settings", "values": "0 nearest, 1 bilinear always, 2 as the PS2 asks, 3 bilinear except sprites", "default": "2", "help": "Texture filtering."},

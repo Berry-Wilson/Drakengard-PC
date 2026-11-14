@@ -20,7 +20,7 @@ wins over the file.
 | `PS2X_GS_BACKEND` | cpu, software | unset | Older name for PS2X_PCSX2_RENDERER=software. Any other value is ignored. |
 | `PS2X_PCSX2_SHARPNESS` | 0, 1, 2 | 0 | Sharpening and anisotropic filtering: off, normal or strong. |
 | `PS2X_PCSX2_MOVIE_RENDERER` | hardware | software during movies | Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer. |
-| `PS2X_PCSX2_OSD` | 0, 1 | 0 | 1 shows PCSX2's own statistics overlay. |
+| `PS2X_PCSX2_OSD` | 0, 1 | 0 | 1 starts with PCSX2's own statistics overlay showing. F1 shows and hides it while playing. |
 
 ## PCSX2 picture settings
 
