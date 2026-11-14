@@ -33,16 +33,13 @@ GAME_ICON = ROOT / "launcher" / "res" / "drakengard.ico"
 PYTHON_VERSION = "3.12.10"
 PYTHON_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
 
-PROJECT_FILES = [
-    "LICENSE",
-    "recomp/recompile.txt",
-    "src/drakengard_overrides.cpp",
-    "tools/generate_recomp_config.py",
-    "tools/pack_recomp_sources.py",
-    "tools/setup_game.py",
-    "tools/vu1_disasm.py",
-    "tools/vu1_recomp.py",
-]
+# What the package takes from this repository is read from git, so a new source file or setup script
+# is in the next package without a list to keep: everything tracked in these folders, and these files.
+PROJECT_FOLDERS = ("src/", "recomp/", "tools/")
+PROJECT_FILES = ("LICENSE", "docs/settings.md")
+# Tools for working on the project, which setup doesn't run.
+DEVELOPER_ONLY = ("tools/testing/", "tools/make_release.py", "tools/make_launcher_icon.py", "tools/check_settings.py",
+                  "tools/elf_analyzer.py", "tools/fpk_unpacker.py")
 # FetchContent names; setup_game.py passes deps/<name> as FETCHCONTENT_SOURCE_DIR_<NAME>.
 DEPENDENCIES = ["elfio", "fmt", "imgui", "libdwarf", "nlohmann_json", "rabbitizer", "raylib", "rlimgui", "toml11"]
 # Test data and samples nothing builds, some of it foreign ELFs.
@@ -62,7 +59,7 @@ launcher's icon is the game's crest.
    Microsoft's C++ Build Tools are installed if you don't have them (about 6 GB more).
 4. Press Play.
 
-Saves are in iso_extracted\\mc0. If setup fails, setup.log in this folder has the details.
+Saves are in iso_extracted\\mc0. docs\\settings.md lists every option. If setup fails, setup.log in this folder has the details.
 """
 
 NOTICES = """Third-party software in this package
@@ -127,6 +124,15 @@ def copy_tracked(source, target, recurse=False, skip=None):
         out = target / name
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, out)
+
+
+def project_files():
+    tracked = git("ls-files", "-z").decode("utf-8").split("\0")
+    missing = [name for name in PROJECT_FILES if name not in tracked]
+    if missing:
+        sys.exit(f"Not in the repository: {', '.join(missing)}")
+    return [name for name in tracked
+            if name in PROJECT_FILES or (name.startswith(PROJECT_FOLDERS) and not name.startswith(DEVELOPER_ONLY))]
 
 
 def stage_fork(target):
@@ -238,7 +244,7 @@ def main():
 
     shutil.copytree(LAUNCHER_BUILD, stage, dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.pdb"))
     stage_vc_runtime(stage)
-    for name in PROJECT_FILES:
+    for name in project_files():
         out = stage / name
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, out)
