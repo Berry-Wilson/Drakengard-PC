@@ -44,5 +44,9 @@ desktop.ini
 # Memory card saves
 mc0/
 
+# The launcher's settings and controls
+/Launcher.ini
+/controls.ini
+
 # Local handoff notes
 docs/handoff-performance-and-pcsx2.md

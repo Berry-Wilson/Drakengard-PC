@@ -109,7 +109,7 @@ slot to clear it, and press Escape to cancel. Each PS2 input takes up to two key
 inputs, and every controller connected counts. F1, F5 and F12 are kept for the game. If a controller
 was connected after the launcher started, press **Find controllers**.
 
-Changes are saved at once to `%APPDATA%\Drakengard\controls.ini`, a readable text file, and the game
+Changes are saved at once to `controls.ini` in the game folder, a readable text file, and the game
 gets its path in `PS2X_CONTROLS`. Without that variable the game reads `controls.ini` from its
 working folder if there is one, and otherwise uses the defaults shown on the tab. The launcher reads
 controllers with GLFW 3.4, the same library and version as the game, so captured buttons mean the
@@ -126,6 +126,10 @@ same thing in both.
 
 ## Settings
 
-Settings are saved when you press Play and when you close the launcher, in
-`%APPDATA%\Drakengard\Launcher.ini`. Delete that file to return to the defaults. The controls are
-in `controls.ini` in the same folder; **Restore defaults** on the Controls tab resets them.
+Settings are saved when you press Play and when you close the launcher, in `Launcher.ini` in the
+game folder (the folder with `external\PS2Recomp`, or the launcher's own folder if there is none), so
+each copy of the game keeps its own. Delete that file to return to the defaults. The controls are in
+`controls.ini` in the same folder; **Restore defaults** on the Controls tab resets them.
+
+Earlier launchers kept both files in `%APPDATA%\Drakengard`. When the game folder has none yet, the
+launcher copies them from there once, and leaves the originals for any other copy of the game.

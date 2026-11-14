@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 #include "ControlsTab.h"
+#include "Settings.h"
 #include "SetupPage.h"
 
 #include <QAbstractItemView>
@@ -45,18 +46,6 @@ namespace
         InputRecord,
         InputReplay
     };
-
-    // Walks up from the launcher's own folder to the Drakengard project.
-    QString findProjectRoot()
-    {
-        QDir dir(QCoreApplication::applicationDirPath());
-        do
-        {
-            if (dir.exists("external/PS2Recomp/ps2xRuntime"))
-                return dir.absolutePath();
-        } while (dir.cdUp());
-        return {};
-    }
 
     QString defaultPath(const QString &root, const QString &relative)
     {
@@ -109,9 +98,7 @@ MainWindow::MainWindow()
 
     auto *tabs = new QTabWidget;
     tabs->addTab(buildGameTab(), "Game");
-    // The controls file sits beside the launcher's own settings.
-    const QString settingsFile = QSettings(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher").fileName();
-    m_controls = new ControlsTab(QFileInfo(settingsFile).absoluteDir().filePath("controls.ini"));
+    m_controls = new ControlsTab(controlsFile());
     tabs->addTab(m_controls, "Controls");
     tabs->addTab(buildVideoTab(), "Video");
     tabs->addTab(buildDeveloperTab(), "Developer");
@@ -478,7 +465,7 @@ void MainWindow::refreshWindowSizes()
 
 void MainWindow::loadSettings()
 {
-    QSettings s(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher");
+    QSettings s(settingsFile(), QSettings::IniFormat);
 
     m_runnerPath->setText(existingOr(s.value("paths/runner").toString(), defaultPath(m_projectRoot, kRunnerRelative)));
     m_elfPath->setText(existingOr(s.value("paths/elf").toString(), defaultPath(m_projectRoot, kElfRelative)));
@@ -527,7 +514,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::saveSettings() const
 {
-    QSettings s(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher");
+    QSettings s(settingsFile(), QSettings::IniFormat);
 
     s.setValue("paths/runner", m_runnerPath->text());
     s.setValue("paths/elf", m_elfPath->text());

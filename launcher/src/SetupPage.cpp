@@ -1,5 +1,7 @@
 #include "SetupPage.h"
 
+#include "Settings.h"
+
 #include <QDir>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -120,7 +122,7 @@ SetupPage::SetupPage(const QString &projectRoot, QWidget *parent)
     connect(m_cancel, &QPushButton::clicked, this, &SetupPage::cancel);
     connect(m_back, &QPushButton::clicked, this, &SetupPage::backRequested);
 
-    QSettings s(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher");
+    QSettings s(settingsFile(), QSettings::IniFormat);
     m_discPath->setText(s.value("setup/disc").toString());
 }
 
@@ -235,7 +237,7 @@ void SetupPage::start()
         arguments << "--install-tools";
     }
 
-    QSettings s(QSettings::IniFormat, QSettings::UserScope, "Drakengard", "Launcher");
+    QSettings s(settingsFile(), QSettings::IniFormat);
     s.setValue("setup/disc", m_discPath->text());
 
     m_cancelled = false;

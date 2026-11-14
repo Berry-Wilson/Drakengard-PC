@@ -28,6 +28,8 @@ qt_add_executable(drakengard-launcher WIN32
     src/main.cpp
     src/MainWindow.cpp
     src/MainWindow.h
+    src/Settings.cpp
+    src/Settings.h
     src/SetupPage.cpp
     src/SetupPage.h
     src/ControlsTab.cpp
