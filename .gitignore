@@ -10,6 +10,11 @@ launcher/res/drakengard.ico
 # --- Code generated from the game's ELF (regenerate with build_recomp.ps1) ---
 recomp/output/
 recomp/batched/
+recomp/functions.csv
+recomp/drakengard.toml
+recomp/drakengard_analyzer.toml
+recomp/generated.stamp
+analysis/
 src/vu0_programs_*.cpp
 src/vu1_programs_*.cpp
 
@@ -38,3 +43,6 @@ desktop.ini
 
 # Memory card saves
 mc0/
+
+# Local handoff notes
+docs/handoff-performance-and-pcsx2.md

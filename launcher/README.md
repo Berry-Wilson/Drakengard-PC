@@ -88,26 +88,19 @@ not read `.iso` files. It runs from that folder, and the `mc0` memory card is fo
 
 | Tab | Controls |
 | --- | --- |
-| Game | Paths, VIF1/GIF worker thread, pad input recording or replay |
+| Game | Paths (runner, game, recordings, saves), VIF1/GIF worker thread, pad input recording or replay |
 | Controls | Keyboard and controller bindings for every PS2 button and stick direction, and which controller stick drives each PS2 stick |
-| Video | Aspect ratio, window size, draw distance, GS backend |
+| Video | Aspect ratio, window size, draw distance, internal resolution, full-height picture, sharpening, renderer |
 | Developer | VU1/VU0 mode, verify delay, VIF1/VU statistics, VIF verify, frame dumps |
 | Environment | Any other variable, such as `PS2X_AUTOPAD`; these override the other tabs |
 | Log | Game output and the console log file's path |
 
-The game is drawn by PCSX2's GS. Its settings have no controls of their own yet. Add these on the
-Environment tab:
+The game is drawn by PCSX2's GS. F5 steps the internal resolution from 1x to 8x while playing and
+shows the new one in the top-left corner; enlarge the window to see the extra detail. Movies are
+always drawn with PCSX2's software renderer.
 
-| Variable | Values | Effect |
-| --- | --- | --- |
-| `PS2X_PCSX2_UPSCALE` | 1 to 8, default 2 | Internal resolution, as a multiple of the PS2's |
-| `PS2X_PROGRESSIVE` | 0 (default), 1 | Shows the game's full 480-line frame instead of its 224-line copy for TV |
-| `PS2X_PCSX2_RENDERER` | `dx11`, `dx12`, `vulkan`, `opengl`, `software` | Graphics API; unset picks one |
-| `PS2X_PCSX2_SHARPNESS` | 0 (default), 1, 2 | Sharpening: off, normal or strong |
-| `PS2X_PCSX2_MOVIE_RENDERER` | unset (default), `hardware` | Movies use PCSX2's software renderer, as the GPU renderers garble them (see `docs/movie-corruption.md`); `hardware` keeps the GPU renderer |
-
-F5 steps the internal resolution from 1x to 8x while playing and shows the new one in the top-left
-corner. Enlarge the window to see the extra detail.
+Every option, including those without a control here, is listed in
+[`docs/settings.md`](../docs/settings.md). Put any of them on the Environment tab.
 
 ### Controls
 

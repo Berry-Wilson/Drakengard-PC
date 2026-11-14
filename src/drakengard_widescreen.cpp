@@ -8,8 +8,9 @@
 //    is drawn at all is widened too, or terrain at the sides is left out.
 //  - Marks drawn around a projected point with offsets in screen pixels (the aiming reticle, enemy
 //    health bars, the EXP from a kill) have those offsets narrowed right after the game builds them.
-//  - Screen-space art: the GIF stream is rewritten. Each piece is anchored to the left or right edge,
-//    or stays in a centred 4:3 layout.
+//  - Screen-space art: the GIF stream is rewritten so that it all keeps its shape in a centred 4:3
+//    layout, which is where menus belong. The HUD's elements are moved out to the screen's edges by
+//    hooks on the functions that draw them.
 #include "game_overrides.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
@@ -27,6 +28,15 @@
 namespace drakengard_widescreen
 {
     constexpr float kNarrow = 3.0f / 4.0f;
+
+    // Which edge of the screen the HUD element being drawn right now belongs at (see hookHudElement).
+    enum class Edge
+    {
+        None,
+        Left,
+        Right
+    };
+    Edge g_hudEdge = Edge::None;
     constexpr uint32_t kClipAngleX = 0x298u; // in the camera at 0x480B00: horizontal half angle
 
     void hookViewScreenMatrix(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
@@ -236,7 +246,11 @@ namespace drakengard_widescreen
     void hookEnemyBars(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
     {
         const uint32_t start = READ32(kSpritePacketStart);
+        // Called by the minimap's function, but these are marks in the world.
+        const Edge edge = g_hudEdge;
+        g_hudEdge = Edge::None;
         func_002AF5D0_0x2af5d0(rdram, ctx, runtime);
+        g_hudEdge = edge;
         const std::vector<PacketBatch> batches = readPacket(rdram, ctx, runtime, start, READ32(kSpritePacketStart));
         struct Bar
         {
@@ -365,36 +379,133 @@ namespace drakengard_widescreen
         return z >= kMenuParchmentZ && z < kHudZ;
     }
 
-    constexpr uint32_t kPathVu1 = 1u;
+    // The HUD. Each element has its own function, called once a frame from the mission's draw function
+    // (func_0014074C), and they all place their art through four routines that take the position in
+    // a2 (x) and a3 (y) and the depth in t0:
+    //   func_002A8934  a sprite, from its top left corner in pixels
+    //   func_002BF680  a turned and scaled picture, from its centre in pixels
+    //   func_002BF7A0  a gauge segment, in pixels
+    //   func_002A51D4  a letter, in GS units
+    // The stream rewriter below squeezes all screen-space art about the screen's centre. Art that
+    // belongs at an edge is moved sideways here first, by the distance that makes the squeeze leave it
+    // as far from that edge as it is in 4:3: a third of half the screen, 106.67 pixels.
+    constexpr int kEdgeShiftPixels = 107;
+    // Squeezed, this is the right edge of the screen.
+    constexpr int kPastScreenRight = kScreenCentre + ((kScreenRight - kScreenCentre) * 4 + 2) / 3;
 
-    enum class Anchor
+    template <Edge E, auto Original>
+    void hookHudElement(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
     {
-        Centre,
-        Left,
-        Right
-    };
+        const uint32_t returnsTo = GPR_U32(ctx, 31);
+        const uint32_t start = READ32(kSpritePacketStart);
+        const Edge outer = g_hudEdge;
+        g_hudEdge = E;
+        Original(rdram, ctx, runtime);
+        // A recompiled function can also come back here before it is done, to be resumed by the
+        // dispatcher. Its element then stays current until the next one starts.
+        if (ctx->pc != returnsTo)
+            return;
+        g_hudEdge = outer;
+        if (outer != Edge::None)
+            return;
+        // Flat fills (the lines under the gauges) are written straight into the element's packet,
+        // not through the routines above, so they are moved here.
+        const int shift = kEdgeShiftPixels * 16 * (E == Edge::Left ? -1 : 1);
+        for (const PacketBatch &batch : readPacket(rdram, ctx, runtime, start, READ32(kSpritePacketStart)))
+        {
+            if (((batch.prim >> 4u) & 1u) != 0u)
+                continue;
+            for (const PacketVertex &vertex : batch.vertices)
+            {
+                if (vertex.z == kHudZ)
+                    WRITE16(vertex.address, static_cast<uint16_t>(READ16(vertex.address) + shift));
+            }
+        }
+    }
+
+    void hookMissionDraw(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        g_hudEdge = Edge::None;
+        func_0014074C_0x14074c(rdram, ctx, runtime);
+    }
+
+    // The recompiler split func_002B04DC in two. Its first piece ends by handing over to the second
+    // (func_002B0500) through the dispatcher, which makes every caller return first and resume later,
+    // so the minimap's function (the caller) would leave its hook long before it is done. Running the
+    // second piece from here lets it return the usual way.
+    void hookJoinSplitFunction(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        // It draws the lock-on runes: marks in the world, like the enemy bars.
+        const Edge edge = g_hudEdge;
+        g_hudEdge = Edge::None;
+        func_002B04DC_0x2b04dc(rdram, ctx, runtime);
+        if (ctx->pc == 0x002B0500u)
+            func_002B0500_0x2b0500(rdram, ctx, runtime);
+        g_hudEdge = edge;
+    }
+
+    // Returns how far the art about to be drawn was moved, in the routine's own units.
+    int moveToEdge(R5900Context *ctx, int unitsPerPixel)
+    {
+        constexpr int kX = 6;     // a2
+        constexpr int kDepth = 8; // t0
+        const uint32_t z = GPR_U32(ctx, kDepth);
+        if (g_hudEdge == Edge::None || (z != kHudZ && z != kDialogTextZ))
+            return 0;
+        const int shift = kEdgeShiftPixels * unitsPerPixel * (g_hudEdge == Edge::Left ? -1 : 1);
+        SET_GPR_S32(ctx, kX, static_cast<int32_t>(GPR_U32(ctx, kX)) + shift);
+        return shift;
+    }
+
+    template <auto Original>
+    void hookHudArt(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        moveToEdge(ctx, 1);
+        Original(rdram, ctx, runtime);
+    }
+
+    // The letter routine returns where the next letter goes, which its callers pass straight back
+    // in, so that has to be where it would have been.
+    void hookHudLetter(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const int shift = moveToEdge(ctx, 16);
+        func_002A51D4_0x2a51d4(rdram, ctx, runtime);
+        if (shift != 0)
+            SET_GPR_S32(ctx, 2, static_cast<int32_t>(GPR_U32(ctx, 2)) - shift);
+    }
+
+    // The backing of the dialog box at the top left runs to the right edge of the screen, and has to
+    // keep reaching it. The sprite is the last thing this routine writes into the packet builder in
+    // a1: a REGLIST GIF tag (kSpriteRegs) and three qwords, with the corners in the last two.
+    void hookHudSprite(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t builder = GPR_U32(ctx, 5);
+        const bool moved = moveToEdge(ctx, 1) != 0;
+        func_002A8934_0x2a8934(rdram, ctx, runtime);
+        if (!moved || g_hudEdge != Edge::Left)
+            return;
+        const uint32_t tag = READ32(builder + 4u) - 0x40u;
+        if (READ64(tag + 8u) != kSpriteRegs)
+            return;
+        for (const uint32_t corner : {tag + 0x20u, tag + 0x30u})
+        {
+            if (READ16(corner) + kEdgeShiftPixels * 16 >= kScreenRight)
+                WRITE16(corner, static_cast<uint16_t>(kPastScreenRight));
+        }
+    }
+
+    constexpr uint32_t kPathVu1 = 1u;
 
     class HudRewriter final : public GifRewriter
     {
     public:
-        bool wantsPacket(uint32_t path) override
-        {
-            if (path == kPathVu1)
-            {
-                // Only 3D goes through VU1, and the menus and logos have none.
-                m_draws3D.store(true, std::memory_order_relaxed);
-                return false;
-            }
-            return true;
-        }
+        // Only 3D goes through VU1.
+        bool wantsPacket(uint32_t path) override { return path != kPathVu1; }
 
         void endFrame() override
         {
             // Two frames, as the VIF1 worker can deliver a frame's packets after it is presented.
-            m_draws3DPrevious.store(m_draws3D.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
-            m_overlayPrevious.store(m_overlayUp.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
-            m_run.valid = false;
-            m_lines.clear();
+            m_menuPrevious.store(m_menuUp.exchange(false, std::memory_order_relaxed), std::memory_order_relaxed);
         }
 
         void rewrite(uint32_t path, uint8_t *data, uint32_t sizeBytes) override
@@ -517,6 +628,11 @@ namespace drakengard_widescreen
             return value;
         }
 
+        bool menuActive() const
+        {
+            return m_menuUp.load(std::memory_order_relaxed) || m_menuPrevious.load(std::memory_order_relaxed);
+        }
+
         // A batch counts only if all its vertices share the depth: 3D very close to the camera can
         // also reach these depths, but its depth varies.
         void adjustBatch(uint8_t *data, uint64_t prim)
@@ -524,19 +640,7 @@ namespace drakengard_widescreen
             if (m_vertices.empty())
                 return;
             const uint32_t z = m_vertices[0].z;
-            // 3D also comes this way (the dragon in the sky has no VU1 terrain under it in cloud), and
-            // unlike 2D its depth varies within a batch.
-            for (const Vertex &vertex : m_vertices)
-            {
-                if (vertex.z != z)
-                {
-                    m_draws3D.store(true, std::memory_order_relaxed);
-                    break;
-                }
-            }
             const bool menuLayer = !isScreenSpaceZ(z) && isMenuLayerZ(z);
-            // 3D drawn between two letters leaves the line of text alone: a run only goes on with a
-            // letter right next to the last one anyway.
             if (!isScreenSpaceZ(z) && !menuLayer)
                 return;
             int minX = 0xFFFF;
@@ -555,157 +659,46 @@ namespace drakengard_widescreen
                 maxY = std::max(maxY, y);
             }
 
-            // A fill across the whole screen is a fade or a tint, and has to keep covering it. A fill
-            // across the whole width but not the height is the backing band of a menu drawn over a
-            // mission (results, memory card), whose layout stays centred like the menus elsewhere,
-            // unless it is shaded and runs to the top or bottom edge: that is a tint over the scene,
-            // such as the darkening behind a mission's opening lines (rows 200-480, Z 65000).
+            // An untextured fill across the whole width is a fade, a tint or the backing band of a menu,
+            // and has to keep covering the width. A band that is not the whole height belongs to a
+            // menu drawn over a mission (results, memory card), unless it is shaded and runs to the
+            // top or bottom edge: that is a tint over the scene, such as the darkening behind a
+            // mission's opening lines (rows 200-480, Z 65000).
             const bool textured = ((prim >> 4u) & 1u) != 0u;
             if (!textured && minX <= kScreenLeft && maxX >= kScreenRight)
             {
                 const bool shaded = ((prim >> 3u) & 1u) != 0u;
                 const bool reachesEdge = minY <= kScreenTop || maxY >= kScreenTop + px(440);
                 if (maxY - minY < px(400) && !(shaded && reachesEdge))
-                    m_overlayUp.store(true, std::memory_order_relaxed);
-                m_run.valid = false;
+                    m_menuUp.store(true, std::memory_order_relaxed);
                 return;
             }
 
             if (menuLayer)
             {
                 if (z == kMenuParchmentZ && textured && maxX - minX >= px(400) && maxY - minY >= px(400))
-                    m_overlayUp.store(true, std::memory_order_relaxed);
-                if (!overlayActive())
-                {
-                    m_run.valid = false;
+                    m_menuUp.store(true, std::memory_order_relaxed);
+                if (!menuActive())
                     return;
-                }
             }
             else if (z != kHudZ && z != kDialogTextZ)
             {
-                m_overlayUp.store(true, std::memory_order_relaxed);
+                m_menuUp.store(true, std::memory_order_relaxed); // the map's own layers
             }
 
-            const int cx = (minX + maxX) / 2 - kScreenLeft;
-            const int cy = (minY + maxY) / 2 - kScreenTop;
-            // Each letter is its own batch. Letters that continue the text drawn just before keep its
-            // anchor, so a line is never split where it crosses from one screen zone into another.
-            // The game can also draw a line's letters out of order (grouped by font page), coming back
-            // to a line after drawing others, so earlier lines of the frame are remembered too.
-            Anchor anchor;
-            if (continuesRun(z, minX, maxX, cy))
-                anchor = m_run.anchor;
-            else
-            {
-                if (m_run.valid && m_lines.size() < 64u)
-                    m_lines.push_back(m_run);
-                auto line = std::find_if(m_lines.begin(), m_lines.end(), [&](const TextRun &run)
-                                         { return continuesLine(run, z, minX, maxX, cy); });
-                if (line != m_lines.end())
-                {
-                    m_run = *line;
-                    m_lines.erase(line);
-                    anchor = m_run.anchor;
-                }
-                else
-                {
-                    anchor = chooseAnchor(z, cx, cy);
-                    m_run.anchor = anchor;
-                    m_run.lineStartX = minX;
-                }
-            }
-            m_run.valid = true;
-            m_run.z = z;
-            m_run.lastMaxX = maxX;
-            m_run.lastCy = cy;
             for (const Vertex &vertex : m_vertices)
             {
-                const uint16_t moved = static_cast<uint16_t>(move(read16(data, vertex.xOffset), anchor));
+                const int x = read16(data, vertex.xOffset);
+                const uint16_t moved = static_cast<uint16_t>(kScreenCentre + (x - kScreenCentre) * 3 / 4);
                 std::memcpy(data + vertex.xOffset, &moved, sizeof(moved));
-            }
-        }
-
-        // True if this batch reads as the next letter on the same line as the previous batch, or the
-        // first letter of the following line of the same block.
-        struct TextRun
-        {
-            bool valid = false;
-            uint32_t z = 0u;
-            Anchor anchor = Anchor::Centre;
-            int lineStartX = 0;
-            int lastMaxX = 0;
-            int lastCy = 0;
-        };
-
-        // True if this batch is the next letter on the same line as `run`'s last one.
-        static bool continuesLine(const TextRun &run, uint32_t z, int minX, int maxX, int cy)
-        {
-            if (z != run.z || maxX - minX > px(48) || std::abs(cy - run.lastCy) > px(4))
-                return false;
-            const int gap = minX - run.lastMaxX;
-            return gap >= -px(4) && gap <= px(40);
-        }
-
-        bool continuesRun(uint32_t z, int minX, int maxX, int cy) const
-        {
-            if (!m_run.valid || z != m_run.z || maxX - minX > px(48))
-                return false;
-            const int dy = cy - m_run.lastCy;
-            const int gap = minX - m_run.lastMaxX;
-            if (std::abs(dy) <= px(4))
-                return gap >= -px(4) && gap <= px(40);
-            return dy > px(4) && dy <= px(40) && std::abs(minX - m_run.lineStartX) <= px(24);
-        }
-
-        // cx and cy are the batch's centre on screen. The game draws each letter and gauge segment
-        // as its own batch, so pieces of one element are told apart by where the element sits.
-        bool overlayActive() const
-        {
-            return m_overlayUp.load(std::memory_order_relaxed) || m_overlayPrevious.load(std::memory_order_relaxed);
-        }
-
-        Anchor chooseAnchor(uint32_t z, int cx, int cy) const
-        {
-            const bool inMission = m_draws3D.load(std::memory_order_relaxed) ||
-                                   m_draws3DPrevious.load(std::memory_order_relaxed);
-            // The map screen and menus over a mission are centred layouts. They can be drawn after
-            // parts of the frame they cover, so the previous frame counts too.
-            if (!inMission || overlayActive())
-                return Anchor::Centre;
-            if (z == kDialogTextZ)
-                return Anchor::Left;
-            if (cy < px(130))
-                return cx >= px(490) ? Anchor::Right : Anchor::Left; // minimap; dialog portrait, backing
-            if (cy >= px(360) && cx >= px(520))
-                return Anchor::Right; // kill counter
-            if (cy >= px(400) || (cy >= px(240) && cx < px(280)))
-                return Anchor::Left; // emblem, gauges, chain counter
-            return Anchor::Centre;
-        }
-
-        static int move(int x, Anchor anchor)
-        {
-            switch (anchor)
-            {
-            case Anchor::Left:
-                // The dialog's backing art runs to the right edge, and keeps reaching it.
-                return x >= kScreenRight ? x : kScreenLeft + (x - kScreenLeft) * 3 / 4;
-            case Anchor::Right:
-                return kScreenRight - (kScreenRight - x) * 3 / 4;
-            default:
-                return kScreenCentre + (x - kScreenCentre) * 3 / 4;
             }
         }
 
         uint64_t m_prim[4] = {};
         std::vector<Vertex> m_vertices;
-        std::atomic<bool> m_draws3D{false};
-        std::atomic<bool> m_draws3DPrevious{false};
-        std::atomic<bool> m_overlayUp{false};
-        std::atomic<bool> m_overlayPrevious{false};
-
-        TextRun m_run;
-        std::vector<TextRun> m_lines; // the frame's earlier lines of text
+        // A menu is up over the mission; only then do its layers count as screen space.
+        std::atomic<bool> m_menuUp{false};
+        std::atomic<bool> m_menuPrevious{false};
     };
 
     void applyIfEnabled(PS2Runtime &runtime)
@@ -719,6 +712,24 @@ namespace drakengard_widescreen
         runtime.registerFunction(0x002AF5D0u, hookEnemyBars);
         runtime.registerFunction(0x0016609Cu, hookExpText);
         runtime.registerFunction(0x002A5918u, hookTextWidth);
+
+        runtime.registerFunction(0x0014074Cu, hookMissionDraw);
+        runtime.registerFunction(0x002B04DCu, hookJoinSplitFunction);
+        runtime.registerFunction(0x002B58C4u, hookHudElement<Edge::Right, func_002B58C4_0x2b58c4>); // minimap
+        runtime.registerFunction(0x002BC370u, hookHudElement<Edge::Right, func_002BC370_0x2bc370>); // kill counter
+        runtime.registerFunction(0x002B9114u, hookHudElement<Edge::Left, func_002B9114_0x2b9114>);  // emblem
+        runtime.registerFunction(0x002BA0ECu, hookHudElement<Edge::Left, func_002BA0EC_0x2ba0ec>);  // gauges
+        runtime.registerFunction(0x002B47E0u, hookHudElement<Edge::Left, func_002B47E0_0x2b47e0>);  // chain counter
+        runtime.registerFunction(0x002B7C30u, hookHudElement<Edge::Left, func_002B7C30_0x2b7c30>);  // dialog box
+        // On the dragon the dialog box is drawn through func_0020B558, which ends in a jump to the
+        // function above; the recompiler turns that into a direct call, which no hook sees.
+        runtime.registerFunction(0x0020B558u, hookHudElement<Edge::Left, func_0020B558_0x20b558>);
+        runtime.registerFunction(0x002618C4u, hookHudElement<Edge::Left, func_002618C4_0x2618c4>);  // dialog text
+        runtime.registerFunction(0x001A35A0u, hookHudElement<Edge::Left, func_001A35A0_0x1a35a0>);  // opening lines
+        runtime.registerFunction(0x002A8934u, hookHudSprite);
+        runtime.registerFunction(0x002BF680u, hookHudArt<func_002BF680_0x2bf680>);
+        runtime.registerFunction(0x002BF7A0u, hookHudArt<func_002BF7A0_0x2bf7a0>);
+        runtime.registerFunction(0x002A51D4u, hookHudLetter);
         static HudRewriter rewriter;
         ps2xSetGifRewriter(&rewriter);
         std::cerr << "[DrakengardPC] 16:9 mode on" << std::endl;

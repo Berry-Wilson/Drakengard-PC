@@ -37,6 +37,11 @@ DEPS_DIR = ROOT / "deps"
 RUNNER_DIR = BUILD_DIR / "ps2xRuntime" / "Release"
 RUNNER_EXE = RUNNER_DIR / "ps2EntryRunner.exe"
 RECOMP_EXE = BUILD_DIR / "ps2xRecomp" / "Release" / "ps2_recomp.exe"
+ANALYZER_EXE = BUILD_DIR / "ps2xAnalyzer" / "Release" / "ps2_analyzer.exe"
+# The renderer (PCSX2's GS as ps2x-gs.dll) is loaded from this folder beside the runner. A release
+# brings it built, in pcsx2-gs at its top; from a clone it is built from a PCSX2 source tree.
+RENDERER_DIR = RUNNER_DIR / "pcsx2-gs"
+PACKAGED_RENDERER = ROOT / "pcsx2-gs"
 GENERATED_STAMP = RECOMP_DIR / "generated.stamp"
 LOG_FILE = ROOT / "setup.log"
 
@@ -274,7 +279,9 @@ def bundled_dependencies():
 
 def configure(tools):
     run([tools["cmake"], "-S", SOURCE_DIR, "-B", BUILD_DIR, "-G", tools["generator"], "-A", "x64",
-         "-DPS2X_BUILD_ANALYZER=OFF", "-DPS2X_BUILD_TEST=OFF", "-DPS2X_BUILD_STUDIO=OFF",
+         "-DPS2X_BUILD_TEST=OFF", "-DPS2X_BUILD_STUDIO=OFF",
+         f"-DPS2X_GAME_RECOMP_DIR={(ROOT / 'recomp' / 'batched').as_posix()}",
+         f"-DPS2X_GAME_SRC_DIR={(ROOT / 'src').as_posix()}",
          f"-DPython3_EXECUTABLE={Path(sys.executable).as_posix()}", *bundled_dependencies()])
 
 
@@ -294,7 +301,7 @@ def build_target(tools, target, total_files=0):
 def generate_game_code():
     """The translated game code is only made again for a different disc or changed tools."""
     tool_hash = hashlib.sha256()
-    for path in sorted((ROOT / "tools").glob("*.py")) + sorted(RECOMP_DIR.glob("*.toml")) + [RECOMP_EXE]:
+    for path in sorted((ROOT / "tools").glob("*.py")) + [RECOMP_DIR / "recompile.txt", ANALYZER_EXE, RECOMP_EXE]:
         tool_hash.update(path.read_bytes())
     stamp = ELF_SHA256 + tool_hash.hexdigest()
     if GENERATED_STAMP.is_file() and GENERATED_STAMP.read_text() == stamp:
@@ -331,6 +338,14 @@ def copy_vc_runtime(tools):
             copied.add(name)
 
 
+def copy_renderer():
+    if PACKAGED_RENDERER.is_dir():
+        shutil.copytree(PACKAGED_RENDERER, RENDERER_DIR, dirs_exist_ok=True)
+    if not (RENDERER_DIR / "ps2x-gs.dll").is_file():
+        raise SetupError("The game is built, but its renderer is missing. Build it into\n"
+                         f"{RENDERER_DIR}\n(see external\\PS2Recomp\\ps2xRuntime\\pcsx2-gs\\README.md).")
+
+
 def run_setup(iso, may_install_tools):
     total = 6
     problem = folder_problem()
@@ -359,6 +374,7 @@ def run_setup(iso, may_install_tools):
 
     step(4, total, "Building the recompiler")
     build_target(tools, "ps2_recomp", count_compile_units("ps2_recomp"))
+    build_target(tools, "ps2_analyzer", count_compile_units("ps2_analyzer"))
 
     step(5, total, "Translating the game's code to C++")
     generate_game_code()
@@ -369,6 +385,7 @@ def run_setup(iso, may_install_tools):
     if not RUNNER_EXE.is_file():
         raise SetupError(f"The build finished without making the game. The full log is in {LOG_FILE}")
     copy_vc_runtime(tools)
+    copy_renderer()
     progress(100)
     say("Setup finished.")
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Generates PS2Recomp's function map CSV (functions.csv) and unified config TOML (drakengard.toml)
-by combining:
+Generates PS2Recomp's function map CSV (functions.csv) and config TOML (drakengard.toml) from the
+game's ELF. Of what it reads and writes, only recompile.txt is in the repository: the hand-kept
+list of library functions to translate. It first runs PS2Recomp's analyzer (ps2_analyzer), which
+writes drakengard_analyzer.toml, and then builds the function map by combining:
   1. .eh_frame FDEs (3,796 exact compiler-emitted function start/end ranges)
   2. .gnu.linkonce.t.* sections (1,346 named C++ inline/virtual methods with exact ranges)
   3. _vt$* C++ vtable function pointers, .ctors, .dtors, and entry point (0x120008)
@@ -11,6 +13,8 @@ by combining:
 
 import re
 import struct
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -27,7 +31,7 @@ def sanitize_ident(name: str) -> str:
     return clean[:56]
 
 
-def generate_function_map(elf_path: Path, csv_out: Path, toml_out: Path, analyzer_toml: Path):
+def generate_function_map(elf_path: Path, csv_out: Path, analyzer_toml: Path):
     data = elf_path.read_bytes()
     (
         e_type,
@@ -149,23 +153,22 @@ def generate_function_map(elf_path: Path, csv_out: Path, toml_out: Path, analyze
     # 6. Merge SCE SDK symbols and all discovered function addresses from ps2_analyzer's TOML
     sce_matched = 0
     analyzer_extra = 0
-    if analyzer_toml.exists():
-        txt = analyzer_toml.read_text(encoding="utf-8", errors="replace")
-        for m in re.finditer(r'"([A-Za-z0-9_]+)@(0x[0-9A-Fa-f]+)"', txt):
-            sym_name, addr_str = m.group(1), m.group(2)
-            addr = int(addr_str, 16)
-            if addr in functions:
-                if functions[addr][0].startswith(("func_", "vfunc_", "sub_", "ctor_", "dtor_")):
-                    functions[addr][0] = sym_name
-                    sce_matched += 1
-            elif find_exec_section(addr):
-                functions[addr] = [sym_name, 0, False]
+    txt = analyzer_toml.read_text(encoding="utf-8", errors="replace")
+    for m in re.finditer(r'"([A-Za-z0-9_]+)@(0x[0-9A-Fa-f]+)"', txt):
+        sym_name, addr_str = m.group(1), m.group(2)
+        addr = int(addr_str, 16)
+        if addr in functions:
+            if functions[addr][0].startswith(("func_", "vfunc_", "sub_", "ctor_", "dtor_")):
+                functions[addr][0] = sym_name
                 sce_matched += 1
-        for m in re.finditer(r'\bsub_([0-9A-Fa-f]{8})\b', txt):
-            addr = int(m.group(1), 16)
-            if addr not in functions and find_exec_section(addr):
-                functions[addr] = [f"func_{addr:08X}", 0, False]
-                analyzer_extra += 1
+        elif find_exec_section(addr):
+            functions[addr] = [sym_name, 0, False]
+            sce_matched += 1
+    for m in re.finditer(r'\bsub_([0-9A-Fa-f]{8})\b', txt):
+        addr = int(m.group(1), 16)
+        if addr not in functions and find_exec_section(addr):
+            functions[addr] = [f"func_{addr:08X}", 0, False]
+            analyzer_extra += 1
 
     # 7. Scan data sections (.data, .rodata, .sdata) for 32-bit function pointer tables/clusters
     data_ptr_count = 0
@@ -284,37 +287,68 @@ def generate_function_map(elf_path: Path, csv_out: Path, toml_out: Path, analyze
     print(f"  - JAL call targets:     {jal_count}")
     print(f"  - SCE SDK symbol names: {sce_matched}")
 
-    # drakengard.toml is hand-maintained (its recompile list isn't in the analyzer's output),
-    # so drakengard_analyzer.toml only seeds it when it's missing
-    template = toml_out if toml_out.exists() else analyzer_toml
-    if template.exists():
-        original = template.read_text(encoding="utf-8", errors="replace")
-        txt = original
-        # Paths are relative to the repo root, where build_recomp.ps1 runs PS2Recomp
-        repo_root = toml_out.parent.parent
-        out_cpp_dir = (toml_out.parent / "output").relative_to(repo_root).as_posix()
-        txt = re.sub(
-            r'(?m)^ghidra_output\s*=\s*"[^"]*"',
-            f'ghidra_output = "{csv_out.relative_to(repo_root).as_posix()}"',
-            txt,
-            count=1,
-        )
-        txt = re.sub(
-            r'(?m)^output\s*=\s*"[^"]*"',
-            f'output = "{out_cpp_dir}"',
-            txt,
-            count=1,
-        )
-        if template != toml_out or txt != original:
-            toml_out.write_text(txt, encoding="utf-8")
-            print(f"Updated unified {toml_out} with ghidra_output + SCE stubs + 118 jump tables")
+
+def read_recompile_names(path: Path) -> list:
+    names = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.split("#", 1)[0].strip()
+        if line:
+            names.append(line)
+    return names
+
+
+def generate_config(analyzer_toml: Path, recompile_list: Path, csv_out: Path, toml_out: Path):
+    """drakengard.toml is the analyzer's config plus the functions named in recompile.txt."""
+    txt = analyzer_toml.read_text(encoding="utf-8", errors="replace")
+    # Paths are relative to the repo root, where PS2Recomp is run
+    repo_root = toml_out.parent.parent
+    out_cpp_dir = (toml_out.parent / "output").relative_to(repo_root).as_posix()
+    txt, n1 = re.subn(
+        r'(?m)^ghidra_output\s*=\s*"[^"]*"',
+        f'ghidra_output = "{csv_out.relative_to(repo_root).as_posix()}"',
+        txt,
+        count=1,
+    )
+    txt, n2 = re.subn(r'(?m)^output\s*=\s*"[^"]*"', f'output = "{out_cpp_dir}"', txt, count=1)
+
+    stubs = re.search(r'(?ms)^(?:#[^\n]*\n)?stubs = \[\n(.*?)^\]', txt)
+    if not (n1 and n2 and stubs):
+        sys.exit(f"{analyzer_toml} doesn't look like the analyzer's output.")
+    found = re.findall(r'"([A-Za-z0-9_]+)@(0x[0-9A-Fa-f]+)"', stubs.group(1))
+    entries = []
+    for name in read_recompile_names(recompile_list):
+        matches = [f'  "{n}@{addr}",' for n, addr in found if n == name]
+        if not matches:
+            sys.exit(f"{recompile_list.name} names {name}, which the analyzer did not find in this game.")
+        entries += matches
+    block = (
+        f"# Translated from the game's code instead of stubbed (from {recompile_list.name})\n"
+        "recompile = [\n" + "\n".join(entries) + "\n]\n\n"
+    )
+    txt = txt[: stubs.start()] + block + txt[stubs.start() :]
+    toml_out.write_text(txt, encoding="utf-8", newline="\n")
+    print(f"Wrote {toml_out} ({len(entries)} functions to translate instead of stub)")
+
+
+def run_analyzer(analyzer_exe: Path, elf_path: Path, analyzer_toml: Path):
+    if not analyzer_exe.is_file():
+        sys.exit(f"{analyzer_exe} is missing. Build the ps2_analyzer target first.")
+    repo_root = analyzer_toml.parent.parent
+    # Relative paths, so nothing in the output depends on where the repository is
+    subprocess.run(
+        [str(analyzer_exe), elf_path.relative_to(repo_root).as_posix(), analyzer_toml.relative_to(repo_root).as_posix()],
+        cwd=repo_root,
+        check=True,
+        stdout=subprocess.DEVNULL,
+    )
+    print(f"Analyzed {elf_path.name} into {analyzer_toml}")
 
 
 if __name__ == "__main__":
     root = Path(__file__).resolve().parent.parent
-    generate_function_map(
-        elf_path=root / "iso_extracted" / "SLUS_207.32",
-        csv_out=root / "recomp" / "functions.csv",
-        toml_out=root / "recomp" / "drakengard.toml",
-        analyzer_toml=root / "recomp" / "drakengard_analyzer.toml",
-    )
+    elf = root / "iso_extracted" / "SLUS_207.32"
+    recomp = root / "recomp"
+    analyzer_exe = root / "external" / "PS2Recomp" / "out" / "build" / "ps2xAnalyzer" / "Release" / "ps2_analyzer.exe"
+    run_analyzer(analyzer_exe, elf, recomp / "drakengard_analyzer.toml")
+    generate_function_map(elf, recomp / "functions.csv", recomp / "drakengard_analyzer.toml")
+    generate_config(recomp / "drakengard_analyzer.toml", recomp / "recompile.txt", recomp / "functions.csv", recomp / "drakengard.toml")

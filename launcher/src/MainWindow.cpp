@@ -235,6 +235,15 @@ QWidget *MainWindow::buildGameTab()
                 m_recordingsDir->setText(path);
                 refreshRecordings();
             });
+    addPath("Saves", m_savesDir, "Folder for memory card saves. Empty keeps them in mc0 next to the game ELF. "
+                                 "Sets PS2X_MEMCARD_DIR.",
+            [this]
+            {
+                const QString path = QFileDialog::getExistingDirectory(this, "Select saves folder", m_savesDir->text());
+                if (!path.isEmpty())
+                    m_savesDir->setText(path);
+            });
+    m_savesDir->setPlaceholderText("mc0 next to the game ELF");
 
     m_vif1Thread = new QCheckBox("VIF1/GIF worker thread");
     m_vif1Thread->setToolTip("Clearing this sets PS2X_VIF1_THREAD=0.");
@@ -295,10 +304,38 @@ QWidget *MainWindow::buildVideoTab()
                                "appear suddenly, and the level's edge may show. Sets PS2X_DRAW_DISTANCE.");
     form->addRow("Draw distance", m_drawDistance);
 
-    m_gsBackend = new QComboBox;
-    m_gsBackend->addItem("Vulkan (parallel-gs)", QString());
-    m_gsBackend->addItem("CPU", QString("cpu"));
-    form->addRow("GS backend", m_gsBackend);
+    m_resolution = new QComboBox;
+    for (int scale = 1; scale <= 8; ++scale)
+    {
+        const QString label = QString("%1x (%2 x %3)%4").arg(scale).arg(640 * scale).arg(448 * scale).arg(scale == 2 ? " (default)" : "");
+        m_resolution->addItem(label, scale == 2 ? QString() : QString::number(scale));
+    }
+    m_resolution->setToolTip("The resolution the game is drawn at, as a multiple of the PS2's. F5 steps through "
+                             "them while playing. Sets PS2X_PCSX2_UPSCALE.");
+    form->addRow("Internal resolution", m_resolution);
+
+    m_fullHeight = new QCheckBox("Full-height picture");
+    m_fullHeight->setToolTip("Shows the game's full 480-line frame instead of the 224-line copy it makes for "
+                             "TVs, which is the biggest gain in detail. Sets PS2X_PROGRESSIVE=1.");
+    form->addRow("Detail", m_fullHeight);
+
+    m_sharpness = new QComboBox;
+    m_sharpness->addItem("Off", QString());
+    m_sharpness->addItem("Normal", QString("1"));
+    m_sharpness->addItem("Strong", QString("2"));
+    m_sharpness->setToolTip("Sharpening and anisotropic filtering. Sets PS2X_PCSX2_SHARPNESS.");
+    form->addRow("Sharpening", m_sharpness);
+
+    m_renderer = new QComboBox;
+    m_renderer->addItem("Automatic", QString());
+    m_renderer->addItem("Direct3D 11", QString("dx11"));
+    m_renderer->addItem("Direct3D 12", QString("dx12"));
+    m_renderer->addItem("Vulkan", QString("vulkan"));
+    m_renderer->addItem("OpenGL", QString("opengl"));
+    m_renderer->addItem("Software (slow, most accurate)", QString("software"));
+    m_renderer->setToolTip("The graphics API PCSX2's renderer draws with. Movies always use its software "
+                           "renderer. Sets PS2X_PCSX2_RENDERER.");
+    form->addRow("Renderer", m_renderer);
 
     return tab;
 }
@@ -450,7 +487,12 @@ void MainWindow::loadSettings()
     m_consoleLogPath->setText(logPathOr(s.value("paths/consoleLog", defaultLog).toString(), defaultLog));
 
     m_vif1Thread->setChecked(s.value("game/vif1Thread", true).toBool());
-    selectData(m_gsBackend, s.value("game/gsBackend", QString()));
+    // "game/gsBackend" is the setting from before PCSX2's renderer: its "cpu" meant a software renderer.
+    selectData(m_renderer, s.value("game/renderer", s.value("game/gsBackend").toString() == "cpu" ? "software" : QString()));
+    selectData(m_resolution, s.value("game/resolution", QString()));
+    selectData(m_sharpness, s.value("game/sharpness", QString()));
+    m_fullHeight->setChecked(s.value("game/fullHeight", false).toBool());
+    m_savesDir->setText(s.value("paths/saves").toString());
     selectData(m_aspect, s.value("game/aspect", QString()));
     selectData(m_windowSize, s.value("game/windowSize", QString()));
     selectData(m_drawDistance, s.value("game/drawDistance", QString()));
@@ -493,7 +535,12 @@ void MainWindow::saveSettings() const
     s.setValue("paths/consoleLog", m_consoleLogPath->text());
 
     s.setValue("game/vif1Thread", m_vif1Thread->isChecked());
-    s.setValue("game/gsBackend", m_gsBackend->currentData());
+    s.remove("game/gsBackend");
+    s.setValue("game/renderer", m_renderer->currentData());
+    s.setValue("game/resolution", m_resolution->currentData());
+    s.setValue("game/sharpness", m_sharpness->currentData());
+    s.setValue("game/fullHeight", m_fullHeight->isChecked());
+    s.setValue("paths/saves", m_savesDir->text());
     s.setValue("game/aspect", m_aspect->currentData());
     s.setValue("game/windowSize", m_windowSize->currentData());
     s.setValue("game/drawDistance", m_drawDistance->currentData());
@@ -587,8 +634,16 @@ QProcessEnvironment MainWindow::buildEnvironment(const QString &recordFile) cons
 
     if (!m_vif1Thread->isChecked())
         env.insert("PS2X_VIF1_THREAD", "0");
-    if (const QString backend = m_gsBackend->currentData().toString(); !backend.isEmpty())
-        env.insert("PS2X_GS_BACKEND", backend);
+    if (const QString renderer = m_renderer->currentData().toString(); !renderer.isEmpty())
+        env.insert("PS2X_PCSX2_RENDERER", renderer);
+    if (const QString resolution = m_resolution->currentData().toString(); !resolution.isEmpty())
+        env.insert("PS2X_PCSX2_UPSCALE", resolution);
+    if (const QString sharpness = m_sharpness->currentData().toString(); !sharpness.isEmpty())
+        env.insert("PS2X_PCSX2_SHARPNESS", sharpness);
+    if (m_fullHeight->isChecked())
+        env.insert("PS2X_PROGRESSIVE", "1");
+    if (!m_savesDir->text().trimmed().isEmpty())
+        env.insert("PS2X_MEMCARD_DIR", QDir::toNativeSeparators(m_savesDir->text().trimmed()));
     if (const QString aspect = m_aspect->currentData().toString(); !aspect.isEmpty())
         env.insert("PS2X_ASPECT", aspect);
     if (const QString size = m_windowSize->currentData().toString(); !size.isEmpty())

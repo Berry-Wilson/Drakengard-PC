@@ -1,0 +1,62 @@
+# Library functions that are translated from the game's own code. PS2Recomp's analyzer finds these
+# in the game and marks them to be replaced by the runtime's hand-written versions; the names here
+# are taken off that list. One name a line; every copy of the function in the game is translated.
+
+# libvu0 math: the runtime's versions are not exact.
+sceVu0InnerProduct
+sceVu0CopyMatrix
+sceVu0ApplyMatrix
+sceVu0MulMatrix
+sceVu0OuterProduct
+sceVu0Normalize
+sceVu0TransposeMatrix
+sceVu0InversMatrix
+sceVu0DivVector
+sceVu0DivVectorXYZ
+sceVu0InterVector
+sceVu0AddVector
+sceVu0SubVector
+sceVu0MulVector
+sceVu0ScaleVector
+sceVu0TransMatrix
+sceVu0CopyVector
+sceVu0FTOI4Vector
+sceVu0FTOI0Vector
+sceVu0ITOF4Vector
+sceVu0ITOF0Vector
+sceVu0UnitMatrix
+_sceVu0ecossin
+sceVu0RotMatrixZ
+sceVu0RotMatrixX
+sceVu0RotMatrixY
+sceVu0RotMatrix
+sceVu0ClampVector
+sceVu0CameraMatrix
+sceVu0NormalLightMatrix
+sceVu0LightColorMatrix
+sceVu0ViewScreenMatrix
+sceVu0DropShadowMatrix
+sceVu0RotTransPersN
+sceVu0RotTransPers
+sceVu0InterVectorXYZ
+sceVu0ScaleVectorXYZ
+sceVu0ClipScreen
+sceVu0ClipScreen3
+sceVu0ClipAll
+
+# newlib rand: RAND_MAX is 0x7FFFFFFF and srand (translated) keeps its state in the game's memory.
+# The runtime's version returned 0..0x7FFF, so rand()/RAND_MAX was always about 0.
+rand
+
+# libm: the game passes soft-float doubles in $a0/$v0; the runtime's versions read $f12/$f0.
+sin
+fabs
+floor
+__ieee754_rem_pio2f
+__kernel_cosf
+__kernel_sinf
+
+# libsdr: the real client, so that movie audio reaches SDRDRV.IRX.
+sceSdRemoteInit
+sceSdTransToIOP
+sceSdRemote

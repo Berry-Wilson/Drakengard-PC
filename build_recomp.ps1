@@ -11,7 +11,8 @@ $RecompExe = Join-Path $BuildDir "ps2xRecomp\$Config\ps2_recomp.exe"
 $RunnerExe = Join-Path $BuildDir "ps2xRuntime\$Config\ps2EntryRunner.exe"
 
 if (-not $SkipRecomp) {
-    Write-Host "[1/3] Updating function map & TOML config..." -ForegroundColor Cyan
+    Write-Host "[1/3] Analyzing the ELF, writing the function map & TOML config..." -ForegroundColor Cyan
+    & $CMake --build $BuildDir --config $Config --target ps2_analyzer --parallel 8
     python (Join-Path $Root "tools\generate_recomp_config.py")
 
     Write-Host "[2/3] Running PS2Recomp on SLUS_207.32..." -ForegroundColor Cyan

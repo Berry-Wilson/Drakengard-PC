@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Build the player's zip: the launcher, the sources and tools setup needs. The only thing from the game
-in it is the crest used as the launcher's icon.
+"""Build the player's zip: the launcher, the renderer (PCSX2's GS, built) and the sources and tools setup
+needs. The only thing from the game in it is the crest used as the launcher's icon.
 
 The fork in external/PS2Recomp is taken at its HEAD commit. The zip is refused if any file derived from
 the game is found in it.
 
 Usage: python tools/make_release.py [--allow-dirty] [--name DrakengardPC-x.y] [--no-zip]
-Build the launcher first (see launcher/README.md).
+Build the launcher first (see launcher/README.md), and the renderer into the runner's pcsx2-gs folder
+(see external/PS2Recomp/ps2xRuntime/pcsx2-gs/README.md).
 """
 import argparse
 import datetime
@@ -23,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from setup_game import find_tools  # noqa: E402
+from setup_game import PACKAGED_RENDERER, RENDERER_DIR, find_tools  # noqa: E402
 
 DIST = ROOT / "out" / "dist"
 FORK = ROOT / "external" / "PS2Recomp"
@@ -34,9 +35,7 @@ PYTHON_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON
 
 PROJECT_FILES = [
     "LICENSE",
-    "recomp/drakengard.toml",
-    "recomp/drakengard_analyzer.toml",
-    "recomp/functions.csv",
+    "recomp/recompile.txt",
     "src/drakengard_overrides.cpp",
     "tools/generate_recomp_config.py",
     "tools/pack_recomp_sources.py",
@@ -76,6 +75,14 @@ Python is in python\\ under the Python Software Foundation License (python\\LICE
 
 Microsoft Visual C++ runtime DLLs are redistributed under the Visual Studio license terms.
 
+The renderer in pcsx2-gs\\ is PCSX2's GS (https://pcsx2.net), under the GNU GPL version 3 or later; the
+text is in LICENSE. pcsx2-gs\\SOURCE.txt says which PCSX2 source it was built from and how to build it.
+PCSX2's resources (pcsx2-gs\\resources) come with it. The DLLs beside it are its dependencies, each
+under its own license: SDL 3 (zlib), FreeType (FreeType License), HarfBuzz (MIT), libpng (libpng),
+libjpeg-turbo (IJG and BSD), libwebp (BSD), LZ4 (BSD), Zstandard (BSD), zlib (zlib), rapidyaml (MIT),
+PlutoVG and PlutoSVG (MIT), Shaderc (Apache 2.0) and Microsoft's DirectX Shader Compiler (dxcompiler.dll,
+University of Illinois/NCSA and Microsoft's terms).
+
 The sources in deps\\ and external\\ carry their own license files: raylib, Dear ImGui, rlImGui, ELFIO, fmt,
 toml11, nlohmann/json, libdwarf, rabbitizer and PS2Recomp.
 FFmpeg (LGPL build) is downloaded during setup from https://github.com/System233/ffmpeg-msvc-prebuilt
@@ -84,6 +91,21 @@ This project: GPL-3.0, see LICENSE.
 
 The launcher's icon is the crest from Drakengard's memory card icon, (C) cavia inc. / Square Enix Co., Ltd.
 It isn't covered by the licenses above.
+"""
+
+RENDERER_SOURCE = """Where this renderer comes from
+==============================
+
+ps2x-gs.dll is PCSX2's GS (graphics) code built as a library, licensed under the GNU GPL version 3 or
+later (see LICENSE in the folder above).
+
+Source:
+  PCSX2      https://github.com/PCSX2/pcsx2 at commit {commit}
+  The DLL    external\\PS2Recomp\\ps2xRuntime\\pcsx2-gs in this package (Ps2xGS.cpp, ps2x_gs_api.h, CMakeLists.txt)
+
+README.md in that folder has the build steps: the three lines to add to PCSX2's root CMakeLists.txt,
+build-dependencies-gs.bat for the dependency DLLs here (it names their versions and where each is
+downloaded from) and build-ps2x-gs.bat for the DLL. The resources folder is PCSX2's bin\\resources.
 """
 
 GUARD_SUFFIXES = (".iso", ".irx", ".img")
@@ -114,6 +136,24 @@ def stage_fork(target):
     target.mkdir(parents=True)
     with tarfile.open(fileobj=io.BytesIO(git("archive", "--format=tar", "HEAD", cwd=FORK))) as tar:
         tar.extractall(target, filter="data")
+
+
+def stage_renderer(target):
+    """The renderer as build-ps2x-gs.bat left it beside the runner, without what running it adds."""
+    source = FORK / "ps2xRuntime" / "pcsx2-gs"
+    dll = RENDERER_DIR / "ps2x-gs.dll"
+    commit_file = RENDERER_DIR / "pcsx2-commit.txt"
+    if not dll.is_file() or not commit_file.is_file():
+        sys.exit(f"The renderer isn't built in {RENDERER_DIR}. Run build-ps2x-gs.bat: see {source / 'README.md'}")
+    newer = [p.name for p in (source / "Ps2xGS.cpp", source / "ps2x_gs_api.h", source / "CMakeLists.txt")
+             if p.stat().st_mtime > dll.stat().st_mtime]
+    if newer:
+        sys.exit(f"The renderer is older than its source ({', '.join(newer)}). Run build-ps2x-gs.bat again.")
+    commit = commit_file.read_text(encoding="ascii").strip()
+    print(f"Renderer: PCSX2 at commit {commit[:9]}")
+    # gs-data is what PCSX2 writes while running: logs and shader caches.
+    shutil.copytree(RENDERER_DIR, target, ignore=shutil.ignore_patterns("gs-data", "*.pdb", commit_file.name))
+    (target / "SOURCE.txt").write_text(RENDERER_SOURCE.format(commit=commit), encoding="utf-8")
 
 
 def stage_python(target):
@@ -210,6 +250,7 @@ def main():
         copy_tracked(FORK / "out" / "build" / "_deps" / f"{dep}-src", stage / "deps" / dep,
                      skip=lambda name: name.split("/")[0].lower() in SKIP_DEPENDENCY_DIRS)
     stage_python(stage / "python")
+    stage_renderer(stage / PACKAGED_RENDERER.name)
 
     problems = guard(stage)
     if problems:

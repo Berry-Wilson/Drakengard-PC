@@ -64,10 +64,14 @@ private:
     QLineEdit *m_runnerPath = nullptr;
     QLineEdit *m_elfPath = nullptr;
     QLineEdit *m_recordingsDir = nullptr;
+    QLineEdit *m_savesDir = nullptr;
     QLineEdit *m_consoleLogPath = nullptr;
 
     QCheckBox *m_vif1Thread = nullptr;
-    QComboBox *m_gsBackend = nullptr;
+    QComboBox *m_renderer = nullptr;
+    QComboBox *m_resolution = nullptr;
+    QComboBox *m_sharpness = nullptr;
+    QCheckBox *m_fullHeight = nullptr;
     QComboBox *m_aspect = nullptr;
     QComboBox *m_windowSize = nullptr;
     QComboBox *m_drawDistance = nullptr;
