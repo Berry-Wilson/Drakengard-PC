@@ -44,8 +44,11 @@ For working on the port, the Visual Studio build below is the one the testing to
 2. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
 3. Configure the build:
    ```
-   cmake -S external/PS2Recomp -B external/PS2Recomp/out/build -G "Visual Studio 18 2026" -DPS2X_GAME_RECOMP_DIR=recomp/batched -DPS2X_GAME_SRC_DIR=src
+   cmake -S external/PS2Recomp -B external/PS2Recomp/out/build -G "Visual Studio 18 2026" -DPS2X_GAME_RECOMP_DIR=recomp/batched -DPS2X_GAME_SRC_DIR=src -DPS2X_WINDOW_TITLE=Drakengard-PC
    ```
+   Once you have the launcher's icon (`launcher/res/drakengard.ico`, see
+   [launcher/README.md](launcher/README.md)), add `-DPS2X_RUNNER_ICON=launcher/res/drakengard.ico` to
+   give the game window the same icon. Setup does both by itself.
 4. Recompile and build:
    ```
    powershell -File build_recomp.ps1

@@ -47,6 +47,12 @@ RENDERER_DIR = RUNNER_DIR / "pcsx2-gs"
 PACKAGED_RENDERER = ROOT / "pcsx2-gs"
 DEVELOPER_RENDERER = SOURCE_DIR / "out" / "build" / "ps2xRuntime" / "Release" / "pcsx2-gs"
 GENERATED_STAMP = RECOMP_DIR / "generated.stamp"
+# The game window is named for the port and shows the launcher's icon. A clone has the icon file
+# (made by tools/make_launcher_icon.py); a release has it only inside the launcher exe.
+WINDOW_TITLE = "Drakengard-PC"
+GAME_ICON = ROOT / "launcher" / "res" / "drakengard.ico"
+LAUNCHER_EXE = ROOT / "drakengard-launcher.exe"
+LAUNCHER_ICON_NAME = "IDI_ICON1"
 LOG_FILE = ROOT / "setup.log"
 
 ELF_NAME = "SLUS_207.32"
@@ -333,7 +339,68 @@ def tool_environment(tools):
     return env
 
 
+def launcher_icon(target):
+    """Write the launcher exe's icon to target as an .ico file; False if the exe has none."""
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.LoadLibraryExW.restype = ctypes.c_void_p
+    kernel32.LoadLibraryExW.argtypes = [ctypes.c_wchar_p, ctypes.c_void_p, ctypes.c_uint32]
+    kernel32.FindResourceW.restype = ctypes.c_void_p
+    kernel32.FindResourceW.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+    kernel32.LoadResource.restype = ctypes.c_void_p
+    kernel32.LoadResource.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    kernel32.LockResource.restype = ctypes.c_void_p
+    kernel32.LockResource.argtypes = [ctypes.c_void_p]
+    kernel32.SizeofResource.restype = ctypes.c_uint32
+    kernel32.SizeofResource.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    kernel32.FreeLibrary.argtypes = [ctypes.c_void_p]
+    RT_ICON, RT_GROUP_ICON = 3, 14
+    AS_DATAFILE_AND_IMAGE_RESOURCE = 0x00000002 | 0x00000020
+
+    module = kernel32.LoadLibraryExW(str(LAUNCHER_EXE), None, AS_DATAFILE_AND_IMAGE_RESOURCE)
+    if not module:
+        return False
+    try:
+        def resource(name, kind):
+            found = kernel32.FindResourceW(module, name, kind)
+            if not found:
+                return None
+            data = kernel32.LockResource(kernel32.LoadResource(module, found))
+            return ctypes.string_at(data, kernel32.SizeofResource(module, found))
+
+        group = resource(ctypes.cast(ctypes.c_wchar_p(LAUNCHER_ICON_NAME), ctypes.c_void_p), RT_GROUP_ICON)
+        if not group:
+            return False
+        # The group is the .ico header with a resource id in place of each image's file offset.
+        count = struct.unpack_from("<H", group, 4)[0]
+        entries, images = [], []
+        offset = 6 + 16 * count
+        for i in range(count):
+            fields = group[6 + 14 * i:6 + 14 * i + 12]
+            image = resource(struct.unpack_from("<H", group, 6 + 14 * i + 12)[0], RT_ICON)
+            if not image:
+                return False
+            entries.append(fields + struct.pack("<I", offset))
+            images.append(image)
+            offset += len(image)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(struct.pack("<HHH", 0, 1, count) + b"".join(entries) + b"".join(images))
+        return True
+    finally:
+        kernel32.FreeLibrary(module)
+
+
+def runner_icon():
+    """The icon file for the runner and its window, or None to build without one."""
+    if GAME_ICON.is_file():
+        return GAME_ICON
+    extracted = BUILD_DIR / "drakengard.ico"
+    if LAUNCHER_EXE.is_file() and launcher_icon(extracted):
+        return extracted
+    return None
+
+
 def configure(tools):
+    icon = runner_icon()
     run([tools["cmake"], "-S", SOURCE_DIR, "-B", BUILD_DIR, "-G", "Ninja",
          f"-DCMAKE_MAKE_PROGRAM={Path(tools['ninja']).as_posix()}",
          f"-DCMAKE_C_COMPILER={Path(tools['cc']).as_posix()}",
@@ -342,6 +409,8 @@ def configure(tools):
          "-DPS2X_BUILD_TEST=OFF", "-DPS2X_BUILD_STUDIO=OFF",
          f"-DPS2X_GAME_RECOMP_DIR={(ROOT / 'recomp' / 'batched').as_posix()}",
          f"-DPS2X_GAME_SRC_DIR={(ROOT / 'src').as_posix()}",
+         f"-DPS2X_WINDOW_TITLE={WINDOW_TITLE}",
+         f"-DPS2X_RUNNER_ICON={icon.as_posix() if icon else ''}",
          f"-DPython3_EXECUTABLE={Path(sys.executable).as_posix()}", *bundled_dependencies()],
         env=tool_environment(tools))
 

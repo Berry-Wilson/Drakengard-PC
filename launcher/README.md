@@ -71,6 +71,9 @@ the launcher builds with Windows' default icon:
 python tools/make_launcher_icon.py
 ```
 
+Setup gives the game window the same icon: it builds the runner with this `.ico`, or, in a release,
+with the icon it copies out of `drakengard-launcher.exe`.
+
 The build copies the Qt DLLs next to the exe, so it runs without Qt on `PATH`. It never builds the
 runner: build that separately with the `ps2EntryRunner` target.
 

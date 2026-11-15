@@ -26,12 +26,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from setup_game import DEVELOPER_RENDERER as RENDERER_DIR, PACKAGED_RENDERER, TOOLS  # noqa: E402
+from setup_game import DEVELOPER_RENDERER as RENDERER_DIR, GAME_ICON, PACKAGED_RENDERER, TOOLS  # noqa: E402
 
 DIST = ROOT / "out" / "dist"
 FORK = ROOT / "external" / "PS2Recomp"
 LAUNCHER_BUILD = ROOT / "launcher" / "out" / "build" / "Release"
-GAME_ICON = ROOT / "launcher" / "res" / "drakengard.ico"
 PYTHON_VERSION = "3.12.10"
 PYTHON_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
 
