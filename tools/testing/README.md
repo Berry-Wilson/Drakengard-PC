@@ -1,7 +1,8 @@
 # Testing tools
 
 Checks here work by replaying recorded pad input and comparing frame dumps. `launch_game.bat` and
-the launcher record a new file in `input_recordings\` on every run.
+the launcher record a new file in `input_recordings\` on every run. Recordings stay on this PC: `input_recordings/` is
+ignored by git and must never be committed.
 
 | Tool | What it does |
 | --- | --- |
@@ -34,7 +35,7 @@ python tools\testing\frames.py diff out\test\before\frames out\test\after\frames
 python tools\testing\frames.py sheet out\test\after\frames out\test\after.png
 ```
 
-Recordings in the repository:
+Recordings these checks have used, kept locally (record your own if you don't have them):
 
 | File | Covers |
 | --- | --- |

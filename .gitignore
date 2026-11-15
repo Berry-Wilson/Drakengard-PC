@@ -50,3 +50,6 @@ mc0/
 
 # Local handoff notes
 docs/handoff-performance-and-pcsx2.md
+
+# Recorded pad input: stays on this PC, never committed
+input_recordings/

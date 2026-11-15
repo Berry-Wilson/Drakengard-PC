@@ -13,7 +13,7 @@ This repository contains **no game data**. You need your own legally dumped copy
 | `tools/` | ELF analysis, recomp config generation, VU0/VU1 microcode translation, source packing |
 | `tools/testing/` | Replay runs, frame comparison, GIF capture reader, profiler (see its README) |
 | `docs/` | Technical notes, such as the movie corruption investigation |
-| `input_recordings/` | Recorded pad input, replayed for testing |
+| `input_recordings/` | Recorded pad input, replayed for testing. Local only, ignored by git |
 | `recomp/` | `recompile.txt`, the library functions to translate. PS2Recomp's config and function map are generated here from your disc |
 | `src/` | Game-specific runtime overrides (translated VU programs are generated here at build time) |
 | `launcher/` | Qt desktop launcher for the recompiled game (see its README) |
