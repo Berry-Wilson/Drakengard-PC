@@ -1,24 +1,19 @@
 #include "MainWindow.h"
 
 #include "ControlsTab.h"
-#include "Settings.h"
 #include "SetupPage.h"
 
-#include <QAbstractItemView>
 #include <QApplication>
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDateTime>
 #include <QDir>
-#include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QFormLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
-#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -26,11 +21,10 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollBar>
-#include <QSettings>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QTabWidget>
-#include <QTableWidget>
 #include <QVBoxLayout>
 
 namespace
@@ -52,18 +46,6 @@ namespace
         return root.isEmpty() ? QString() : QDir(root).filePath(relative);
     }
 
-    // A saved path that no longer exists (the project moved) falls back to the detected one.
-    QString existingOr(const QString &saved, const QString &fallback)
-    {
-        return !saved.isEmpty() && QFileInfo::exists(saved) ? saved : fallback;
-    }
-
-    // The log may not exist yet, so its folder is what has to. Empty means no log file and is kept.
-    QString logPathOr(const QString &saved, const QString &fallback)
-    {
-        return saved.isEmpty() || QFileInfo(saved).absoluteDir().exists() ? saved : fallback;
-    }
-
     QWidget *pathRow(QLineEdit *edit, QPushButton *browse)
     {
         auto *row = new QWidget;
@@ -74,13 +56,19 @@ namespace
         return row;
     }
 
-    QComboBox *vuModeCombo()
+    QFormLayout *formTab(QWidget *tab, const QString &intro = {})
     {
-        auto *combo = new QComboBox;
-        combo->addItem("Translated (default)", QString());
-        combo->addItem("Interpreter", QString("0"));
-        combo->addItem("Verify (runs both, logs divergence)", QString("verify"));
-        return combo;
+        auto *layout = new QVBoxLayout(tab);
+        if (!intro.isEmpty())
+        {
+            auto *label = new QLabel(intro);
+            label->setWordWrap(true);
+            layout->addWidget(label);
+        }
+        auto *form = new QFormLayout;
+        layout->addLayout(form);
+        layout->addStretch(1);
+        return form;
     }
 
     void selectData(QComboBox *combo, const QVariant &data)
@@ -89,21 +77,18 @@ namespace
         if (index >= 0)
             combo->setCurrentIndex(index);
     }
+
+    QString withName(const QString &tip, const QString &name)
+    {
+        return tip + (tip.isEmpty() ? "" : " ") + "Sets " + name + " in ps2x.ini.";
+    }
 }
 
 MainWindow::MainWindow()
 {
     m_projectRoot = findProjectRoot();
+    m_recordingsDir = defaultPath(m_projectRoot.isEmpty() ? QCoreApplication::applicationDirPath() : m_projectRoot, "input_recordings");
     setWindowTitle("Drakengard Launcher");
-
-    auto *tabs = new QTabWidget;
-    tabs->addTab(buildGameTab(), "Game");
-    m_controls = new ControlsTab(controlsFile());
-    tabs->addTab(m_controls, "Controls");
-    tabs->addTab(buildVideoTab(), "Video");
-    tabs->addTab(buildDeveloperTab(), "Developer");
-    tabs->addTab(buildEnvironmentTab(), "Environment");
-    tabs->addTab(buildLogTab(), "Log");
 
     m_play = new QPushButton("Play");
     m_play->setDefault(true);
@@ -112,6 +97,15 @@ MainWindow::MainWindow()
     m_stop->setMinimumHeight(36);
     m_status = new QLabel("Not running");
 
+    m_tabs = new QTabWidget;
+    m_tabs->addTab(buildGameTab(), "Game");
+    m_tabs->addTab(new QWidget, "Controls"); // replaced by loadControls() once the game folder is known
+    m_tabs->addTab(buildVideoTab(), "Video");
+    m_tabs->addTab(buildPictureTab(), "Picture");
+    m_tabs->addTab(buildPathsTab(), "Paths");
+    m_tabs->addTab(buildScriptedTab(), "Scripted");
+    m_tabs->addTab(buildLogTab(), "Log");
+
     auto *buttons = new QHBoxLayout;
     buttons->addWidget(m_play);
     buttons->addWidget(m_stop);
@@ -119,12 +113,13 @@ MainWindow::MainWindow()
 
     auto *main = new QWidget;
     auto *mainLayout = new QVBoxLayout(main);
-    mainLayout->addWidget(tabs);
+    mainLayout->addWidget(m_tabs);
     mainLayout->addLayout(buttons);
 
     m_pages = new QStackedWidget;
     m_pages->addWidget(main);
     setCentralWidget(m_pages);
+    resize(860, 720);
 
     m_process = new QProcess(this);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
@@ -150,11 +145,12 @@ MainWindow::MainWindow()
     connect(m_play, &QPushButton::clicked, this, &MainWindow::startGame);
     connect(m_stop, &QPushButton::clicked, this, &MainWindow::stopGame);
     connect(m_inputMode, &QComboBox::currentIndexChanged, this, [this] { updateControls(); });
-    connect(m_vu1Mode, &QComboBox::currentIndexChanged, this, [this] { updateControls(); });
-    connect(m_vu0Mode, &QComboBox::currentIndexChanged, this, [this] { updateControls(); });
-    connect(m_recordingsDir, &QLineEdit::editingFinished, this, [this] { refreshRecordings(); });
 
-    loadSettings();
+    m_runnerPath->setText(defaultPath(m_projectRoot, kRunnerRelative));
+    m_elfPath->setText(defaultPath(m_projectRoot, kElfRelative));
+    m_consoleLogPath->setText(defaultPath(m_projectRoot, "launch_console.log"));
+    refreshRecordings();
+    openGameFolder();
     updateControls();
 
     // Setup needs its script next to the launcher. A checkout with a built runner never opens it by itself.
@@ -164,8 +160,11 @@ MainWindow::MainWindow()
         m_pages->addWidget(m_setup);
         connect(m_setup, &SetupPage::setupFinished, this, [this]
                 {
-                    m_runnerPath->setText(existingOr(m_runnerPath->text(), defaultPath(m_projectRoot, kRunnerRelative)));
-                    m_elfPath->setText(existingOr(m_elfPath->text(), defaultPath(m_projectRoot, kElfRelative)));
+                    if (!QFileInfo(m_runnerPath->text()).isFile())
+                        m_runnerPath->setText(defaultPath(m_projectRoot, kRunnerRelative));
+                    if (!QFileInfo(m_elfPath->text()).isFile())
+                        m_elfPath->setText(defaultPath(m_projectRoot, kElfRelative));
+                    openGameFolder();
                     m_pages->setCurrentIndex(0);
                     m_status->setText("Ready to play");
                 });
@@ -186,67 +185,146 @@ void MainWindow::showSetup(bool canGoBack)
     m_pages->setCurrentWidget(m_setup);
 }
 
+// ---- Option controls ------------------------------------------------------------------------
+
+void MainWindow::store(const QString &name, const QString &value)
+{
+    if (m_loading)
+        return;
+    if (!m_ini.set(name, value))
+        m_status->setText("Could not write " + QDir::toNativeSeparators(m_ini.path()));
+    if (name == "PS2X_CONTROLS")
+        loadControls();
+}
+
+QComboBox *MainWindow::optionCombo(const QString &name, const Choices &choices, const QString &tip)
+{
+    auto *combo = new QComboBox;
+    for (const auto &[label, value] : choices)
+        combo->addItem(label, value);
+    combo->setToolTip(withName(tip, name));
+    const int fixed = combo->count();
+    m_loaders.push_back([this, combo, name, fixed]
+                        {
+                            while (combo->count() > fixed)
+                                combo->removeItem(fixed);
+                            const QString value = m_ini.value(name);
+                            if (combo->findData(value) < 0)
+                                combo->addItem(value + " (set in ps2x.ini)", value);
+                            selectData(combo, value);
+                        });
+    connect(combo, &QComboBox::currentIndexChanged, this, [this, combo, name] { store(name, combo->currentData().toString()); });
+    return combo;
+}
+
+// 0 and 1 options. Only the state that differs from the game's default is written.
+QCheckBox *MainWindow::optionCheck(const QString &text, const QString &name, bool defaultOn, const QString &tip)
+{
+    auto *check = new QCheckBox(text);
+    check->setToolTip(withName(tip, name));
+    m_loaders.push_back([this, check, name, defaultOn]
+                        {
+                            const QString value = m_ini.value(name);
+                            check->setChecked(value.isEmpty() ? defaultOn : value != "0");
+                        });
+    connect(check, &QCheckBox::toggled, this, [this, name, defaultOn](bool on) { store(name, on == defaultOn ? QString() : QString(on ? "1" : "0")); });
+    return check;
+}
+
+QLineEdit *MainWindow::optionText(const QString &name, const QString &placeholder, const QString &tip)
+{
+    auto *edit = new QLineEdit;
+    edit->setPlaceholderText(placeholder);
+    edit->setToolTip(withName(tip, name));
+    m_loaders.push_back([this, edit, name] { edit->setText(m_ini.value(name)); });
+    connect(edit, &QLineEdit::editingFinished, this, [this, edit, name]
+            {
+                if (edit->text().trimmed() != m_ini.value(name))
+                    store(name, edit->text().trimmed());
+            });
+    return edit;
+}
+
+QWidget *MainWindow::optionPath(const QString &name, bool folder, const QString &placeholder, const QString &tip, QLineEdit **out)
+{
+    QLineEdit *edit = optionText(name, placeholder, tip);
+    auto *browse = new QPushButton("Browse...");
+    connect(browse, &QPushButton::clicked, this, [this, edit, name, folder]
+            {
+                const QString start = edit->text().isEmpty() ? gameFolder() : edit->text();
+                const QString path = folder ? QFileDialog::getExistingDirectory(this, "Select folder", start)
+                                            : QFileDialog::getOpenFileName(this, "Select file", start);
+                if (path.isEmpty())
+                    return;
+                edit->setText(QDir::toNativeSeparators(path));
+                store(name, edit->text());
+            });
+    if (out)
+        *out = edit;
+    return pathRow(edit, browse);
+}
+
+QSpinBox *MainWindow::optionCount(const QString &name, const QString &noneText, const QString &tip)
+{
+    auto *spin = new QSpinBox;
+    spin->setRange(0, 1000000000);
+    spin->setSpecialValueText(noneText);
+    spin->setToolTip(withName(tip, name));
+    m_loaders.push_back([this, spin, name] { spin->setValue(m_ini.value(name).toInt()); });
+    connect(spin, &QSpinBox::valueChanged, this, [this, name](int value) { store(name, value > 0 ? QString::number(value) : QString()); });
+    return spin;
+}
+
+// ---- Tabs -----------------------------------------------------------------------------------
+
 QWidget *MainWindow::buildGameTab()
 {
     auto *tab = new QWidget;
-    auto *form = new QFormLayout(tab);
+    QFormLayout *form = formTab(tab);
 
-    const auto addPath = [&](const QString &label, QLineEdit *&edit, const QString &tip, auto browse)
+    const auto addSessionPath = [&](const QString &label, QLineEdit *&edit, const QString &tip, const QString &caption, const QString &filter)
     {
         edit = new QLineEdit;
         edit->setToolTip(tip);
         auto *button = new QPushButton("Browse...");
-        connect(button, &QPushButton::clicked, this, browse);
+        QLineEdit *target = edit;
+        connect(button, &QPushButton::clicked, this, [this, target, caption, filter]
+                {
+                    const QString path = QFileDialog::getOpenFileName(this, caption, target->text(), filter);
+                    if (path.isEmpty())
+                        return;
+                    target->setText(path);
+                    if (target == m_elfPath)
+                        openGameFolder();
+                });
         form->addRow(label, pathRow(edit, button));
     };
+    addSessionPath("Runner", m_runnerPath, "The recompiled game, ps2EntryRunner.exe. Found next to the launcher; a change lasts until the launcher closes.",
+                   "Select runner", "Programs (*.exe)");
+    addSessionPath("Game ELF", m_elfPath, "SLUS_207.32 in the extracted disc. Its folder is the game's folder, which holds ps2x.ini, "
+                                          "controls.ini and the mc0 memory card. A change lasts until the launcher closes.",
+                   "Select game ELF", "All files (*)");
+    connect(m_elfPath, &QLineEdit::editingFinished, this, [this] { openGameFolder(); });
 
-    addPath("Runner", m_runnerPath, "The recompiled game, ps2EntryRunner.exe.", [this]
-            {
-                const QString path = QFileDialog::getOpenFileName(this, "Select runner", m_runnerPath->text(), "Programs (*.exe)");
-                if (!path.isEmpty())
-                    m_runnerPath->setText(path);
-            });
-    addPath("Game ELF", m_elfPath, "SLUS_207.32 in the extracted ISO. The runner reads the extracted files, not the .iso; "
-                                   "game data and the mc0 memory card are found next to this file.",
-            [this]
-            {
-                const QString path = QFileDialog::getOpenFileName(this, "Select game ELF", m_elfPath->text());
-                if (!path.isEmpty())
-                    m_elfPath->setText(path);
-            });
-    addPath("Recordings", m_recordingsDir, "Folder for pad input recordings.", [this]
-            {
-                const QString path = QFileDialog::getExistingDirectory(this, "Select recordings folder", m_recordingsDir->text());
-                if (path.isEmpty())
-                    return;
-                m_recordingsDir->setText(path);
-                refreshRecordings();
-            });
-    addPath("Saves", m_savesDir, "Folder for memory card saves. Empty keeps them in mc0 next to the game ELF. "
-                                 "Sets PS2X_MEMCARD_DIR.",
-            [this]
-            {
-                const QString path = QFileDialog::getExistingDirectory(this, "Select saves folder", m_savesDir->text());
-                if (!path.isEmpty())
-                    m_savesDir->setText(path);
-            });
-    m_savesDir->setPlaceholderText("mc0 next to the game ELF");
-
-    m_vif1Thread = new QCheckBox("VIF1/GIF worker thread");
-    m_vif1Thread->setToolTip("Clearing this sets PS2X_VIF1_THREAD=0.");
-    form->addRow("Performance", m_vif1Thread);
+    form->addRow("Controls file", optionPath("PS2X_CONTROLS", false, "controls.ini in the game's folder",
+                                             "The key and controller bindings that the Controls tab edits.", &m_controlsPath));
+    form->addRow("Saves", optionPath("PS2X_MEMCARD_DIR", true, "mc0 in the game's folder", "Where memory card saves are kept."));
+    form->addRow("Performance", optionCheck("VIF1/GIF worker thread", "PS2X_VIF1_THREAD", true,
+                                            "Clearing it keeps graphics data handling on the game's thread, which is slower; for comparing."));
 
     m_inputMode = new QComboBox;
     m_inputMode->addItem("Off");
     m_inputMode->addItem("Record to a new timestamped file");
     m_inputMode->addItem("Replay a recording");
+    m_inputMode->setToolTip("Records the pad to input_recordings, or plays a recording back and then hands control back. "
+                            "Lasts until the launcher closes. Sets PS2X_INPUT_RECORD or PS2X_INPUT_REPLAY for that run.");
     form->addRow("Pad input", m_inputMode);
 
     m_replayFile = new QComboBox;
     m_replayBrowse = new QPushButton("Browse...");
     connect(m_replayBrowse, &QPushButton::clicked, this, [this]
             {
-                const QString path = QFileDialog::getOpenFileName(this, "Select recording", m_recordingsDir->text(), "Recordings (*.txt);;All files (*)");
+                const QString path = QFileDialog::getOpenFileName(this, "Select recording", m_recordingsDir, "Recordings (*.txt);;All files (*)");
                 if (!path.isEmpty())
                     refreshRecordings(path);
             });
@@ -261,165 +339,121 @@ QWidget *MainWindow::buildGameTab()
     m_runSetup->setToolTip("Extracts the disc and builds the game again, for example after an update.");
     form->addRow("", m_runSetup);
 
+    m_iniLabel = new QLabel;
+    m_iniLabel->setWordWrap(true);
+    m_iniLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    form->addRow("", m_iniLabel);
+
     return tab;
 }
 
 QWidget *MainWindow::buildVideoTab()
 {
     auto *tab = new QWidget;
-    auto *form = new QFormLayout(tab);
+    QFormLayout *form = formTab(tab);
 
-    m_aspect = new QComboBox;
-    m_aspect->addItem("4:3 (original)", QString());
-    m_aspect->addItem("16:9 (experimental)", QString("16:9"));
-    m_aspect->setToolTip("16:9 shows more of the world and moves the HUD to the screen edges. "
-                         "Menus stay 4:3. Sets PS2X_ASPECT.");
+    m_aspect = optionCombo("PS2X_ASPECT", {{"4:3 (original)", ""}, {"16:9 (experimental)", "16:9"}},
+                           "Widescreen. The 3D view shows more at the sides; menus stay a centred 4:3 layout.");
     form->addRow("Aspect ratio", m_aspect);
 
     m_windowSize = new QComboBox;
-    m_windowSize->setToolTip("The game window's size when it opens. Sets PS2X_WINDOW_SIZE.");
+    m_windowSize->setToolTip(withName("The game window's size when it opens. It can still be resized.", "PS2X_WINDOW_SIZE"));
     form->addRow("Window size", m_windowSize);
     refreshWindowSizes();
     connect(m_aspect, &QComboBox::currentIndexChanged, this, [this] { refreshWindowSizes(); });
+    m_loaders.push_back([this]
+                        {
+                            const QString value = m_ini.value("PS2X_WINDOW_SIZE");
+                            if (m_windowSize->findData(value) < 0)
+                                m_windowSize->addItem(value + " (set in ps2x.ini)", value);
+                            selectData(m_windowSize, value);
+                        });
+    connect(m_windowSize, &QComboBox::currentIndexChanged, this, [this] { store("PS2X_WINDOW_SIZE", m_windowSize->currentData().toString()); });
 
-    m_drawDistance = new QComboBox;
-    m_drawDistance->addItem("Original", QString());
-    m_drawDistance->addItem("2x (experimental)", QString("2"));
-    m_drawDistance->addItem("3x (experimental)", QString("3"));
-    m_drawDistance->addItem("5x (experimental)", QString("5"));
-    m_drawDistance->setToolTip("Pushes the fog further away, which reveals more of the level. Soldiers may "
-                               "appear suddenly, and the level's edge may show. Sets PS2X_DRAW_DISTANCE.");
-    form->addRow("Draw distance", m_drawDistance);
-
-    m_resolution = new QComboBox;
+    Choices scales;
     for (int scale = 1; scale <= 8; ++scale)
-    {
-        const QString label = QString("%1x (%2 x %3)%4").arg(scale).arg(640 * scale).arg(448 * scale).arg(scale == 2 ? " (default)" : "");
-        m_resolution->addItem(label, scale == 2 ? QString() : QString::number(scale));
-    }
-    m_resolution->setToolTip("The resolution the game is drawn at, as a multiple of the PS2's. F5 steps through "
-                             "them while playing. Sets PS2X_PCSX2_UPSCALE.");
-    form->addRow("Internal resolution", m_resolution);
+        scales.push_back({QString("%1x (%2 x %3)%4").arg(scale).arg(640 * scale).arg(448 * scale).arg(scale == 2 ? ", default" : ""),
+                          scale == 2 ? QString() : QString::number(scale)});
+    form->addRow("Internal resolution", optionCombo("PS2X_PCSX2_UPSCALE", scales,
+                                                    "The resolution the game is drawn at, as a multiple of the PS2's. F5 steps through them while playing."));
 
-    m_fullHeight = new QCheckBox("Full-height picture");
-    m_fullHeight->setToolTip("Shows the game's full 480-line frame instead of the 224-line copy it makes for "
-                             "TVs, which is the biggest gain in detail. Sets PS2X_PROGRESSIVE=1.");
-    form->addRow("Detail", m_fullHeight);
+    form->addRow("Detail", optionCheck("Full-height picture", "PS2X_PROGRESSIVE", false,
+                                       "Shows the game's full 480-line frame instead of its 224-line copy for TVs. The biggest gain in detail."));
 
-    m_sharpness = new QComboBox;
-    m_sharpness->addItem("Off", QString());
-    m_sharpness->addItem("Normal", QString("1"));
-    m_sharpness->addItem("Strong", QString("2"));
-    m_sharpness->setToolTip("Sharpening and anisotropic filtering. Sets PS2X_PCSX2_SHARPNESS.");
-    form->addRow("Sharpening", m_sharpness);
+    form->addRow("Draw distance", optionCombo("PS2X_DRAW_DISTANCE",
+                                              {{"Original", ""}, {"2x (experimental)", "2"}, {"3x (experimental)", "3"}, {"5x (experimental)", "5"}},
+                                              "Pushes the fog back in ground missions. Objects can appear suddenly and the level's edge may show."));
 
-    m_renderer = new QComboBox;
-    m_renderer->addItem("Automatic", QString());
-    m_renderer->addItem("Direct3D 11", QString("dx11"));
-    m_renderer->addItem("Direct3D 12", QString("dx12"));
-    m_renderer->addItem("Vulkan", QString("vulkan"));
-    m_renderer->addItem("OpenGL", QString("opengl"));
-    m_renderer->addItem("Software (slow, most accurate)", QString("software"));
-    m_renderer->setToolTip("The graphics API PCSX2's renderer draws with. Movies always use its software "
-                           "renderer. Sets PS2X_PCSX2_RENDERER.");
-    form->addRow("Renderer", m_renderer);
+    form->addRow("Sharpening", optionCombo("PS2X_PCSX2_SHARPNESS", {{"Off", ""}, {"Normal", "1"}, {"Strong", "2"}},
+                                           "Sharpening and anisotropic filtering."));
 
+    form->addRow("Renderer", optionCombo("PS2X_PCSX2_RENDERER",
+                                         {{"Automatic", ""}, {"Direct3D 11", "dx11"}, {"Direct3D 12", "dx12"}, {"Vulkan", "vulkan"},
+                                          {"OpenGL", "opengl"}, {"Software (slow, most accurate)", "software"}},
+                                         "The graphics API PCSX2's renderer uses."));
+
+    form->addRow("Movies", optionCombo("PS2X_PCSX2_MOVIE_RENDERER",
+                                       {{"Software renderer (default)", ""}, {"Same renderer as the game", "hardware"}},
+                                       "Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them."));
     return tab;
 }
 
-QWidget *MainWindow::buildDeveloperTab()
+QWidget *MainWindow::buildPictureTab()
 {
     auto *tab = new QWidget;
-    auto *columns = new QHBoxLayout(tab);
+    QFormLayout *form = formTab(tab, "PCSX2's picture settings. Default leaves each to PCSX2 and its game database. "
+                                     "The upscaling fixes only matter above 1x internal resolution.");
 
-    auto *left = new QFormLayout;
-    m_vu1Mode = vuModeCombo();
-    left->addRow("VU1", m_vu1Mode);
-    m_vu0Mode = vuModeCombo();
-    left->addRow("VU0", m_vu0Mode);
+    form->addRow("Blending accuracy", optionCombo("PS2X_PCSX2_BLENDING",
+                                                  {{"Default (Medium, from the game database)", ""}, {"Minimum", "0"}, {"Basic", "1"}, {"Medium", "2"},
+                                                   {"High", "3"}, {"Full", "4"}, {"Maximum", "5"}},
+                                                  "Higher is more accurate and slower."));
+    form->addRow("Texture filtering", optionCombo("PS2X_PCSX2_TEXTURE_FILTER",
+                                                  {{"Default (as the PS2 asks)", ""}, {"Nearest", "0"}, {"Bilinear, always", "1"},
+                                                   {"As the PS2 asks", "2"}, {"Bilinear, except sprites", "3"}},
+                                                  ""));
+    form->addRow("Trilinear filtering", optionCombo("PS2X_PCSX2_TRILINEAR",
+                                                    {{"Default (PCSX2's)", ""}, {"Off", "0"}, {"As the PS2 asks", "1"}, {"Forced", "2"}}, ""));
+    form->addRow("Mipmapping", optionCheck("As the game sets it up", "PS2X_PCSX2_MIPMAP", true, "Drakengard uses none."));
+    form->addRow("Dithering", optionCombo("PS2X_PCSX2_DITHERING",
+                                          {{"Default (unscaled)", ""}, {"Off", "0"}, {"Scaled", "1"}, {"Unscaled", "2"}, {"Forced 32-bit", "3"}}, ""));
 
-    m_vuVerifyAfter = new QDoubleSpinBox;
-    m_vuVerifyAfter->setRange(0, 86400);
-    m_vuVerifyAfter->setDecimals(1);
-    m_vuVerifyAfter->setSuffix(" s");
-    m_vuVerifyAfter->setToolTip("Translated code runs alone until then, so a slow verified run can reach a late scene.");
-    left->addRow("Verify after", m_vuVerifyAfter);
-
-    m_vif1Stats = new QCheckBox("VIF1 worker statistics");
-    left->addRow(m_vif1Stats);
-    m_vuStats = new QCheckBox("VU statistics");
-    left->addRow(m_vuStats);
-    m_vifVerify = new QCheckBox("Verify VIF UNPACK");
-    m_vifVerify->setToolTip("Runs every UNPACK through both paths and reports any difference.");
-    left->addRow(m_vifVerify);
-    columns->addLayout(left, 1);
-
-    m_dumpFrames = new QGroupBox("Dump frames");
-    m_dumpFrames->setCheckable(true);
-    auto *dumpForm = new QFormLayout(m_dumpFrames);
-    m_dumpDir = new QLineEdit;
-    auto *dumpBrowse = new QPushButton("Browse...");
-    connect(dumpBrowse, &QPushButton::clicked, this, [this]
-            {
-                const QString path = QFileDialog::getExistingDirectory(this, "Select frame dump folder", m_dumpDir->text());
-                if (!path.isEmpty())
-                    m_dumpDir->setText(path);
-            });
-    dumpForm->addRow("Folder", pathRow(m_dumpDir, dumpBrowse));
-    m_dumpEvery = new QSpinBox;
-    m_dumpEvery->setRange(1, 1000000);
-    m_dumpEvery->setSuffix(" vsyncs");
-    dumpForm->addRow("Every", m_dumpEvery);
-    m_dumpAfter = new QDoubleSpinBox;
-    m_dumpAfter->setRange(0, 86400);
-    m_dumpAfter->setDecimals(1);
-    m_dumpAfter->setSuffix(" s");
-    dumpForm->addRow("After", m_dumpAfter);
-    m_dumpCount = new QSpinBox;
-    m_dumpCount->setRange(0, 1000000);
-    m_dumpCount->setSpecialValueText("Unlimited");
-    dumpForm->addRow("Count", m_dumpCount);
-    columns->addWidget(m_dumpFrames, 1);
-
+    form->addRow("Half-pixel offset", optionCombo("PS2X_PCSX2_HALF_PIXEL",
+                                                  {{"Default (Special, from the game database)", ""}, {"Off", "0"}, {"Normal (vertex)", "1"},
+                                                   {"Special (texture)", "2"}, {"Special (texture, aggressive)", "3"}, {"Align to native", "4"},
+                                                   {"Align to native, with texture offset", "5"}},
+                                                  "Upscaling fix."));
+    form->addRow("Round sprite", optionCombo("PS2X_PCSX2_ROUND_SPRITE", {{"Off (default)", ""}, {"Half", "1"}, {"Full", "2"}}, "Upscaling fix."));
+    form->addRow("Native scaling", optionCombo("PS2X_PCSX2_NATIVE_SCALING",
+                                               {{"Off (default)", ""}, {"Normal", "1"}, {"Aggressive", "2"}, {"Normal (upscaled)", "3"},
+                                                {"Aggressive (upscaled)", "4"}},
+                                               "Upscaling fix."));
+    form->addRow("Align sprite", optionCheck("On", "PS2X_PCSX2_ALIGN_SPRITE", false, "Upscaling fix."));
+    form->addRow("Merge sprite", optionCheck("On (from the game database)", "PS2X_PCSX2_MERGE_SPRITE", true, "Upscaling fix."));
     return tab;
 }
 
-QWidget *MainWindow::buildEnvironmentTab()
+QWidget *MainWindow::buildPathsTab()
 {
     auto *tab = new QWidget;
-    auto *layout = new QVBoxLayout(tab);
+    QFormLayout *form = formTab(tab, "Where the renderer and its files are. Leave a field empty for the usual place.");
 
-    layout->addWidget(new QLabel("Extra variables for the game, such as PS2X_AUTOPAD. These override the other tabs."));
+    form->addRow("Renderer DLL", optionPath("PS2X_PCSX2_GS_DLL", false, "pcsx2-gs\\ps2x-gs.dll beside the runner", ""));
+    form->addRow("PCSX2 resources", optionPath("PS2X_PCSX2_RESOURCES", true, "resources beside the DLL", "PCSX2's resources folder."));
+    form->addRow("PCSX2 log", optionCheck("Write PCSX2's log", "PS2X_PCSX2_LOG", false, "To gs-data\\logs\\ps2x-gs.log beside the DLL."));
+    form->addRow("Game serial", optionText("PS2X_GAME_SERIAL", "From the game file's name (SLUS-20732)",
+                                           "The serial PCSX2 looks up for its per-game fixes."));
+    return tab;
+}
 
-    m_extraEnv = new QTableWidget(0, 2);
-    m_extraEnv->setHorizontalHeaderLabels({"Name", "Value"});
-    m_extraEnv->horizontalHeader()->setStretchLastSection(true);
-    m_extraEnv->verticalHeader()->hide();
-    m_extraEnv->setSelectionBehavior(QAbstractItemView::SelectRows);
-    layout->addWidget(m_extraEnv);
+QWidget *MainWindow::buildScriptedTab()
+{
+    auto *tab = new QWidget;
+    QFormLayout *form = formTab(tab, "For test runs. These stay in ps2x.ini, so they also apply to later runs until you clear them.");
 
-    auto *add = new QPushButton("Add");
-    connect(add, &QPushButton::clicked, this, [this]
-            {
-                const int row = m_extraEnv->rowCount();
-                m_extraEnv->insertRow(row);
-                m_extraEnv->setItem(row, 0, new QTableWidgetItem);
-                m_extraEnv->setItem(row, 1, new QTableWidgetItem);
-                m_extraEnv->setCurrentCell(row, 0);
-                m_extraEnv->editItem(m_extraEnv->currentItem());
-            });
-    auto *remove = new QPushButton("Remove");
-    connect(remove, &QPushButton::clicked, this, [this]
-            {
-                if (m_extraEnv->currentRow() >= 0)
-                    m_extraEnv->removeRow(m_extraEnv->currentRow());
-            });
-    auto *buttons = new QHBoxLayout;
-    buttons->addWidget(add);
-    buttons->addWidget(remove);
-    buttons->addStretch(1);
-    layout->addLayout(buttons);
-
+    form->addRow("Button presses", optionText("PS2X_AUTOPAD", "start:duration:hexmask;...",
+                                              "Scripted presses in seconds, counted from the first pad read. 0008 is Start, 4000 is Cross."));
+    form->addRow("Stop after", optionCount("PS2X_MAX_TICKS", "No limit", "Exits after this many frames."));
     return tab;
 }
 
@@ -429,7 +463,8 @@ QWidget *MainWindow::buildLogTab()
     auto *layout = new QVBoxLayout(tab);
 
     m_consoleLogPath = new QLineEdit;
-    m_consoleLogPath->setToolTip("Copy of the game output, rewritten on each start. Leave empty for no file.");
+    m_consoleLogPath->setToolTip("Copy of the game output, rewritten on each start. Leave empty for no file. "
+                                 "A change lasts until the launcher closes.");
     auto *browse = new QPushButton("Browse...");
     connect(browse, &QPushButton::clicked, this, [this]
             {
@@ -451,114 +486,94 @@ QWidget *MainWindow::buildLogTab()
     return tab;
 }
 
-// The first size for each aspect is the one the game opens at by itself, so it sets no variable.
+// The first size for each aspect is the one the game opens at by itself, so it sets nothing. The
+// large size follows the aspect; a size typed into ps2x.ini stays.
 void MainWindow::refreshWindowSizes()
 {
+    const QString current = m_windowSize->currentData().toString();
     const bool wide = !m_aspect->currentData().toString().isEmpty();
-    const int selected = qMax(0, m_windowSize->currentIndex());
-    m_windowSize->clear();
-    m_windowSize->addItem(wide ? "796x448" : "640x448", QString());
     const QString large = wide ? "1592x896" : "1280x896";
-    m_windowSize->addItem(large, large);
-    m_windowSize->setCurrentIndex(selected);
+    const bool wasLarge = current == "1280x896" || current == "1592x896";
+
+    {
+        const QSignalBlocker blocker(m_windowSize); // rebuilding the list mustn't write each step
+        m_windowSize->clear();
+        m_windowSize->addItem(wide ? "796x448" : "640x448", QString());
+        m_windowSize->addItem(large, large);
+        if (!current.isEmpty() && !wasLarge)
+            m_windowSize->addItem(current + " (set in ps2x.ini)", current);
+        selectData(m_windowSize, wasLarge ? large : current);
+    }
+    if (m_windowSize->currentData().toString() != current)
+        store("PS2X_WINDOW_SIZE", m_windowSize->currentData().toString());
 }
 
-void MainWindow::loadSettings()
+// ---- Game folder ----------------------------------------------------------------------------
+
+QString MainWindow::gameFolder() const
 {
-    QSettings s(settingsFile(), QSettings::IniFormat);
-
-    m_runnerPath->setText(existingOr(s.value("paths/runner").toString(), defaultPath(m_projectRoot, kRunnerRelative)));
-    m_elfPath->setText(existingOr(s.value("paths/elf").toString(), defaultPath(m_projectRoot, kElfRelative)));
-    m_recordingsDir->setText(existingOr(s.value("paths/recordings").toString(), defaultPath(m_projectRoot, "input_recordings")));
-    const QString defaultLog = defaultPath(m_projectRoot, "launch_console.log");
-    m_consoleLogPath->setText(logPathOr(s.value("paths/consoleLog", defaultLog).toString(), defaultLog));
-
-    m_vif1Thread->setChecked(s.value("game/vif1Thread", true).toBool());
-    // "game/gsBackend" is the setting from before PCSX2's renderer: its "cpu" meant a software renderer.
-    selectData(m_renderer, s.value("game/renderer", s.value("game/gsBackend").toString() == "cpu" ? "software" : QString()));
-    selectData(m_resolution, s.value("game/resolution", QString()));
-    selectData(m_sharpness, s.value("game/sharpness", QString()));
-    m_fullHeight->setChecked(s.value("game/fullHeight", false).toBool());
-    m_savesDir->setText(s.value("paths/saves").toString());
-    selectData(m_aspect, s.value("game/aspect", QString()));
-    selectData(m_windowSize, s.value("game/windowSize", QString()));
-    selectData(m_drawDistance, s.value("game/drawDistance", QString()));
-    m_inputMode->setCurrentIndex(s.value("game/inputMode", int(InputRecord)).toInt());
-    refreshRecordings(s.value("game/replayFile").toString());
-
-    selectData(m_vu1Mode, s.value("developer/vu1Mode", QString()));
-    selectData(m_vu0Mode, s.value("developer/vu0Mode", QString()));
-    m_vuVerifyAfter->setValue(s.value("developer/vuVerifyAfter", 0.0).toDouble());
-    m_vif1Stats->setChecked(s.value("developer/vif1Stats", false).toBool());
-    m_vuStats->setChecked(s.value("developer/vuStats", false).toBool());
-    m_vifVerify->setChecked(s.value("developer/vifVerify", false).toBool());
-    m_dumpFrames->setChecked(s.value("developer/dumpFrames", false).toBool());
-    m_dumpDir->setText(s.value("developer/dumpDir").toString());
-    m_dumpEvery->setValue(s.value("developer/dumpEvery", 60).toInt());
-    m_dumpAfter->setValue(s.value("developer/dumpAfter", 0.0).toDouble());
-    m_dumpCount->setValue(s.value("developer/dumpCount", 0).toInt());
-
-    const int rows = s.beginReadArray("environment");
-    m_extraEnv->setRowCount(rows);
-    for (int i = 0; i < rows; ++i)
-    {
-        s.setArrayIndex(i);
-        m_extraEnv->setItem(i, 0, new QTableWidgetItem(s.value("name").toString()));
-        m_extraEnv->setItem(i, 1, new QTableWidgetItem(s.value("value").toString()));
-    }
-    s.endArray();
-
-    if (!restoreGeometry(s.value("window/geometry").toByteArray()))
-        resize(860, 720);
+    const QString elf = m_elfPath->text().trimmed();
+    return elf.isEmpty() ? QString() : QFileInfo(elf).absolutePath();
 }
 
-void MainWindow::saveSettings() const
+void MainWindow::openGameFolder()
 {
-    QSettings s(settingsFile(), QSettings::IniFormat);
+    const QString folder = gameFolder();
+    m_ini.open(folder.isEmpty() ? QString() : QDir(folder).filePath("ps2x.ini"));
+    const QString shown = QDir::toNativeSeparators(m_ini.path());
+    m_iniLabel->setText(QFileInfo::exists(m_ini.path())
+                            ? "Options are kept in " + shown + "."
+                            : "Options will be kept in " + shown + " once one is changed.");
+    loadOptions();
+    loadControls();
+}
 
-    s.setValue("paths/runner", m_runnerPath->text());
-    s.setValue("paths/elf", m_elfPath->text());
-    s.setValue("paths/recordings", m_recordingsDir->text());
-    s.setValue("paths/consoleLog", m_consoleLogPath->text());
+void MainWindow::loadOptions()
+{
+    m_loading = true;
+    for (const auto &load : m_loaders)
+        load();
+    m_loading = false;
+}
 
-    s.setValue("game/vif1Thread", m_vif1Thread->isChecked());
-    s.remove("game/gsBackend");
-    s.setValue("game/renderer", m_renderer->currentData());
-    s.setValue("game/resolution", m_resolution->currentData());
-    s.setValue("game/sharpness", m_sharpness->currentData());
-    s.setValue("game/fullHeight", m_fullHeight->isChecked());
-    s.setValue("paths/saves", m_savesDir->text());
-    s.setValue("game/aspect", m_aspect->currentData());
-    s.setValue("game/windowSize", m_windowSize->currentData());
-    s.setValue("game/drawDistance", m_drawDistance->currentData());
-    s.setValue("game/inputMode", m_inputMode->currentIndex());
-    s.setValue("game/replayFile", m_replayFile->currentData());
+// The game reads its controls from the working folder, which the launcher sets to the game's folder.
+QString MainWindow::controlsPath() const
+{
+    const QString named = m_ini.value("PS2X_CONTROLS");
+    const QString folder = gameFolder();
+    if (named.isEmpty())
+        return folder.isEmpty() ? QString() : QDir(folder).filePath("controls.ini");
+    return QDir::cleanPath(QDir(folder).absoluteFilePath(named));
+}
 
-    s.setValue("developer/vu1Mode", m_vu1Mode->currentData());
-    s.setValue("developer/vu0Mode", m_vu0Mode->currentData());
-    s.setValue("developer/vuVerifyAfter", m_vuVerifyAfter->value());
-    s.setValue("developer/vif1Stats", m_vif1Stats->isChecked());
-    s.setValue("developer/vuStats", m_vuStats->isChecked());
-    s.setValue("developer/vifVerify", m_vifVerify->isChecked());
-    s.setValue("developer/dumpFrames", m_dumpFrames->isChecked());
-    s.setValue("developer/dumpDir", m_dumpDir->text());
-    s.setValue("developer/dumpEvery", m_dumpEvery->value());
-    s.setValue("developer/dumpAfter", m_dumpAfter->value());
-    s.setValue("developer/dumpCount", m_dumpCount->value());
+void MainWindow::loadControls()
+{
+    const QString path = controlsPath();
+    if (m_controls && m_controls->filePath() == path)
+        return;
 
-    s.remove("environment");
-    s.beginWriteArray("environment");
-    for (int i = 0; i < m_extraEnv->rowCount(); ++i)
+    // Earlier launchers kept controls.ini in the project folder or in %APPDATA%\Drakengard.
+    if (!path.isEmpty() && !QFileInfo::exists(path) && m_ini.value("PS2X_CONTROLS").isEmpty() && QDir(gameFolder()).exists())
     {
-        s.setArrayIndex(i);
-        const QTableWidgetItem *name = m_extraEnv->item(i, 0);
-        const QTableWidgetItem *value = m_extraEnv->item(i, 1);
-        s.setValue("name", name ? name->text() : QString());
-        s.setValue("value", value ? value->text() : QString());
+        const QString candidates[] = {defaultPath(m_projectRoot, "controls.ini"),
+                                      QDir(qEnvironmentVariable("APPDATA")).filePath("Drakengard/controls.ini")};
+        for (const QString &old : candidates)
+        {
+            if (!old.isEmpty() && QFileInfo::exists(old) && QFile::copy(old, path))
+                break;
+        }
     }
-    s.endArray();
 
-    s.setValue("window/geometry", saveGeometry());
+    const int index = m_controls ? m_tabs->indexOf(m_controls) : 1;
+    auto *controls = new ControlsTab(path);
+    QWidget *previous = m_tabs->widget(index);
+    const bool showing = m_tabs->currentIndex() == index;
+    m_tabs->removeTab(index);
+    m_tabs->insertTab(index, controls, "Controls");
+    if (showing)
+        m_tabs->setCurrentIndex(index);
+    previous->deleteLater();
+    m_controls = controls;
 }
 
 // Lists the recordings folder, newest first, and keeps the selection (or selects a given file).
@@ -567,7 +582,7 @@ void MainWindow::refreshRecordings(const QString &select)
     const QString wanted = select.isEmpty() ? m_replayFile->currentData().toString() : select;
 
     m_replayFile->clear();
-    const QFileInfoList files = QDir(m_recordingsDir->text()).entryInfoList({"*.txt"}, QDir::Files, QDir::Time);
+    const QFileInfoList files = QDir(m_recordingsDir).entryInfoList({"*.txt"}, QDir::Files, QDir::Time);
     for (const QFileInfo &file : files)
         m_replayFile->addItem(file.fileName(), file.absoluteFilePath());
 
@@ -588,30 +603,26 @@ void MainWindow::updateControls()
     const bool replay = m_inputMode->currentIndex() == InputReplay;
     m_replayFile->setEnabled(replay);
     m_replayBrowse->setEnabled(replay);
-
-    m_vuVerifyAfter->setEnabled(m_vu1Mode->currentData().toString() == "verify" || m_vu0Mode->currentData().toString() == "verify");
 }
+
+// ---- Running the game -----------------------------------------------------------------------
 
 QString MainWindow::validate() const
 {
     if (!QFileInfo(m_runnerPath->text()).isFile())
         return "The runner was not found:\n" + m_runnerPath->text() + "\n\nBuild the ps2EntryRunner target first, or select it on the Game tab.";
     if (!QFileInfo(m_elfPath->text()).isFile())
-        return "The game ELF was not found:\n" + m_elfPath->text() + "\n\nSelect SLUS_207.32 in the extracted ISO on the Game tab.";
-    if (m_inputMode->currentIndex() == InputRecord && m_recordingsDir->text().isEmpty())
-        return "Select a recordings folder to record pad input.";
+        return "The game ELF was not found:\n" + m_elfPath->text() + "\n\nSelect SLUS_207.32 in the extracted disc on the Game tab.";
     if (m_inputMode->currentIndex() == InputReplay && !QFileInfo(m_replayFile->currentData().toString()).isFile())
         return "Select a recording to replay.";
-    if (m_dumpFrames->isChecked() && m_dumpDir->text().isEmpty())
-        return "Select a folder for frame dumps on the Developer tab.";
     return {};
 }
 
+// The game reads ps2x.ini itself. The environment only carries this run's pad recording, and loses
+// any PS2X_ variables the launcher inherited, since those would win over ps2x.ini.
 QProcessEnvironment MainWindow::buildEnvironment(const QString &recordFile) const
 {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-    // Variables left over in the launcher's own environment must not override the controls.
     const QStringList inherited = env.keys();
     for (const QString &key : inherited)
     {
@@ -619,74 +630,15 @@ QProcessEnvironment MainWindow::buildEnvironment(const QString &recordFile) cons
             env.remove(key);
     }
 
-    if (!m_vif1Thread->isChecked())
-        env.insert("PS2X_VIF1_THREAD", "0");
-    if (const QString renderer = m_renderer->currentData().toString(); !renderer.isEmpty())
-        env.insert("PS2X_PCSX2_RENDERER", renderer);
-    if (const QString resolution = m_resolution->currentData().toString(); !resolution.isEmpty())
-        env.insert("PS2X_PCSX2_UPSCALE", resolution);
-    if (const QString sharpness = m_sharpness->currentData().toString(); !sharpness.isEmpty())
-        env.insert("PS2X_PCSX2_SHARPNESS", sharpness);
-    if (m_fullHeight->isChecked())
-        env.insert("PS2X_PROGRESSIVE", "1");
-    if (!m_savesDir->text().trimmed().isEmpty())
-        env.insert("PS2X_MEMCARD_DIR", QDir::toNativeSeparators(m_savesDir->text().trimmed()));
-    if (const QString aspect = m_aspect->currentData().toString(); !aspect.isEmpty())
-        env.insert("PS2X_ASPECT", aspect);
-    if (const QString size = m_windowSize->currentData().toString(); !size.isEmpty())
-        env.insert("PS2X_WINDOW_SIZE", size);
-    if (const QString distance = m_drawDistance->currentData().toString(); !distance.isEmpty())
-        env.insert("PS2X_DRAW_DISTANCE", distance);
-    // Until the Controls tab saves a file, the game's built-in defaults apply.
-    if (QFileInfo::exists(m_controls->filePath()))
-        env.insert("PS2X_CONTROLS", QDir::toNativeSeparators(m_controls->filePath()));
-
     if (m_inputMode->currentIndex() == InputRecord)
         env.insert("PS2X_INPUT_RECORD", QDir::toNativeSeparators(recordFile));
     else if (m_inputMode->currentIndex() == InputReplay)
         env.insert("PS2X_INPUT_REPLAY", QDir::toNativeSeparators(m_replayFile->currentData().toString()));
-
-    const QString vu1 = m_vu1Mode->currentData().toString();
-    const QString vu0 = m_vu0Mode->currentData().toString();
-    if (!vu1.isEmpty())
-        env.insert("PS2X_VU1_NATIVE", vu1);
-    if (!vu0.isEmpty())
-        env.insert("PS2X_VU0_NATIVE", vu0);
-    if ((vu1 == "verify" || vu0 == "verify") && m_vuVerifyAfter->value() > 0)
-        env.insert("PS2X_VU_VERIFY_AFTER", QString::number(m_vuVerifyAfter->value()));
-
-    if (m_vif1Stats->isChecked())
-        env.insert("PS2X_VIF1_STATS", "1");
-    if (m_vuStats->isChecked())
-        env.insert("PS2X_VU_STATS", "1");
-    if (m_vifVerify->isChecked())
-        env.insert("PS2X_VIF_VERIFY", "1");
-
-    if (m_dumpFrames->isChecked())
-    {
-        env.insert("PS2X_DUMP_FRAMES_DIR", QDir::toNativeSeparators(m_dumpDir->text()));
-        env.insert("PS2X_DUMP_FRAMES_EVERY", QString::number(m_dumpEvery->value()));
-        if (m_dumpAfter->value() > 0)
-            env.insert("PS2X_DUMP_FRAMES_AFTER", QString::number(m_dumpAfter->value()));
-        if (m_dumpCount->value() > 0)
-            env.insert("PS2X_DUMP_FRAMES_COUNT", QString::number(m_dumpCount->value()));
-    }
-
-    for (int i = 0; i < m_extraEnv->rowCount(); ++i)
-    {
-        const QTableWidgetItem *name = m_extraEnv->item(i, 0);
-        const QTableWidgetItem *value = m_extraEnv->item(i, 1);
-        if (name && !name->text().trimmed().isEmpty())
-            env.insert(name->text().trimmed(), value ? value->text() : QString());
-    }
-
     return env;
 }
 
 void MainWindow::startGame()
 {
-    saveSettings();
-
     if (const QString problem = validate(); !problem.isEmpty())
     {
         QMessageBox::warning(this, "Cannot start the game", problem);
@@ -696,12 +648,10 @@ void MainWindow::startGame()
     QString recordFile;
     if (m_inputMode->currentIndex() == InputRecord)
     {
-        QDir().mkpath(m_recordingsDir->text());
+        QDir().mkpath(m_recordingsDir);
         const QString stamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-        recordFile = QDir(m_recordingsDir->text()).filePath("input_" + stamp + ".txt");
+        recordFile = QDir(m_recordingsDir).filePath("input_" + stamp + ".txt");
     }
-    if (m_dumpFrames->isChecked())
-        QDir().mkpath(m_dumpDir->text());
 
     const QProcessEnvironment env = buildEnvironment(recordFile);
     const QFileInfo elf(m_elfPath->text());
@@ -817,6 +767,10 @@ void MainWindow::onProcessFinished(int exitCode, QProcess::ExitStatus status)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    // Text fields write ps2x.ini when they lose focus; make sure the one being edited does.
+    if (QWidget *focused = QApplication::focusWidget())
+        focused->clearFocus();
+
     if (m_setup && m_setup->isRunning())
     {
         const auto answer = QMessageBox::question(this, "Setup is running", "Stop setup and close the launcher? It continues where it left off next time.");
@@ -842,6 +796,5 @@ void MainWindow::closeEvent(QCloseEvent *event)
             m_process->waitForFinished(kStopGraceMs);
         }
     }
-    saveSettings();
     event->accept();
 }

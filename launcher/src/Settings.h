@@ -1,23 +1,32 @@
 #pragma once
 
 #include <QString>
-
-// The launcher's settings and controls live in the game folder, so each copy of the game keeps its
-// own and they move with it.
+#include <QStringList>
 
 // The Drakengard folder the launcher belongs to, found by walking up from the launcher. Empty if
 // there is none.
 QString findProjectRoot();
 
-// The game folder, or the launcher's own folder when there is no game folder above it.
-QString settingsFolder();
+// ps2x.ini beside the game: NAME=value lines the game reads at start, below anything set in its
+// environment. The launcher keeps no settings of its own; its options are lines in this file.
+// Lines it doesn't manage, comments included, are kept as they are.
+class Ps2xIni
+{
+public:
+    // Reads the file. A missing file reads as empty, and is created on the first set().
+    void open(const QString &path);
+    QString path() const { return m_path; }
 
-// Launcher.ini in settingsFolder(), for QSettings with QSettings::IniFormat.
-QString settingsFile();
+    // The value of NAME, or empty if it isn't set.
+    QString value(const QString &name) const;
 
-// controls.ini in settingsFolder().
-QString controlsFile();
+    // Sets NAME to value and writes the file at once. An empty value removes the line, which leaves
+    // the game's default. Returns false if the file couldn't be written.
+    bool set(const QString &name, const QString &value);
 
-// Copies Launcher.ini and controls.ini from %APPDATA%\Drakengard, where earlier launchers kept them,
-// when the game folder has none yet. The old files stay, since other copies of the game may use them.
-void copyOldSettings();
+private:
+    int find(const QString &name, int from = 0) const;
+
+    QString m_path;
+    QStringList m_lines;
+};

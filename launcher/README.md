@@ -88,19 +88,18 @@ not read `.iso` files. It runs from that folder, and the `mc0` memory card is fo
 
 | Tab | Controls |
 | --- | --- |
-| Game | Paths (runner, game, recordings, saves), VIF1/GIF worker thread, pad input recording or replay |
+| Game | Runner and game paths, controls file, saves folder, VIF1/GIF worker thread, pad input recording or replay |
 | Controls | Keyboard and controller bindings for every PS2 button and stick direction, and which controller stick drives each PS2 stick |
-| Video | Aspect ratio, window size, draw distance, internal resolution, full-height picture, sharpening, renderer |
-| Developer | VU1/VU0 mode, verify delay, VIF1/VU statistics, VIF verify, frame dumps |
-| Environment | Any other variable, such as `PS2X_AUTOPAD`; these override the other tabs |
+| Video | Aspect ratio, window size, internal resolution, full-height picture, draw distance, sharpening, renderer, movie renderer |
+| Picture | PCSX2's blending, texture filtering, trilinear, mipmapping, dithering and upscaling fixes |
+| Paths | Renderer DLL, PCSX2 resources folder, PCSX2 log, game serial |
+| Scripted | Scripted button presses and a frame limit, for test runs |
 | Log | Game output and the console log file's path |
 
 The game is drawn by PCSX2's GS. F5 steps the internal resolution from 1x to 8x while playing and
-shows the new one in the top-left corner; enlarge the window to see the extra detail. Movies are
-always drawn with PCSX2's software renderer.
-
-Every option, including those without a control here, is listed in
-[`docs/settings.md`](../docs/settings.md). Put any of them on the Environment tab.
+shows the new one in the top-left corner; enlarge the window to see the extra detail. F12 saves a
+screenshot to `screenshots\` in the game's folder. Every option is described in
+[`docs/settings.md`](../docs/settings.md).
 
 ### Controls
 
@@ -109,27 +108,28 @@ slot to clear it, and press Escape to cancel. Each PS2 input takes up to two key
 inputs, and every controller connected counts. F1, F5 and F12 are kept for the game. If a controller
 was connected after the launcher started, press **Find controllers**.
 
-Changes are saved at once to `controls.ini` in the game folder, a readable text file, and the game
-gets its path in `PS2X_CONTROLS`. Without that variable the game reads `controls.ini` from its
-working folder if there is one, and otherwise uses the defaults shown on the tab. The launcher reads
-controllers with GLFW 3.4, the same library and version as the game, so captured buttons mean the
-same thing in both.
+Changes are saved at once to `controls.ini` in the game's folder, or to the file named on the Game
+tab, a readable text file. The game reads the same file, and otherwise uses the defaults shown on
+the tab. The launcher reads controllers with GLFW 3.4, the same library and version as the game, so
+captured buttons mean the same thing in both.
 
-- Only the options you change from their defaults are set. `PS2X_*` variables inherited from the
-  shell are removed, so the window is the only source of options.
-- Pad input is recorded by default, to a new file in `input_recordings\` for each run.
-- The `[launcher]` lines at the top of the log show the exact command and variables used.
+## Where options are kept
+
+The launcher keeps no settings of its own. Each option on the Video, Picture, Paths and Scripted
+tabs, and the controls file, saves folder and worker thread on the Game tab, is a `NAME=value` line
+in `ps2x.ini` in the game's folder (the folder of the game ELF, `iso_extracted\`). It is written as
+soon as an option changes, and only options that differ from the game's default get a line. The
+game reads the file itself, so the options also apply when it is started without the launcher.
+Lines the launcher doesn't know, and comments, are left as they are.
+
+- The runner and game paths, pad input recording or replay, and the console log path last until
+  the launcher closes. Pad input starts off; a recording goes to a new file in `input_recordings\`.
+- `PS2X_*` variables the launcher inherited are removed before the game starts, since they would
+  win over `ps2x.ini`. The `[launcher]` lines at the top of the log show the command and the
+  variables it set; the game's `[config]` line says how many options it read from `ps2x.ini`.
+- When the game's folder has no `controls.ini` yet, the launcher copies one from where earlier
+  launchers kept it: the project folder, or `%APPDATA%\Drakengard`.
 - The log view keeps the last 5000 lines. The full output goes to the console log file
   (`launch_console.log` by default), which is rewritten on each start.
 - The game's stdout is buffered when it is not a console, so its lines can appear late or out of
   order against stderr.
-
-## Settings
-
-Settings are saved when you press Play and when you close the launcher, in `Launcher.ini` in the
-game folder (the folder with `external\PS2Recomp`, or the launcher's own folder if there is none), so
-each copy of the game keeps its own. Delete that file to return to the defaults. The controls are in
-`controls.ini` in the same folder; **Restore defaults** on the Controls tab resets them.
-
-Earlier launchers kept both files in `%APPDATA%\Drakengard`. When the game folder has none yet, the
-launcher copies them from there once, and leaves the originals for any other copy of the game.

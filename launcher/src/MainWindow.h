@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Settings.h"
+
 #include <QByteArray>
 #include <QFile>
 #include <QMainWindow>
@@ -7,20 +9,25 @@
 #include <QProcessEnvironment>
 #include <QTimer>
 
+#include <functional>
+#include <utility>
+#include <vector>
+
 class QCheckBox;
 class QComboBox;
-class QDoubleSpinBox;
-class QGroupBox;
+class QFormLayout;
 class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
 class QPushButton;
 class QSpinBox;
 class QStackedWidget;
-class QTableWidget;
+class QTabWidget;
 class ControlsTab;
 class SetupPage;
 
+// The launcher keeps no settings of its own. The game's options are lines in ps2x.ini beside the
+// game, written as soon as one changes; paths and pad recording last until the launcher closes.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -32,15 +39,29 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    using Choices = std::vector<std::pair<QString, QString>>; // label, value; "" is the game's default
+
     QWidget *buildGameTab();
     QWidget *buildVideoTab();
-    QWidget *buildDeveloperTab();
-    QWidget *buildEnvironmentTab();
+    QWidget *buildPictureTab();
+    QWidget *buildPathsTab();
+    QWidget *buildScriptedTab();
     QWidget *buildLogTab();
-    void refreshWindowSizes();
 
-    void loadSettings();
-    void saveSettings() const;
+    // Controls tied to one ps2x.ini option. Each reloads with the file and writes it when changed.
+    QComboBox *optionCombo(const QString &name, const Choices &choices, const QString &tip);
+    QCheckBox *optionCheck(const QString &text, const QString &name, bool defaultOn, const QString &tip);
+    QLineEdit *optionText(const QString &name, const QString &placeholder, const QString &tip);
+    QWidget *optionPath(const QString &name, bool folder, const QString &placeholder, const QString &tip, QLineEdit **edit = nullptr);
+    QSpinBox *optionCount(const QString &name, const QString &noneText, const QString &tip);
+    void store(const QString &name, const QString &value);
+
+    void refreshWindowSizes();
+    void openGameFolder();
+    void loadOptions();
+    QString gameFolder() const;
+    QString controlsPath() const;
+    void loadControls();
     void refreshRecordings(const QString &select = {});
     void updateControls();
     void showSetup(bool canGoBack);
@@ -57,42 +78,29 @@ private:
     void onProcessFinished(int exitCode, QProcess::ExitStatus status);
 
     QString m_projectRoot;
+    Ps2xIni m_ini;
+    std::vector<std::function<void()>> m_loaders;
+    bool m_loading = false;
+
     QStackedWidget *m_pages = nullptr;
+    QTabWidget *m_tabs = nullptr;
     SetupPage *m_setup = nullptr;
     QPushButton *m_runSetup = nullptr;
 
     QLineEdit *m_runnerPath = nullptr;
     QLineEdit *m_elfPath = nullptr;
-    QLineEdit *m_recordingsDir = nullptr;
-    QLineEdit *m_savesDir = nullptr;
-    QLineEdit *m_consoleLogPath = nullptr;
-
-    QCheckBox *m_vif1Thread = nullptr;
-    QComboBox *m_renderer = nullptr;
-    QComboBox *m_resolution = nullptr;
-    QComboBox *m_sharpness = nullptr;
-    QCheckBox *m_fullHeight = nullptr;
-    QComboBox *m_aspect = nullptr;
-    QComboBox *m_windowSize = nullptr;
-    QComboBox *m_drawDistance = nullptr;
+    QLineEdit *m_controlsPath = nullptr;
+    QLabel *m_iniLabel = nullptr;
     QComboBox *m_inputMode = nullptr;
     QComboBox *m_replayFile = nullptr;
     QPushButton *m_replayBrowse = nullptr;
+    QString m_recordingsDir;
 
-    QComboBox *m_vu1Mode = nullptr;
-    QComboBox *m_vu0Mode = nullptr;
-    QDoubleSpinBox *m_vuVerifyAfter = nullptr;
-    QCheckBox *m_vif1Stats = nullptr;
-    QCheckBox *m_vuStats = nullptr;
-    QCheckBox *m_vifVerify = nullptr;
-    QGroupBox *m_dumpFrames = nullptr;
-    QLineEdit *m_dumpDir = nullptr;
-    QSpinBox *m_dumpEvery = nullptr;
-    QDoubleSpinBox *m_dumpAfter = nullptr;
-    QSpinBox *m_dumpCount = nullptr;
+    QComboBox *m_aspect = nullptr;
+    QComboBox *m_windowSize = nullptr;
 
-    QTableWidget *m_extraEnv = nullptr;
     ControlsTab *m_controls = nullptr;
+    QLineEdit *m_consoleLogPath = nullptr;
 
     QPushButton *m_play = nullptr;
     QPushButton *m_stop = nullptr;

@@ -2,10 +2,9 @@
 
 Generated from `tools/settings.json` by `tools/check_settings.py --write`. Do not edit by hand.
 
-Every option is an environment variable. The launcher sets the common ones from its tabs and
-takes any other on its Environment tab. Without the launcher, put `NAME=value` lines in
-`ps2x.ini` in the game's folder (`iso_extracted`), or set them in the shell; the environment
-wins over the file.
+Every option is an environment variable or a `NAME=value` line in `ps2x.ini` in the game's
+folder (`iso_extracted`); the environment wins over the file. The launcher writes the common
+ones to `ps2x.ini` from its tabs; add any other to the file by hand.
 
 ## Video
 

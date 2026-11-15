@@ -1,7 +1,5 @@
 #include "SetupPage.h"
 
-#include "Settings.h"
-
 #include <QDir>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -19,7 +17,6 @@
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
-#include <QSettings>
 #include <QVBoxLayout>
 
 SetupPage::SetupPage(const QString &projectRoot, QWidget *parent)
@@ -121,9 +118,6 @@ SetupPage::SetupPage(const QString &projectRoot, QWidget *parent)
     connect(m_start, &QPushButton::clicked, this, &SetupPage::start);
     connect(m_cancel, &QPushButton::clicked, this, &SetupPage::cancel);
     connect(m_back, &QPushButton::clicked, this, &SetupPage::backRequested);
-
-    QSettings s(settingsFile(), QSettings::IniFormat);
-    m_discPath->setText(s.value("setup/disc").toString());
 }
 
 QString SetupPage::pythonPath() const
@@ -236,9 +230,6 @@ void SetupPage::start()
             return;
         arguments << "--install-tools";
     }
-
-    QSettings s(settingsFile(), QSettings::IniFormat);
-    s.setValue("setup/disc", m_discPath->text());
 
     m_cancelled = false;
     m_lastError.clear();
