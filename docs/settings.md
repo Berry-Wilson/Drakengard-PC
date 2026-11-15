@@ -12,11 +12,13 @@ ones to `ps2x.ini` from its tabs; add any other to the file by hand.
 | --- | --- | --- | --- |
 | `PS2X_ASPECT` | 16:9 | 4:3 | Widescreen. The 3D view shows more at the sides; menus stay a centred 4:3 layout. |
 | `PS2X_WINDOW_SIZE` | WIDTHxHEIGHT, such as 1280x896 | 640x448 (796x448 in 16:9) | The game window's size when it opens. |
+| `PS2X_FULLSCREEN` | 0, 1 | 0 | 1 starts covering the primary monitor at its current resolution, without changing the display mode. F11 switches between full screen and a window of PS2X_WINDOW_SIZE while playing. |
 | `PS2X_PCSX2_UPSCALE` | 1 to 8 | 2 | Internal resolution, as a multiple of the PS2's. F5 steps through them while playing. |
 | `PS2X_PROGRESSIVE` | 0, 1 | 0 | 1 shows the game's full 480-line frame instead of its 224-line copy for TVs. The biggest gain in detail. |
 | `PS2X_DRAW_DISTANCE` | a multiplier above 1, such as 2 | original | Pushes the fog back in ground missions. Objects can appear suddenly and the level's edge may show. |
 | `PS2X_PCSX2_RENDERER` | dx11, dx12, vulkan, opengl, software | PCSX2 picks | The graphics API PCSX2's renderer uses. |
 | `PS2X_GS_BACKEND` | cpu, software | unset | Older name for PS2X_PCSX2_RENDERER=software. Any other value is ignored. |
+| `PS2X_FRAME_INTERPOLATION` | 0, 1 | 0 | Experimental. 1 shows 120 pictures a second: an in-between picture is made for every frame by moving what is drawn halfway from the frame before. Every frame is shown half a vsync later, and the renderer does twice the work. |
 | `PS2X_PCSX2_SHARPNESS` | 0, 1, 2 | 0 | Sharpening and anisotropic filtering: off, normal or strong. |
 | `PS2X_PCSX2_MOVIE_RENDERER` | hardware | software during movies | Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer. |
 | `PS2X_PCSX2_OSD` | 0, 1 | 0 | 1 starts with PCSX2's own statistics overlay showing. F1 shows and hides it while playing. |
@@ -90,6 +92,7 @@ ones to `ps2x.ini` from its tabs; add any other to the file by hand.
 | Option | Values | Default | Effect |
 | --- | --- | --- | --- |
 | `PS2X_GIF_CAPTURE` | a file path | unset | Records the GIF packets sent to the GS (read it with tools/testing/gif_capture.py). |
+| `PS2X_FRAME_INTERPOLATION_DUMP` | a folder path | unset | With frame interpolation on, saves the first 240 frames after PS2X_DUMP_FRAMES_AFTER seconds, each as its in-between picture (_m.png) and itself (_n.png). |
 | `PS2X_GIF_CAPTURE_AT` | seconds | 0 | When the capture starts. |
 | `PS2X_GIF_CAPTURE_VSYNCS` | a count | 1 | How many vsyncs to capture. |
 | `PS2X_AUDIO_DUMP` | a file path | unset | Writes the sound output as raw 48 kHz 16-bit stereo. |

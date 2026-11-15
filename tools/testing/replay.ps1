@@ -25,6 +25,13 @@ if (-not (Test-Path $exe)) { throw "Runner not built: $exe" }
 $out = New-Item -ItemType Directory -Force $OutDir
 $env:PS2X_INPUT_REPLAY = (Resolve-Path $Recording).Path
 Remove-Item Env:PS2X_INPUT_RECORD -ErrorAction SilentlyContinue
+# The player's ps2x.ini (renderer, full screen, draw distance, ...) must not change a test run, so the
+# game reads an empty settings file instead, unless the caller names one.
+if (-not $env:PS2X_CONFIG) {
+    $settings = Join-Path $out.FullName "ps2x.ini"
+    Set-Content -Path $settings -Value "# Empty: test runs use the defaults plus what the caller sets." -Encoding ascii
+    $env:PS2X_CONFIG = $settings
+}
 if ($Aspect) { $env:PS2X_ASPECT = $Aspect } else { Remove-Item Env:PS2X_ASPECT -ErrorAction SilentlyContinue }
 if ($DumpEvery -gt 0) {
     $frames = New-Item -ItemType Directory -Force "$($out.FullName)\frames"

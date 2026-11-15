@@ -3,11 +3,13 @@
   "settings": [
     {"name": "PS2X_ASPECT", "group": "Video", "values": "16:9", "default": "4:3", "help": "Widescreen. The 3D view shows more at the sides; menus stay a centred 4:3 layout."},
     {"name": "PS2X_WINDOW_SIZE", "group": "Video", "values": "WIDTHxHEIGHT, such as 1280x896", "default": "640x448 (796x448 in 16:9)", "help": "The game window's size when it opens."},
+    {"name": "PS2X_FULLSCREEN", "group": "Video", "values": "0, 1", "default": "0", "help": "1 starts covering the primary monitor at its current resolution, without changing the display mode. F11 switches between full screen and a window of PS2X_WINDOW_SIZE while playing."},
     {"name": "PS2X_PCSX2_UPSCALE", "group": "Video", "values": "1 to 8", "default": "2", "help": "Internal resolution, as a multiple of the PS2's. F5 steps through them while playing."},
     {"name": "PS2X_PROGRESSIVE", "group": "Video", "values": "0, 1", "default": "0", "help": "1 shows the game's full 480-line frame instead of its 224-line copy for TVs. The biggest gain in detail."},
     {"name": "PS2X_DRAW_DISTANCE", "group": "Video", "values": "a multiplier above 1, such as 2", "default": "original", "help": "Pushes the fog back in ground missions. Objects can appear suddenly and the level's edge may show."},
     {"name": "PS2X_PCSX2_RENDERER", "group": "Video", "values": "dx11, dx12, vulkan, opengl, software", "default": "PCSX2 picks", "help": "The graphics API PCSX2's renderer uses."},
     {"name": "PS2X_GS_BACKEND", "group": "Video", "values": "cpu, software", "default": "", "help": "Older name for PS2X_PCSX2_RENDERER=software. Any other value is ignored."},
+    {"name": "PS2X_FRAME_INTERPOLATION", "group": "Video", "values": "0, 1", "default": "0", "help": "Experimental. 1 shows 120 pictures a second: an in-between picture is made for every frame by moving what is drawn halfway from the frame before. Every frame is shown half a vsync later, and the renderer does twice the work."},
     {"name": "PS2X_PCSX2_SHARPNESS", "group": "Video", "values": "0, 1, 2", "default": "0", "help": "Sharpening and anisotropic filtering: off, normal or strong."},
     {"name": "PS2X_PCSX2_MOVIE_RENDERER", "group": "Video", "values": "hardware", "default": "software during movies", "help": "Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer."},
     {"name": "PS2X_PCSX2_OSD", "group": "Video", "values": "0, 1", "default": "0", "help": "1 starts with PCSX2's own statistics overlay showing. F1 shows and hides it while playing."},
@@ -57,6 +59,7 @@
     {"name": "PS2X_VU0_SNAPSHOT_AT", "group": "Developer: VU and VIF", "values": "seconds", "default": "0", "help": "When VU0 snapshots start."},
 
     {"name": "PS2X_GIF_CAPTURE", "group": "Developer: captures and tracing", "values": "a file path", "default": "", "help": "Records the GIF packets sent to the GS (read it with tools/testing/gif_capture.py)."},
+    {"name": "PS2X_FRAME_INTERPOLATION_DUMP", "group": "Developer: captures and tracing", "values": "a folder path", "default": "", "help": "With frame interpolation on, saves the first 240 frames after PS2X_DUMP_FRAMES_AFTER seconds, each as its in-between picture (_m.png) and itself (_n.png)."},
     {"name": "PS2X_GIF_CAPTURE_AT", "group": "Developer: captures and tracing", "values": "seconds", "default": "0", "help": "When the capture starts."},
     {"name": "PS2X_GIF_CAPTURE_VSYNCS", "group": "Developer: captures and tracing", "values": "a count", "default": "1", "help": "How many vsyncs to capture."},
     {"name": "PS2X_AUDIO_DUMP", "group": "Developer: captures and tracing", "values": "a file path", "default": "", "help": "Writes the sound output as raw 48 kHz 16-bit stereo."},

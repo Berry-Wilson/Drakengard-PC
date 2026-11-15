@@ -58,8 +58,8 @@ PS2X_PCSX2_UPSCALE=4
 ```
 
 While playing: F1 shows PCSX2's statistics, F3 shows the game's speed (VSync/s, 60 is full speed), F5
-steps the internal resolution, F12 saves a screenshot to `screenshots\` in the
-game's folder.
+steps the internal resolution, F11 switches between full screen and a window, F12 saves a screenshot
+to `screenshots\` in the game's folder.
 
 ## Troubleshooting
 
