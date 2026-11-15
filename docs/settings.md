@@ -20,7 +20,6 @@ ones to `ps2x.ini` from its tabs; add any other to the file by hand.
 | `PS2X_GS_BACKEND` | cpu, software | unset | Older name for PS2X_PCSX2_RENDERER=software. Any other value is ignored. |
 | `PS2X_FRAME_INTERPOLATION` | 0, 1 | 0 | Experimental. 1 shows 120 pictures a second: an in-between picture is made for every frame by moving what is drawn halfway from the frame before. Every frame is shown half a vsync later, and the renderer does twice the work. |
 | `PS2X_PCSX2_SHARPNESS` | 0, 1, 2 | 0 | Sharpening and anisotropic filtering: off, normal or strong. |
-| `PS2X_PCSX2_MOVIE_RENDERER` | hardware | software during movies | Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer. |
 | `PS2X_PCSX2_OSD` | 0, 1 | 0 | 1 starts with PCSX2's own statistics overlay showing. F1 shows and hides it while playing. |
 
 ## PCSX2 picture settings
@@ -64,6 +63,7 @@ ones to `ps2x.ini` from its tabs; add any other to the file by hand.
 | --- | --- | --- | --- |
 | `PS2X_AUTOPAD` | start:duration:hexmask;... in seconds | unset | Scripted button presses, counted from the first pad read. 0008 is Start, 4000 is Cross. |
 | `PS2X_MAX_TICKS` | a number of frames | unset | Exits after that many frames. |
+| `PS2X_PCSX2_MOVIE_RENDERER` | hardware | software during movies | Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer, for checking that corruption. |
 | `PS2X_DUMP_FRAMES_DIR` | a folder path | unset | Saves frames as PNGs there. |
 | `PS2X_DUMP_FRAMES_EVERY` | vsyncs | unset | Gap between saved frames. |
 | `PS2X_DUMP_FRAMES_AFTER` | seconds | 0 | Time before the first saved frame. |
