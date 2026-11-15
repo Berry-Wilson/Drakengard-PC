@@ -552,18 +552,6 @@ void MainWindow::loadControls()
     if (m_controls && m_controls->filePath() == path)
         return;
 
-    // Earlier launchers kept controls.ini in the project folder or in %APPDATA%\Drakengard.
-    if (!path.isEmpty() && !QFileInfo::exists(path) && m_ini.value("PS2X_CONTROLS").isEmpty() && QDir(gameFolder()).exists())
-    {
-        const QString candidates[] = {defaultPath(m_projectRoot, "controls.ini"),
-                                      QDir(qEnvironmentVariable("APPDATA")).filePath("Drakengard/controls.ini")};
-        for (const QString &old : candidates)
-        {
-            if (!old.isEmpty() && QFileInfo::exists(old) && QFile::copy(old, path))
-                break;
-        }
-    }
-
     const int index = m_controls ? m_tabs->indexOf(m_controls) : 1;
     auto *controls = new ControlsTab(path);
     QWidget *previous = m_tabs->widget(index);

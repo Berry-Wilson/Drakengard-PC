@@ -127,8 +127,6 @@ Lines the launcher doesn't know, and comments, are left as they are.
 - `PS2X_*` variables the launcher inherited are removed before the game starts, since they would
   win over `ps2x.ini`. The `[launcher]` lines at the top of the log show the command and the
   variables it set; the game's `[config]` line says how many options it read from `ps2x.ini`.
-- When the game's folder has no `controls.ini` yet, the launcher copies one from where earlier
-  launchers kept it: the project folder, or `%APPDATA%\Drakengard`.
 - The log view keeps the last 5000 lines. The full output goes to the console log file
   (`launch_console.log` by default), which is rewritten on each start.
 - The game's stdout is buffered when it is not a console, so its lines can appear late or out of
