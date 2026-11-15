@@ -12,11 +12,13 @@ hand:
 
 1. Checks the disc: `SLUS_207.32` must match the supported version's SHA-256.
 2. Extracts the disc to `iso_extracted/`.
-3. Finds Visual Studio 2022 or 2026 with the C++ tools, or, if the player agrees, installs
-   Microsoft's C++ Build Tools (about 6 GB), then configures CMake.
+3. Downloads its build tools into `toolchain/`, unless they are there already: llvm-mingw (clang),
+   CMake and Ninja, about 234 MB, each pinned to a tested version and checked against its SHA-256.
+   Nothing is installed in Windows and no administrator rights are needed. Then configures CMake
+   into `external/PS2Recomp/out/build-game`.
 4. Builds the recompiler.
 5. Translates the game's code to C++ in `recomp/` and `src/`.
-6. Compiles the runner.
+6. Compiles the runner and puts the renderer (`pcsx2-gs`) beside it.
 
 A finished step is skipped when setup runs again, so Stop can be followed by Continue. The log is
 in `setup.log`. Apart from the launcher's icon, everything derived from the

@@ -12,6 +12,8 @@ Build the launcher first (see launcher/README.md), and the renderer into the run
 import argparse
 import datetime
 import io
+import json
+import os
 import shutil
 import struct
 import subprocess
@@ -24,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from setup_game import PACKAGED_RENDERER, RENDERER_DIR, find_tools  # noqa: E402
+from setup_game import DEVELOPER_RENDERER as RENDERER_DIR, PACKAGED_RENDERER, TOOLS  # noqa: E402
 
 DIST = ROOT / "out" / "dist"
 FORK = ROOT / "external" / "PS2Recomp"
@@ -55,8 +57,8 @@ launcher's icon is the game's crest.
 2. Run drakengard-launcher.exe. Windows may warn about an unknown publisher:
    choose More info > Run anyway.
 3. Choose your disc image and press "Set up the game". The game is built on this PC from your disc:
-   20 to 60 minutes the first time, about 10 GB of disk space, and internet for one download.
-   Microsoft's C++ Build Tools are installed if you don't have them (about 6 GB more).
+   20 to 60 minutes the first time, about 10 GB of disk space, and internet for the build tools
+   (llvm-mingw, CMake and Ninja, about {tools_mb} MB, kept in the toolchain folder).
 4. Press Play.
 
 Saves are in iso_extracted\\mc0. docs\\settings.md lists every option. If setup fails, setup.log in this folder has the details.
@@ -70,7 +72,8 @@ Source: https://download.qt.io/official_releases/qt/ and https://github.com/qt/q
 
 Python is in python\\ under the Python Software Foundation License (python\\LICENSE.txt).
 
-Microsoft Visual C++ runtime DLLs are redistributed under the Visual Studio license terms.
+Microsoft Visual C++ runtime DLLs (beside the launcher and in pcsx2-gs\\) are redistributed under the
+Visual Studio license terms.
 
 The renderer in pcsx2-gs\\ is PCSX2's GS (https://pcsx2.net), under the GNU GPL version 3 or later; the
 text is in LICENSE. pcsx2-gs\\SOURCE.txt says which PCSX2 source it was built from and how to build it.
@@ -83,6 +86,11 @@ University of Illinois/NCSA and Microsoft's terms).
 The sources in deps\\ and external\\ carry their own license files: raylib, Dear ImGui, rlImGui, ELFIO, fmt,
 toml11, nlohmann/json, libdwarf, rabbitizer and PS2Recomp.
 FFmpeg (LGPL build) is downloaded during setup from https://github.com/System233/ffmpeg-msvc-prebuilt
+
+Setup also downloads the build tools into toolchain\\, each from its official release:
+llvm-mingw (https://github.com/mstorsjo/llvm-mingw; LLVM under Apache 2.0 with LLVM exceptions,
+mingw-w64 under its own permissive licenses), CMake (https://cmake.org, BSD 3-clause) and Ninja
+(https://ninja-build.org, Apache 2.0).
 
 This project: GPL-3.0, see LICENSE.
 
@@ -171,15 +179,25 @@ def stage_python(target):
         z.extractall(target)
 
 
-def stage_vc_runtime(target):
-    tools = find_tools()
-    if tools is None:
+def vc_runtime_dlls():
+    """Microsoft's C++ runtime DLLs from this PC's Visual Studio, for the launcher and the renderer."""
+    vswhere = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+    out = subprocess.run([str(vswhere), "-latest", "-products", "*", "-utf8", "-format", "json"],
+                         capture_output=True, encoding="utf-8", errors="replace") if vswhere.is_file() else None
+    try:
+        install = Path(json.loads(out.stdout)[0]["installationPath"])
+    except (AttributeError, ValueError, IndexError, KeyError):
         sys.exit("Visual Studio wasn't found")
-    crt = sorted(Path(tools["install"], "VC", "Redist", "MSVC").glob("*/x64/Microsoft.VC*.CRT"))
+    crt = sorted((install / "VC" / "Redist" / "MSVC").glob("*/x64/Microsoft.VC*.CRT"))
     if not crt:
         sys.exit("The Visual C++ redistributable DLLs weren't found")
-    for dll in crt[-1].glob("*.dll"):
-        shutil.copy2(dll, target / dll.name)
+    return sorted(crt[-1].glob("*.dll"))
+
+
+def stage_vc_runtime(*targets):
+    for dll in vc_runtime_dlls():
+        for target in targets:
+            shutil.copy2(dll, target / dll.name)
 
 
 def guard(stage):
@@ -243,12 +261,12 @@ def main():
     stage.mkdir()
 
     shutil.copytree(LAUNCHER_BUILD, stage, dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.pdb"))
-    stage_vc_runtime(stage)
     for name in project_files():
         out = stage / name
         out.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, out)
-    (stage / "README.txt").write_text(PLAYER_README, encoding="utf-8")
+    tools_mb = sum(t["size"] for t in TOOLS.values()) // (1024 * 1024)
+    (stage / "README.txt").write_text(PLAYER_README.format(tools_mb=tools_mb), encoding="utf-8")
     (stage / "THIRD_PARTY_NOTICES.txt").write_text(NOTICES, encoding="utf-8")
 
     stage_fork(stage / "external" / "PS2Recomp")
@@ -257,6 +275,8 @@ def main():
                      skip=lambda name: name.split("/")[0].lower() in SKIP_DEPENDENCY_DIRS)
     stage_python(stage / "python")
     stage_renderer(stage / PACKAGED_RENDERER.name)
+    # The launcher and the renderer are built with Visual Studio; the game itself needs no Microsoft DLLs.
+    stage_vc_runtime(stage, stage / PACKAGED_RENDERER.name)
 
     problems = guard(stage)
     if problems:

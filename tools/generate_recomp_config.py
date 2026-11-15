@@ -348,7 +348,8 @@ if __name__ == "__main__":
     root = Path(__file__).resolve().parent.parent
     elf = root / "iso_extracted" / "SLUS_207.32"
     recomp = root / "recomp"
-    analyzer_exe = root / "external" / "PS2Recomp" / "out" / "build" / "ps2xAnalyzer" / "Release" / "ps2_analyzer.exe"
+    # setup_game.py passes its own build's analyzer; by default, the Visual Studio build's.
+    analyzer_exe = Path(sys.argv[1]) if len(sys.argv) > 1 else         root / "external" / "PS2Recomp" / "out" / "build" / "ps2xAnalyzer" / "Release" / "ps2_analyzer.exe"
     run_analyzer(analyzer_exe, elf, recomp / "drakengard_analyzer.toml")
     generate_function_map(elf, recomp / "functions.csv", recomp / "drakengard_analyzer.toml")
     generate_config(recomp / "drakengard_analyzer.toml", recomp / "recompile.txt", recomp / "functions.csv", recomp / "drakengard.toml")

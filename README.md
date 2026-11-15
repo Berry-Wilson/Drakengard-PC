@@ -30,6 +30,17 @@ disc image and builds the game on your PC from it. See [launcher/README.md](laun
    ```
    git clone --recursive https://github.com/Berry-Wilson/Drakengard-PC.git
    ```
+
+The quickest way to a built game is the same script the launcher runs. It downloads its own build
+tools (llvm-mingw, CMake and Ninja) into `toolchain/`, so it needs only Python, and builds into
+`external/PS2Recomp/out/build-game`:
+```
+python tools/setup_game.py run --iso "path\to\Drakengard.iso"
+```
+It needs the renderer from step 5 below, or a release's `pcsx2-gs` folder at the top of the clone.
+
+For working on the port, the Visual Studio build below is the one the testing tools use:
+
 2. Extract the game disc so that `iso_extracted/SLUS_207.32` exists.
 3. Configure the build:
    ```

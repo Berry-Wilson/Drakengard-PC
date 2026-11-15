@@ -14,11 +14,12 @@ param(
     [int]$DumpEvery = 0,       # vsyncs between frame dumps; 0 = none
     [double]$DumpAfter = 10,   # seconds before the first dump
     [int]$DumpCount = 0,       # 0 = no limit
-    [string]$Aspect = ""       # "16:9" or empty for 4:3
+    [string]$Aspect = "",      # "16:9" or empty for 4:3
+    [string]$Exe = ""          # another runner build; default: the Release build
 )
 
 $root = (Resolve-Path "$PSScriptRoot\..\..").Path
-$exe = "$root\external\PS2Recomp\out\build\ps2xRuntime\Release\ps2EntryRunner.exe"
+$exe = if ($Exe) { (Resolve-Path $Exe).Path } else { "$root\external\PS2Recomp\out\build\ps2xRuntime\Release\ps2EntryRunner.exe" }
 $game = "$root\iso_extracted"
 if (-not (Test-Path $exe)) { throw "Runner not built: $exe" }
 

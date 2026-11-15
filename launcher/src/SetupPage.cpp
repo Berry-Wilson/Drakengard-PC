@@ -12,7 +12,6 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QMimeData>
 #include <QPlainTextEdit>
 #include <QProgressBar>
@@ -168,8 +167,9 @@ void SetupPage::refresh(bool canGoBack)
                   m_toolsName = doctor["tools"].toString();
                   m_folderProblem = doctor["folderProblem"].toString();
                   QString text = m_toolsName.isEmpty()
-                                     ? QString("Microsoft's C++ Build Tools will be installed (about 6 GB, internet needed).")
-                                     : QString("Build tools found: %1.").arg(m_toolsName);
+                                     ? QString("Setup downloads its build tools first (about %1 MB, internet needed).")
+                                           .arg(doctor["toolsDownloadMb"].toInt())
+                                     : QString("Build tools ready: %1.").arg(m_toolsName);
                   text += QString(" %1 GB free here, about %2 GB needed.").arg(doctor["freeGb"].toInt()).arg(doctor["needGb"].toInt());
                   m_systemStatus->setText(m_folderProblem.isEmpty() ? text : m_folderProblem);
                   updateControls();
@@ -219,17 +219,7 @@ bool SetupPage::isRunning() const
 
 void SetupPage::start()
 {
-    QStringList arguments{"run", "--iso", m_discPath->text()};
-    if (m_toolsName.isEmpty())
-    {
-        const auto answer = QMessageBox::question(
-            this, "Install the build tools?",
-            "Building the game needs Microsoft's C++ Build Tools, which are free. Setup will download and install "
-            "them now: about 6 GB, and Windows will ask for permission.\n\nInstall them?");
-        if (answer != QMessageBox::Yes)
-            return;
-        arguments << "--install-tools";
-    }
+    const QStringList arguments{"run", "--iso", m_discPath->text()};
 
     m_cancelled = false;
     m_lastError.clear();

@@ -9,14 +9,13 @@ The launcher's first-run setup is a front end over this script, which also works
 Usage:
   python tools/setup_game.py check-disc ISO     check that ISO is the supported disc
   python tools/setup_game.py doctor             report build tools, disk space and folder problems (JSON)
-  python tools/setup_game.py install-tools      install Microsoft's C++ Build Tools (about 6 GB)
+  python tools/setup_game.py get-tools          download the build tools (llvm-mingw, CMake, Ninja) into toolchain/
   python tools/setup_game.py run --iso ISO      do everything; a finished step is skipped next time
 
 Lines starting with "@" are for the launcher: @step N TOTAL LABEL, @progress PERCENT, @error MESSAGE.
 """
 import argparse
 import ctypes
-import glob
 import hashlib
 import json
 import os
@@ -25,23 +24,28 @@ import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import urllib.request
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 GAME_DIR = ROOT / "iso_extracted"
 RECOMP_DIR = ROOT / "recomp"
 SOURCE_DIR = ROOT / "external" / "PS2Recomp"
-BUILD_DIR = SOURCE_DIR / "out" / "build"
+# Setup's own build, with the downloaded tools. A developer's Visual Studio build in out/build is separate.
+BUILD_DIR = SOURCE_DIR / "out" / "build-game"
 DEPS_DIR = ROOT / "deps"
-RUNNER_DIR = BUILD_DIR / "ps2xRuntime" / "Release"
+RUNNER_DIR = BUILD_DIR / "ps2xRuntime"
 RUNNER_EXE = RUNNER_DIR / "ps2EntryRunner.exe"
-RECOMP_EXE = BUILD_DIR / "ps2xRecomp" / "Release" / "ps2_recomp.exe"
-ANALYZER_EXE = BUILD_DIR / "ps2xAnalyzer" / "Release" / "ps2_analyzer.exe"
+RECOMP_EXE = BUILD_DIR / "ps2xRecomp" / "ps2_recomp.exe"
+ANALYZER_EXE = BUILD_DIR / "ps2xAnalyzer" / "ps2_analyzer.exe"
 # The renderer (PCSX2's GS as ps2x-gs.dll) is loaded from this folder beside the runner. A release
-# brings it built, in pcsx2-gs at its top; from a clone it is built from a PCSX2 source tree.
+# brings it built, in pcsx2-gs at its top, with the Visual C++ runtime it needs; in a clone it is built
+# from a PCSX2 source tree into the Visual Studio build's runner folder.
 RENDERER_DIR = RUNNER_DIR / "pcsx2-gs"
 PACKAGED_RENDERER = ROOT / "pcsx2-gs"
+DEVELOPER_RENDERER = SOURCE_DIR / "out" / "build" / "ps2xRuntime" / "Release" / "pcsx2-gs"
 GENERATED_STAMP = RECOMP_DIR / "generated.stamp"
 LOG_FILE = ROOT / "setup.log"
 
@@ -49,17 +53,37 @@ ELF_NAME = "SLUS_207.32"
 ELF_SHA256 = "61a651dc07186bcf2c8196792702cd885b5ea6e4f69e95f8cf33035a130d48fc"
 SECTOR = 2048
 
-BUILD_TOOLS_URL = "https://aka.ms/vs/stable/vs_BuildTools.exe"
-BUILD_TOOLS_ARGS = [
-    "--passive", "--wait", "--norestart",
-    "--add", "Microsoft.VisualStudio.Workload.VCTools",
-    "--add", "Microsoft.VisualStudio.Component.VC.CMake.Project",
-    "--includeRecommended",
-]
-GENERATORS = {17: "Visual Studio 17 2022", 18: "Visual Studio 18 2026"}
+# The build tools, downloaded into toolchain/ from their official releases. Each is pinned to a
+# tested version and checked against its SHA-256 before it is unpacked. "bin" is the folder, inside
+# the unpacked archive, that goes on PATH for the build.
+TOOLCHAIN_DIR = ROOT / "toolchain"
+TOOLS = {
+    "llvm-mingw": {
+        "version": "20261104",
+        "url": "https://github.com/mstorsjo/llvm-mingw/releases/download/20261104/llvm-mingw-20261104-ucrt-x86_64.zip",
+        "sha256": "552191b5754c49a5a20723276a6fc56541ea1922c4c50b7b669022333fc1b40f",
+        "size": 191037046,
+        "bin": "llvm-mingw-20261104-ucrt-x86_64/bin",
+    },
+    "cmake": {
+        "version": "4.4.4",
+        "url": "https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-windows-x86_64.zip",
+        "sha256": "bace36e94b31c68ab6fa295f26dfa11219e0701cf7c94b0284a7d1cb13dac536",
+        "size": 54400562,
+        "bin": "cmake-4.4.4-windows-x86_64/bin",
+    },
+    "ninja": {
+        "version": "1.13.2",
+        "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip",
+        "sha256": "07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65",
+        "size": 291570,
+        "bin": ".",
+    },
+}
+TOOLS_DOWNLOAD_MB = sum(t["size"] for t in TOOLS.values()) // (1024 * 1024)
 
 NEED_FREE_GB = 10
-MAX_ROOT_CHARS = 70  # generated build paths add about 170 characters; MSBuild stops at 260
+MAX_ROOT_CHARS = 70  # generated build paths add about 170 characters; Windows tools stop at 260
 GB = 1024 ** 3
 
 
@@ -171,47 +195,71 @@ def extract(iso, files):
 # --- Build tools --------------------------------------------------------------------------------
 
 
+def tool_folder(name):
+    return TOOLCHAIN_DIR / name
+
+
+def tool_ready(name):
+    """A tool is ready when it was unpacked from the pinned archive (its stamp holds that hash)."""
+    stamp = tool_folder(name) / "downloaded.sha256"
+    return stamp.is_file() and stamp.read_text(encoding="ascii").strip() == TOOLS[name]["sha256"]
+
+
 def find_tools():
-    """Returns {"generator", "cmake", "name"} for a usable Visual Studio, or None."""
-    vswhere = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
-    if not vswhere.is_file():
+    """Returns the build tools' paths, or None until all of them are downloaded."""
+    if not all(tool_ready(name) for name in TOOLS):
         return None
-    out = subprocess.run(
-        [str(vswhere), "-latest", "-products", "*", "-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-         "-utf8", "-format", "json"], capture_output=True, encoding="utf-8", errors="replace")
-    try:
-        instance = json.loads(out.stdout)[0]
-    except (ValueError, IndexError):
-        return None
-    generator = GENERATORS.get(int(instance["installationVersion"].split(".")[0]))
-    if generator is None:
-        return None
-    install = Path(instance["installationPath"])
-    cmake = install / "Common7" / "IDE" / "CommonExtensions" / "Microsoft" / "CMake" / "CMake" / "bin" / "cmake.exe"
-    if not cmake.is_file():
-        found = shutil.which("cmake")
-        if not found:
-            return None
-        cmake = Path(found)
-    kits = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Windows Kits" / "10" / "Include"
-    if not glob.glob(str(kits / "*" / "um" / "windows.h")):
-        return None
-    return {"generator": generator, "cmake": str(cmake), "name": instance.get("displayName", generator), "install": str(install)}
+    bins = {name: (tool_folder(name) / TOOLS[name]["bin"]).resolve() for name in TOOLS}
+    return {
+        "name": f"llvm-mingw {TOOLS['llvm-mingw']['version']}, CMake {TOOLS['cmake']['version']}, Ninja {TOOLS['ninja']['version']}",
+        "cmake": str(bins["cmake"] / "cmake.exe"),
+        "ninja": str(bins["ninja"] / "ninja.exe"),
+        "cc": str(bins["llvm-mingw"] / "clang.exe"),
+        "cxx": str(bins["llvm-mingw"] / "clang++.exe"),
+        "path": [str(b) for b in bins.values()],
+    }
 
 
-def install_tools():
-    target = ROOT / "vs_BuildTools.exe"
-    say("Downloading Microsoft's C++ Build Tools installer")
-    urllib.request.urlretrieve(BUILD_TOOLS_URL, target)
-    say("Running the installer (about 6 GB; Windows asks for permission)")
-    result = subprocess.run([str(target)] + BUILD_TOOLS_ARGS)
-    target.unlink(missing_ok=True)
-    if result.returncode == 1602:
-        raise SetupError("The build tools weren't installed: the installer was cancelled.")
-    if result.returncode not in (0, 3010):
-        raise SetupError(f"The build tools installer failed with code {result.returncode}.")
-    if find_tools() is None:
-        raise SetupError("The build tools installed, but weren't found. Restart Windows and try again.")
+def download(name):
+    tool = TOOLS[name]
+    folder = tool_folder(name)
+    TOOLCHAIN_DIR.mkdir(exist_ok=True)
+    archive = TOOLCHAIN_DIR / (name + ".zip.part")
+    say(f"Downloading {name} {tool['version']} ({tool['size'] // (1024 * 1024)} MB) from {tool['url']}")
+    digest = hashlib.sha256()
+    with urllib.request.urlopen(tool["url"], timeout=60) as response, open(archive, "wb") as out:
+        done = 0
+        while True:
+            chunk = response.read(1024 * 1024)
+            if not chunk:
+                break
+            out.write(chunk)
+            digest.update(chunk)
+            done += len(chunk)
+            progress(min(99, 100 * done / tool["size"]))
+    if digest.hexdigest() != tool["sha256"]:
+        archive.unlink(missing_ok=True)
+        raise SetupError(f"The download of {name} was damaged or changed (its checksum doesn't match). Try again.")
+    say(f"Unpacking {name}")
+    if folder.exists():
+        shutil.rmtree(folder)
+    unpacked = Path(tempfile.mkdtemp(prefix=name + "-", dir=TOOLCHAIN_DIR))
+    with zipfile.ZipFile(archive) as z:
+        z.extractall(unpacked)
+    os.replace(unpacked, folder)
+    archive.unlink()
+    (folder / "downloaded.sha256").write_text(tool["sha256"], encoding="ascii")
+
+
+def get_tools():
+    """Downloads whichever build tools are missing or not the pinned version."""
+    for name in TOOLS:
+        if not tool_ready(name):
+            download(name)
+    tools = find_tools()
+    if tools is None:
+        raise SetupError("The build tools were downloaded, but aren't usable. Delete the toolchain folder and try again.")
+    return tools
 
 
 def folder_problem():
@@ -228,6 +276,7 @@ def doctor():
     free = shutil.disk_usage(ROOT).free / GB
     return {
         "tools": tools["name"] if tools else "",
+        "toolsDownloadMb": TOOLS_DOWNLOAD_MB,
         "freeGb": int(free),
         "needGb": NEED_FREE_GB,
         "folderProblem": folder_problem() or "",
@@ -247,10 +296,10 @@ def parallel_jobs():
     return max(1, min(os.cpu_count() or 1, memory.total // (4 * GB)))
 
 
-def run(command, cwd=ROOT, on_line=None):
+def run(command, cwd=ROOT, on_line=None, env=None):
     say("> " + " ".join(str(c) for c in command))
     process = subprocess.Popen([str(c) for c in command], cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                               encoding="utf-8", errors="replace")
+                               encoding="utf-8", errors="replace", env=env)
     tail = []
     for line in process.stdout:
         line = line.rstrip()
@@ -277,25 +326,37 @@ def bundled_dependencies():
     return defines
 
 
+def tool_environment(tools):
+    """The build tools first on PATH, so CMake and the compiler find their own helpers."""
+    env = dict(os.environ)
+    env["PATH"] = os.pathsep.join(tools["path"] + [env.get("PATH", "")])
+    return env
+
+
 def configure(tools):
-    run([tools["cmake"], "-S", SOURCE_DIR, "-B", BUILD_DIR, "-G", tools["generator"], "-A", "x64",
+    run([tools["cmake"], "-S", SOURCE_DIR, "-B", BUILD_DIR, "-G", "Ninja",
+         f"-DCMAKE_MAKE_PROGRAM={Path(tools['ninja']).as_posix()}",
+         f"-DCMAKE_C_COMPILER={Path(tools['cc']).as_posix()}",
+         f"-DCMAKE_CXX_COMPILER={Path(tools['cxx']).as_posix()}",
+         "-DCMAKE_BUILD_TYPE=Release",
          "-DPS2X_BUILD_TEST=OFF", "-DPS2X_BUILD_STUDIO=OFF",
          f"-DPS2X_GAME_RECOMP_DIR={(ROOT / 'recomp' / 'batched').as_posix()}",
          f"-DPS2X_GAME_SRC_DIR={(ROOT / 'src').as_posix()}",
-         f"-DPython3_EXECUTABLE={Path(sys.executable).as_posix()}", *bundled_dependencies()])
+         f"-DPython3_EXECUTABLE={Path(sys.executable).as_posix()}", *bundled_dependencies()],
+        env=tool_environment(tools))
 
 
-def build_target(tools, target, total_files=0):
-    compiled = [0]
-    pattern = re.compile(r"^\s+[\w.\-]+\.(cpp|cc|cxx|c)\s*$")
+def build_target(tools, target):
+    # Ninja numbers its steps: "[12/177] Building CXX object ..."
+    pattern = re.compile(r"^\[(\d+)/(\d+)\]")
 
     def on_line(line):
-        if total_files and pattern.match(line):
-            compiled[0] += 1
-            progress(min(99, 100 * compiled[0] / total_files))
+        match = pattern.match(line)
+        if match:
+            progress(min(99, 100 * int(match.group(1)) / max(1, int(match.group(2)))))
 
-    run([tools["cmake"], "--build", BUILD_DIR, "--config", "Release", "--target", target, "--parallel", parallel_jobs(),
-         "--", "/nr:false", "/v:minimal"], on_line=on_line)
+    run([tools["cmake"], "--build", BUILD_DIR, "--target", target, "--parallel", parallel_jobs()],
+        on_line=on_line, env=tool_environment(tools))
 
 
 def generate_game_code():
@@ -308,7 +369,7 @@ def generate_game_code():
         say("The game code is already translated.")
         return
     GENERATED_STAMP.unlink(missing_ok=True)
-    run_python("generate_recomp_config.py")
+    run_python("generate_recomp_config.py", ANALYZER_EXE)
     progress(10)
     run([RECOMP_EXE, Path("recomp") / "drakengard.toml"])
     progress(70)
@@ -320,33 +381,17 @@ def generate_game_code():
     progress(100)
 
 
-def count_compile_units(target):
-    project = next(BUILD_DIR.rglob(target + ".vcxproj"), None)
-    if project is None:
-        return 0
-    return project.read_text(encoding="utf-8", errors="replace").count("<ClCompile Include=")
-
-
-def copy_vc_runtime(tools):
-    """The runner needs Microsoft's C++ runtime, which a Build Tools install doesn't always put in Windows."""
-    pattern = str(Path(tools["install"]) / "VC" / "Redist" / "MSVC" / "*" / "x64" / "Microsoft.VC*.CRT" / "*.dll")
-    copied = set()
-    for dll in sorted(glob.glob(pattern), reverse=True):
-        name = os.path.basename(dll)
-        if name not in copied:
-            shutil.copy2(dll, RUNNER_DIR / name)
-            copied.add(name)
-
-
 def copy_renderer():
-    if PACKAGED_RENDERER.is_dir():
-        shutil.copytree(PACKAGED_RENDERER, RENDERER_DIR, dirs_exist_ok=True)
+    for source in (PACKAGED_RENDERER, DEVELOPER_RENDERER):
+        if (source / "ps2x-gs.dll").is_file():
+            shutil.copytree(source, RENDERER_DIR, dirs_exist_ok=True, ignore=shutil.ignore_patterns("gs-data"))
+            break
     if not (RENDERER_DIR / "ps2x-gs.dll").is_file():
         raise SetupError("The game is built, but its renderer is missing. Build it into\n"
                          f"{RENDERER_DIR}\n(see external\\PS2Recomp\\ps2xRuntime\\pcsx2-gs\\README.md).")
 
 
-def run_setup(iso, may_install_tools):
+def run_setup(iso):
     total = 6
     problem = folder_problem()
     if problem:
@@ -363,28 +408,22 @@ def run_setup(iso, may_install_tools):
     extract(iso, files)
 
     step(3, total, "Getting the build tools ready")
-    tools = find_tools()
-    if tools is None:
-        if not may_install_tools:
-            raise SetupError("Microsoft's C++ Build Tools are needed. Run setup with --install-tools.")
-        install_tools()
-        tools = find_tools()
+    tools = get_tools()
     say(f"Using {tools['name']}")
     configure(tools)
 
     step(4, total, "Building the recompiler")
-    build_target(tools, "ps2_recomp", count_compile_units("ps2_recomp"))
-    build_target(tools, "ps2_analyzer", count_compile_units("ps2_analyzer"))
+    build_target(tools, "ps2_recomp")
+    build_target(tools, "ps2_analyzer")
 
     step(5, total, "Translating the game's code to C++")
     generate_game_code()
     configure(tools)
 
     step(6, total, "Compiling the game (the longest step)")
-    build_target(tools, "ps2EntryRunner", count_compile_units("ps2EntryRunner"))
+    build_target(tools, "ps2EntryRunner")
     if not RUNNER_EXE.is_file():
         raise SetupError(f"The build finished without making the game. The full log is in {LOG_FILE}")
-    copy_vc_runtime(tools)
     copy_renderer()
     progress(100)
     say("Setup finished.")
@@ -396,10 +435,9 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("check-disc").add_argument("iso")
     commands.add_parser("doctor")
-    commands.add_parser("install-tools")
+    commands.add_parser("get-tools")
     run_parser = commands.add_parser("run")
     run_parser.add_argument("--iso", required=True)
-    run_parser.add_argument("--install-tools", action="store_true")
     args = parser.parse_args()
 
     try:
@@ -407,11 +445,11 @@ def main():
             print(f"OK {len(check_disc(args.iso))} files")
         elif args.command == "doctor":
             print(json.dumps(doctor()))
-        elif args.command == "install-tools":
-            install_tools()
+        elif args.command == "get-tools":
+            print(get_tools()["name"])
         else:
             LOG_FILE.write_text("", encoding="utf-8")
-            run_setup(args.iso, args.install_tools)
+            run_setup(args.iso)
     except SetupError as e:
         print("@error " + str(e).replace("\n", "\\n"), flush=True)
         sys.exit(1)

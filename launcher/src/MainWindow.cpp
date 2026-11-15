@@ -26,7 +26,9 @@
 
 namespace
 {
-    const QString kRunnerRelative = "external/PS2Recomp/out/build/ps2xRuntime/Release/ps2EntryRunner.exe";
+    // Setup's build first, then a developer's Visual Studio build.
+    const QStringList kRunnerRelative = {"external/PS2Recomp/out/build-game/ps2xRuntime/ps2EntryRunner.exe",
+                                         "external/PS2Recomp/out/build/ps2xRuntime/Release/ps2EntryRunner.exe"};
     const QString kElfRelative = "iso_extracted/SLUS_207.32";
     constexpr qsizetype kMaxPendingLog = 256 * 1024;
     constexpr int kStopGraceMs = 3000;
@@ -126,7 +128,6 @@ MainWindow::MainWindow()
     connect(m_play, &QPushButton::clicked, this, &MainWindow::startGame);
     connect(m_stop, &QPushButton::clicked, this, &MainWindow::stopGame);
 
-    m_runnerPath = defaultPath(m_projectRoot, kRunnerRelative);
     m_elfPath = defaultPath(m_projectRoot, kElfRelative);
     m_consoleLogPath->setText(defaultPath(m_projectRoot, "launch_console.log"));
     openGameFolder();
@@ -144,7 +145,7 @@ MainWindow::MainWindow()
                     m_status->setText("Ready to play");
                 });
         connect(m_setup, &SetupPage::backRequested, this, [this] { m_pages->setCurrentIndex(0); });
-        if (!QFileInfo(m_runnerPath).isFile() || !QFileInfo(m_elfPath).isFile())
+        if (!QFileInfo(runnerPath()).isFile() || !QFileInfo(m_elfPath).isFile())
             showSetup(false);
     }
 }
@@ -404,10 +405,22 @@ void MainWindow::updateControls()
 
 // ---- Running the game -----------------------------------------------------------------------
 
+QString MainWindow::runnerPath() const
+{
+    for (const QString &relative : kRunnerRelative)
+    {
+        const QString path = defaultPath(m_projectRoot, relative);
+        if (QFileInfo(path).isFile())
+            return path;
+    }
+    return defaultPath(m_projectRoot, kRunnerRelative.first());
+}
+
 QString MainWindow::validate() const
 {
-    if (!QFileInfo(m_runnerPath).isFile())
-        return "The runner was not found:\n" + QDir::toNativeSeparators(m_runnerPath) + "\n\nBuild the ps2EntryRunner target first.";
+    const QString runner = runnerPath();
+    if (!QFileInfo(runner).isFile())
+        return "The runner was not found:\n" + QDir::toNativeSeparators(runner) + "\n\nRun setup, or build the ps2EntryRunner target.";
     if (!QFileInfo(m_elfPath).isFile())
         return "The game ELF was not found:\n" + QDir::toNativeSeparators(m_elfPath) + "\n\nRun setup to extract the disc.";
     return {};
@@ -448,10 +461,11 @@ void MainWindow::startGame()
             launcherLog("Cannot write console log: " + m_consoleLog.errorString());
     }
 
-    launcherLog(QDir::toNativeSeparators(m_runnerPath) + " " + QDir::toNativeSeparators(elf.absoluteFilePath()));
+    const QString runner = runnerPath();
+    launcherLog(QDir::toNativeSeparators(runner) + " " + QDir::toNativeSeparators(elf.absoluteFilePath()));
 
     m_stopRequested = false;
-    m_process->setProgram(m_runnerPath);
+    m_process->setProgram(runner);
     m_process->setArguments({QDir::toNativeSeparators(elf.absoluteFilePath())});
     m_process->setWorkingDirectory(elf.absolutePath());
     m_process->setProcessEnvironment(env);

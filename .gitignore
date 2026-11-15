@@ -28,6 +28,7 @@ scratch_frames/
 # --- Build output ---
 build/
 out/
+/toolchain/
 *.exe
 *.pdb
 *.obj

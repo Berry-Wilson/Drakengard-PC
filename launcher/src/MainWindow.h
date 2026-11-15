@@ -63,6 +63,7 @@ private:
     void startGame();
     void stopGame();
     QProcessEnvironment buildEnvironment() const;
+    QString runnerPath() const; // setup's build, else a developer's Visual Studio build
     QString validate() const;
 
     void readProcessOutput();
@@ -80,7 +81,6 @@ private:
     QTabWidget *m_tabs = nullptr;
     SetupPage *m_setup = nullptr;
 
-    QString m_runnerPath; // found from the project folder
     QString m_elfPath;
 
     QComboBox *m_aspect = nullptr;
