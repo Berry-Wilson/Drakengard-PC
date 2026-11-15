@@ -20,14 +20,13 @@ class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
 class QPushButton;
-class QSpinBox;
 class QStackedWidget;
 class QTabWidget;
 class ControlsTab;
 class SetupPage;
 
 // The launcher keeps no settings of its own. The game's options are lines in ps2x.ini beside the
-// game, written as soon as one changes; paths and pad recording last until the launcher closes.
+// game, written as soon as one changes. The runner and game are found from the project folder.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -41,19 +40,15 @@ protected:
 private:
     using Choices = std::vector<std::pair<QString, QString>>; // label, value; "" is the game's default
 
-    QWidget *buildGameTab();
     QWidget *buildVideoTab();
     QWidget *buildPictureTab();
-    QWidget *buildPathsTab();
-    QWidget *buildScriptedTab();
     QWidget *buildLogTab();
 
     // Controls tied to one ps2x.ini option. Each reloads with the file and writes it when changed.
-    QComboBox *optionCombo(const QString &name, const Choices &choices, const QString &tip);
+    // The choice whose value is "" is the game's default and writes no line; defaultValue is the
+    // same setting spelled out, which ps2x.ini may hold, and shows as that choice.
+    QComboBox *optionCombo(const QString &name, const Choices &choices, const QString &tip, const QString &defaultValue = {});
     QCheckBox *optionCheck(const QString &text, const QString &name, bool defaultOn, const QString &tip);
-    QLineEdit *optionText(const QString &name, const QString &placeholder, const QString &tip);
-    QWidget *optionPath(const QString &name, bool folder, const QString &placeholder, const QString &tip, QLineEdit **edit = nullptr);
-    QSpinBox *optionCount(const QString &name, const QString &noneText, const QString &tip);
     void store(const QString &name, const QString &value);
 
     void refreshWindowSizes();
@@ -62,13 +57,12 @@ private:
     QString gameFolder() const;
     QString controlsPath() const;
     void loadControls();
-    void refreshRecordings(const QString &select = {});
     void updateControls();
     void showSetup(bool canGoBack);
 
     void startGame();
     void stopGame();
-    QProcessEnvironment buildEnvironment(const QString &recordFile) const;
+    QProcessEnvironment buildEnvironment() const;
     QString validate() const;
 
     void readProcessOutput();
@@ -85,16 +79,9 @@ private:
     QStackedWidget *m_pages = nullptr;
     QTabWidget *m_tabs = nullptr;
     SetupPage *m_setup = nullptr;
-    QPushButton *m_runSetup = nullptr;
 
-    QLineEdit *m_runnerPath = nullptr;
-    QLineEdit *m_elfPath = nullptr;
-    QLineEdit *m_controlsPath = nullptr;
-    QLabel *m_iniLabel = nullptr;
-    QComboBox *m_inputMode = nullptr;
-    QComboBox *m_replayFile = nullptr;
-    QPushButton *m_replayBrowse = nullptr;
-    QString m_recordingsDir;
+    QString m_runnerPath; // found from the project folder
+    QString m_elfPath;
 
     QComboBox *m_aspect = nullptr;
     QComboBox *m_windowSize = nullptr;

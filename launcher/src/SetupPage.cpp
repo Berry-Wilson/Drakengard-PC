@@ -24,7 +24,7 @@ SetupPage::SetupPage(const QString &projectRoot, QWidget *parent)
 {
     setAcceptDrops(true);
 
-    auto *title = new QLabel("Set up Drakengard");
+    auto *title = new QLabel("Set Up Drakengard");
     QFont titleFont = title->font();
     titleFont.setPointSize(titleFont.pointSize() + 6);
     titleFont.setBold(true);
@@ -50,7 +50,7 @@ SetupPage::SetupPage(const QString &projectRoot, QWidget *parent)
     m_systemStatus->setWordWrap(true);
 
     auto *form = new QFormLayout;
-    form->addRow("Disc image", discRow);
+    form->addRow("Disc Image", discRow);
     form->addRow("", m_discStatus);
     form->addRow("This PC", m_systemStatus);
 

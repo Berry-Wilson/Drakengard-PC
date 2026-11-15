@@ -169,7 +169,20 @@ namespace
         }
     }
 
-    const char *kStickNames[2] = {"Left stick", "Right stick"};
+    const char *kStickNames[2] = {"Left Stick", "Right Stick"};
+
+    // "Left stick up" -> "Left Stick Up": the shared action names are written for the game's
+    // messages; the launcher's labels capitalize every word.
+    QString titleCase(const QString &text)
+    {
+        QString out = text;
+        for (int i = 0; i < out.size(); ++i)
+        {
+            if (i == 0 || QString(" -(/").contains(out[i - 1]))
+                out[i] = out[i].toUpper();
+        }
+        return out;
+    }
 }
 
 ControlsTab::ControlsTab(const QString &filePath, QWidget *parent)
@@ -180,7 +193,7 @@ ControlsTab::ControlsTab(const QString &filePath, QWidget *parent)
 
     auto *grid = new QGridLayout;
     grid->setHorizontalSpacing(8);
-    const char *headers[] = {"PS2 pad", "Key 1", "Key 2", "Controller 1", "Controller 2"};
+    const char *headers[] = {"PS2 Pad", "Key 1", "Key 2", "Controller 1", "Controller 2"};
     for (int c = 0; c < 5; ++c)
     {
         auto *header = new QLabel(QString("<b>%1</b>").arg(headers[c]));
@@ -192,11 +205,11 @@ ControlsTab::ControlsTab(const QString &filePath, QWidget *parent)
     {
         if (action == kButtonActionCount)
         {
-            auto *note = new QLabel("<b>Stick directions</b> (keys, or controller inputs, that push a PS2 stick fully)");
+            auto *note = new QLabel("<b>Stick Directions</b> (keys, or controller inputs, that push a PS2 stick fully)");
             note->setContentsMargins(0, 10, 0, 2);
             grid->addWidget(note, row++, 0, 1, 5);
         }
-        grid->addWidget(new QLabel(actionLabel(static_cast<Action>(action))), row, 0);
+        grid->addWidget(new QLabel(titleCase(actionLabel(static_cast<Action>(action)))), row, 0);
         for (int column = 0; column < kKeyboardSlots + kControllerSlots; ++column)
         {
             const bool keyboard = column < kKeyboardSlots;
@@ -228,7 +241,7 @@ ControlsTab::ControlsTab(const QString &filePath, QWidget *parent)
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scroll->setMinimumWidth(table->sizeHint().width() + scroll->verticalScrollBar()->sizeHint().width() + 4);
 
-    auto *sticks = new QGroupBox("Controller sticks");
+    auto *sticks = new QGroupBox("Controller Sticks");
     auto *sticksLayout = new QGridLayout(sticks);
     for (int s = 0; s < 2; ++s)
     {
@@ -236,9 +249,9 @@ ControlsTab::ControlsTab(const QString &filePath, QWidget *parent)
         m_stickSource[s]->addItem("Controller left stick", static_cast<int>(StickSettings::Source::LeftStick));
         m_stickSource[s]->addItem("Controller right stick", static_cast<int>(StickSettings::Source::RightStick));
         m_stickSource[s]->addItem("Nothing", static_cast<int>(StickSettings::Source::None));
-        m_invertX[s] = new QCheckBox("Invert left/right");
-        m_invertY[s] = new QCheckBox("Invert up/down");
-        sticksLayout->addWidget(new QLabel(QString("PS2 %1 reads").arg(QString(kStickNames[s]).toLower())), s, 0);
+        m_invertX[s] = new QCheckBox("Invert Left/Right");
+        m_invertY[s] = new QCheckBox("Invert Up/Down");
+        sticksLayout->addWidget(new QLabel(QString("PS2 %1 Reads").arg(kStickNames[s])), s, 0);
         sticksLayout->addWidget(m_stickSource[s], s, 1);
         sticksLayout->addWidget(m_invertX[s], s, 2);
         sticksLayout->addWidget(m_invertY[s], s, 3);
