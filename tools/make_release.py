@@ -6,7 +6,7 @@ The fork in external/PS2Recomp is taken at its HEAD commit. The zip is refused i
 the game is found in it.
 
 Usage: python tools/make_release.py [--allow-dirty] [--name DrakengardPC-x.y] [--no-zip]
-Build the launcher first (see launcher/README.md), and the renderer into the runner's pcsx2-gs folder
+Build the launcher with llvm-mingw first (see launcher/README.md), and the renderer into the runner's pcsx2-gs folder
 (see external/PS2Recomp/ps2xRuntime/pcsx2-gs/README.md).
 """
 import argparse
@@ -30,7 +30,7 @@ from setup_game import DEVELOPER_RENDERER as RENDERER_DIR, GAME_ICON, PACKAGED_R
 
 DIST = ROOT / "out" / "dist"
 FORK = ROOT / "external" / "PS2Recomp"
-LAUNCHER_BUILD = ROOT / "launcher" / "out" / "build" / "Release"
+LAUNCHER_BUILD = ROOT / "launcher" / "out" / "build-mingw"
 PYTHON_VERSION = "3.12.10"
 PYTHON_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-embed-amd64.zip"
 
@@ -40,6 +40,7 @@ PROJECT_FOLDERS = ("src/", "recomp/", "tools/")
 PROJECT_FILES = ("LICENSE", "docs/settings.md")
 # Tools for working on the project, which setup doesn't run.
 DEVELOPER_ONLY = ("tools/testing/", "tools/make_release.py", "tools/make_launcher_icon.py", "tools/check_settings.py",
+                  "tools/build_launcher.py",
                   "tools/elf_analyzer.py", "tools/fpk_unpacker.py")
 # FetchContent names; setup_game.py passes deps/<name> as FETCHCONTENT_SOURCE_DIR_<NAME>.
 DEPENDENCIES = ["elfio", "fmt", "imgui", "libdwarf", "nlohmann_json", "rabbitizer", "raylib", "rlimgui", "toml11"]
@@ -69,10 +70,13 @@ NOTICES = """Third-party software in this package
 Qt 6 (Qt6Core, Qt6Gui, Qt6Widgets and plugins) is used under the GNU LGPL version 3, dynamically linked.
 Source: https://download.qt.io/official_releases/qt/ and https://github.com/qt/qtbase
 
+libc++.dll and libunwind.dll beside the launcher are LLVM's C++ runtime from llvm-mingw
+(https://github.com/mstorsjo/llvm-mingw), under the Apache License 2.0 with LLVM exceptions.
+
 Python is in python\\ under the Python Software Foundation License (python\\LICENSE.txt).
 
-Microsoft Visual C++ runtime DLLs (beside the launcher and in pcsx2-gs\\) are redistributed under the
-Visual Studio license terms.
+Microsoft Visual C++ runtime DLLs (in pcsx2-gs\\) are redistributed under the Visual Studio license
+terms.
 
 The renderer in pcsx2-gs\\ is PCSX2's GS (https://pcsx2.net), under the GNU GPL version 3 or later; the
 text is in LICENSE. pcsx2-gs\\SOURCE.txt says which PCSX2 source it was built from and how to build it.
@@ -169,6 +173,17 @@ def stage_renderer(target):
     (target / "SOURCE.txt").write_text(RENDERER_SOURCE.format(commit=commit), encoding="utf-8")
 
 
+def stage_launcher(target):
+    """The launcher as windeployqt left it: the exe, its DLLs and Qt's plugin folders, not the build files."""
+    if not (LAUNCHER_BUILD / "libc++.dll").is_file():
+        sys.exit(f"{LAUNCHER_BUILD} isn't an llvm-mingw build of the launcher: see launcher/README.md")
+    for path in LAUNCHER_BUILD.iterdir():
+        if path.is_file() and path.suffix.lower() in (".exe", ".dll"):
+            shutil.copy2(path, target / path.name)
+        elif path.is_dir() and any(path.glob("*.dll")) and all(f.suffix.lower() == ".dll" for f in path.rglob("*") if f.is_file()):
+            shutil.copytree(path, target / path.name)
+
+
 def stage_python(target):
     cache = DIST / f"python-{PYTHON_VERSION}-embed-amd64.zip"
     if not cache.is_file():
@@ -179,7 +194,7 @@ def stage_python(target):
 
 
 def vc_runtime_dlls():
-    """Microsoft's C++ runtime DLLs from this PC's Visual Studio, for the launcher and the renderer."""
+    """Microsoft's C++ runtime DLLs from this PC's Visual Studio, for the renderer."""
     vswhere = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
     out = subprocess.run([str(vswhere), "-latest", "-products", "*", "-utf8", "-format", "json"],
                          capture_output=True, encoding="utf-8", errors="replace") if vswhere.is_file() else None
@@ -259,7 +274,7 @@ def main():
         shutil.rmtree(stage)
     stage.mkdir()
 
-    shutil.copytree(LAUNCHER_BUILD, stage, dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.pdb"))
+    stage_launcher(stage)
     for name in project_files():
         out = stage / name
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -274,8 +289,8 @@ def main():
                      skip=lambda name: name.split("/")[0].lower() in SKIP_DEPENDENCY_DIRS)
     stage_python(stage / "python")
     stage_renderer(stage / PACKAGED_RENDERER.name)
-    # The launcher and the renderer are built with Visual Studio; the game itself needs no Microsoft DLLs.
-    stage_vc_runtime(stage, stage / PACKAGED_RENDERER.name)
+    # Only the renderer is built with Visual Studio; the launcher and the game are built with llvm-mingw.
+    stage_vc_runtime(stage / PACKAGED_RENDERER.name)
 
     problems = guard(stage)
     if problems:

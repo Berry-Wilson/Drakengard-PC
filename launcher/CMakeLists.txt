@@ -54,3 +54,20 @@ add_custom_command(TARGET drakengard-launcher POST_BUILD
             "$<TARGET_FILE:drakengard-launcher>"
     VERBATIM
 )
+
+# Built with llvm-mingw (setup's toolchain), the launcher and Qt's llvm-mingw DLLs need the
+# toolchain's C++ runtime beside them.
+if(MINGW AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    get_filename_component(_llvm_mingw_root "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    get_filename_component(_llvm_mingw_root "${_llvm_mingw_root}" DIRECTORY)
+    foreach(_runtime libc++.dll libunwind.dll)
+        set(_path "${_llvm_mingw_root}/x86_64-w64-mingw32/bin/${_runtime}")
+        if(NOT EXISTS "${_path}")
+            message(FATAL_ERROR "llvm-mingw's ${_runtime} was not found at ${_path}")
+        endif()
+        add_custom_command(TARGET drakengard-launcher POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${_path}" "$<TARGET_FILE_DIR:drakengard-launcher>"
+            VERBATIM
+        )
+    endforeach()
+endif()

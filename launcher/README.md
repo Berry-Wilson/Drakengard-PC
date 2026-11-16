@@ -42,26 +42,32 @@ Python. The FFmpeg DLLs are downloaded during setup.
 
 ## Build
 
-You need CMake, MSVC, and Qt 6.5 or newer with qtbase. To install prebuilt Qt with
-[aqtinstall](https://github.com/miurahr/aqtinstall):
+The launcher is built with the same tools setup builds the game with: llvm-mingw, CMake and Ninja,
+downloaded into `toolchain/`. It needs Qt 6.5 or newer built for llvm-mingw, with qtbase. From the
+project root, get the tools, then Qt with [aqtinstall](https://github.com/miurahr/aqtinstall)
+(about 140 MB):
+
+```bash
+python tools/setup_game.py get-tools
+```
 
 ```bash
 pip install aqtinstall
 ```
 
 ```bash
-aqt install-qt windows desktop 6.10.3 win64_msvc2022_64 --archives qtbase --outputdir C:/Qt
+aqt install-qt windows desktop 6.10.3 win64_llvm_mingw --archives qtbase --outputdir C:/Qt
 ```
 
-From the project root:
-
-```bash
-cmake -S launcher -B launcher/out/build -DCMAKE_PREFIX_PATH=C:/Qt/6.10.3/msvc2022_64
-```
+Then build. Qt in another folder is passed with `--qt`, and `--fresh` configures from scratch:
 
 ```bash
-cmake --build launcher/out/build --config Release
+python tools/build_launcher.py
 ```
+
+The script puts the toolchain on `PATH`, because Qt's own tools such as `moc` are llvm-mingw programs
+too, and builds in `launcher/out/build-mingw`. A Visual Studio build with Qt's `msvc2022_64` still
+works for development, but the release script packages only the llvm-mingw build.
 
 To use the game's crest as the icon, run this before configuring (it needs Pillow, and a save
 folder in `iso_extracted/mc0`). Git ignores the `.ico`, so make it once on each checkout. Without it
@@ -74,13 +80,13 @@ python tools/make_launcher_icon.py
 Setup gives the game window the same icon: it builds the runner with this `.ico`, or, in a release,
 with the icon it copies out of `drakengard-launcher.exe`.
 
-The build copies the Qt DLLs next to the exe, so it runs without Qt on `PATH`. It never builds the
-runner: build that separately with the `ps2EntryRunner` target.
+The build copies the Qt DLLs and llvm-mingw's `libc++.dll` and `libunwind.dll` next to the exe, so it
+runs without Qt or the toolchain on `PATH`. It never builds the game: setup does that.
 
 ## Run
 
 ```bash
-launcher/out/build/Release/drakengard-launcher.exe
+launcher/out/build-mingw/drakengard-launcher.exe
 ```
 
 Press **Play**. **Stop** asks the game window to close and force-kills it after 3 seconds.
