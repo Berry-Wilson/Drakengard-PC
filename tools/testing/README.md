@@ -11,8 +11,25 @@ ignored by git and must never be committed.
 | `frames.py` | Contact sheets, frame-by-frame diffs of two runs, 4:3 against 16:9 comparisons |
 | `gif_capture.py` | Lists what a `PS2X_GIF_CAPTURE` file draws: GIF tags, depths, boxes on screen |
 | `sampler.cpp` | Sampling profiler for the running game (Windows) |
+| `clean_test_pc.ps1` | Lists, and with `-Clean` removes, what could hide a missing file on a PC that tests a release zip |
 
 The Python tools need Pillow (`pip install pillow`).
+
+## A clean PC for a release zip
+
+A release installs nothing into Windows, so a PC that tests one should have no build tools of its own:
+anything there can stand in for a file the zip is missing. Copy `clean_test_pc.ps1` and
+`clean_test_pc.bat` to the test PC, never to a PC you build on.
+
+- `powershell -ExecutionPolicy Bypass -File clean_test_pc.ps1` only lists: Visual Studio and its Build
+  Tools, Windows SDKs, the v14 Visual C++ runtime, Python, Git, CMake, Ninja, LLVM, MinGW, Qt, build
+  programs on `PATH`, `PS2X_*` variables and extracted releases in Downloads, Desktop and Documents
+  (more with `-SearchFolder`).
+- `clean_test_pc.bat` (or `-Clean`) asks for administrator rights, lists the same, then asks before
+  removing each one. Programs are uninstalled with their own uninstallers; folders, including old
+  releases and the saves in them, go to the Recycle Bin. Older Visual C++ runtimes are left alone,
+  because other programs use them and the release doesn't.
+- Restart Windows afterwards and list again: `PATH` changes only show once Windows has restarted.
 
 ## The regression check
 
