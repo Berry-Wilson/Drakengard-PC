@@ -14,6 +14,7 @@ import datetime
 import io
 import json
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -239,6 +240,46 @@ def guard(stage):
     return problems
 
 
+def home_path_patterns():
+    """Patterns for this PC's home folder (C:\\Users\\<name>, any case and slash), as ASCII and UTF-16."""
+    home = Path.home()
+    parent = re.escape(home.parent.name).encode()  # "Users"
+    name = re.escape(home.name).encode()
+    ascii_pattern = re.compile(rb"(?i)(" + parent + rb"[\\/])" + name + rb"(?=[\\/])")
+    wide = lambda text: b"".join(re.escape(bytes([c])) + b"\x00" for c in text)  # noqa: E731
+    wide_pattern = re.compile(rb"(?i)(" + wide(home.parent.name.encode()) + rb"(?:\\\x00|/\x00))"
+                              + wide(home.name.encode()) + rb"(?=\\\x00|/\x00)")
+    return home.name, ascii_pattern, wide_pattern
+
+
+def scrub_home_paths(stage):
+    """Build tools bake source and debug-file paths into binaries (asserts, __FILE__, PDB paths), and they
+    hold the user's name. The name is replaced with a placeholder of the same length, so nothing moves."""
+    user, ascii_pattern, wide_pattern = home_path_patterns()
+    placeholder = ("user" * len(user))[:len(user)].encode()
+    wide_placeholder = b"".join(bytes([c]) + b"\x00" for c in placeholder)
+    scrubbed = []
+    for path in stage.rglob("*"):
+        if not path.is_file():
+            continue
+        data = path.read_bytes()
+        new = ascii_pattern.sub(lambda m: m.group(1) + placeholder, data)
+        new = wide_pattern.sub(lambda m: m.group(1) + wide_placeholder, new)
+        if new != data:
+            assert len(new) == len(data)
+            path.write_bytes(new)
+            scrubbed.append(path.relative_to(stage).as_posix())
+    if scrubbed:
+        print(f"Removed this PC's home folder from build paths in: {', '.join(scrubbed)}")
+
+
+def home_path_problems(stage):
+    _, ascii_pattern, wide_pattern = home_path_patterns()
+    return [f"{path.relative_to(stage).as_posix()}: holds this PC's home folder path"
+            for path in stage.rglob("*")
+            if path.is_file() and (ascii_pattern.search(data := path.read_bytes()) or wide_pattern.search(data))]
+
+
 def write_zip(stage, target):
     # A day back, so no file looks newer than the build in any time zone.
     when = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)).timetuple()[:6]
@@ -297,6 +338,13 @@ def main():
         print("\n".join(problems[:40]))
         sys.exit(f"Refused: {len(problems)} file(s) look like game data or code. No zip was written.")
     print("Checked: no file in the package looks like it came from the game.")
+
+    scrub_home_paths(stage)
+    problems = home_path_problems(stage)
+    if problems:
+        print("\n".join(problems[:40]))
+        sys.exit(f"Refused: {len(problems)} file(s) still hold this PC's home folder. No zip was written.")
+    print("Checked: no file in the package holds this PC's home folder.")
 
     if not args.no_zip:
         target = DIST / f"{args.name}-windows.zip"
