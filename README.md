@@ -67,7 +67,6 @@ The launcher's tabs cover the common options. All of them, with their values and
 
 ```
 PS2X_ASPECT=16:9
-PS2X_PROGRESSIVE=1
 PS2X_PCSX2_UPSCALE=4
 ```
 

@@ -244,7 +244,7 @@ QWidget *MainWindow::buildVideoTab()
                                           {"OpenGL", "opengl"}, {"Software (slow, most accurate)", "software"}},
                                          "Sets graphics API"));
 
-    form->addRow("Detail", optionCheck("Full-Height Picture", "PS2X_PROGRESSIVE", false,
+    form->addRow("Detail", optionCheck("Full-Height Picture", "PS2X_PROGRESSIVE", true,
                                        "Shows the game's full 480-line frame instead of its 224-line copy for TVs. The biggest gain in detail."));
     return tab;
 }

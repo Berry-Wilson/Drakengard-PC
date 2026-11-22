@@ -14,7 +14,7 @@ ones to `ps2x.ini` from its tabs; add any other to the file by hand.
 | `PS2X_WINDOW_SIZE` | WIDTHxHEIGHT, such as 1280x896 | 640x448 (796x448 in 16:9) | The game window's size when it opens. |
 | `PS2X_FULLSCREEN` | 0, 1 | 0 | 1 starts covering the primary monitor at its current resolution, without changing the display mode. F11 switches between full screen and a window of PS2X_WINDOW_SIZE while playing. |
 | `PS2X_PCSX2_UPSCALE` | 1 to 8 | 2 | Internal resolution, as a multiple of the PS2's. F5 steps through them while playing. |
-| `PS2X_PROGRESSIVE` | 0, 1 | 0 | 1 shows the game's full 480-line frame instead of its 224-line copy for TVs. The biggest gain in detail. |
+| `PS2X_PROGRESSIVE` | 0, 1 | 1 | 1 shows the game's full 480-line frame instead of its 224-line copy for TVs, the biggest gain in detail. 0 shows the 224-line copy, as a PS2 does. |
 | `PS2X_DRAW_DISTANCE` | a multiplier above 1, such as 2 | original | Pushes the fog back in ground missions. Objects can appear suddenly and the level's edge may show. |
 | `PS2X_PCSX2_RENDERER` | dx11, dx12, vulkan, opengl, software | PCSX2 picks | The graphics API PCSX2's renderer uses. |
 | `PS2X_GS_BACKEND` | cpu, software | unset | Older name for PS2X_PCSX2_RENDERER=software. Any other value is ignored. |

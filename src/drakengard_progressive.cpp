@@ -1,4 +1,4 @@
-// Optional full-height output for Drakengard, turned on by PS2X_PROGRESSIVE=1.
+// Full-height output for Drakengard, on by default; PS2X_PROGRESSIVE=0 turns it off.
 //
 // The game draws each frame (scene and HUD) into a 640x480 buffer, then copies it into a 640x224
 // buffer for an interlaced TV: two passes half a line apart, blended together (a flicker filter).
@@ -95,7 +95,7 @@ void applyDrakengardProgressive(PS2Runtime &runtime)
 {
     using namespace drakengard_progressive;
     const char *value = std::getenv("PS2X_PROGRESSIVE");
-    if (!value || value[0] != '1')
+    if (value && value[0] == '0')
         return;
     runtime.registerFunction(0x0012445Cu, hookBuildDisplay);
     runtime.registerFunction(0x0012454Cu, hookWriteDisplay);
