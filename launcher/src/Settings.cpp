@@ -58,7 +58,7 @@ bool Ps2xIni::set(const QString &name, const QString &value)
         return true;
 
     if (m_lines.isEmpty() && !QFile::exists(m_path))
-        m_lines << "# Drakengard's options, as NAME=value lines. The launcher edits this file; docs/settings.md lists every option.";
+        m_lines << "# Drakengard's options, as NAME=value lines. The launcher edits this file; tools/settings.json lists every option.";
 
     if (first >= 0)
     {

@@ -1,9 +1,10 @@
-"""Keeps tools/settings.json, the code and docs/settings.md in step.
+"""Keeps tools/settings.json, the code and docs/settings.md in step. docs/ is not committed, so
+docs/settings.md is only a local, readable copy of the table.
 
   python tools/check_settings.py           fails if an option is read by the code but not listed,
                                            listed but read nowhere, or set by the launcher but not
-                                           listed; or if docs/settings.md is out of date
-  python tools/check_settings.py --write   also rewrites docs/settings.md
+                                           listed; or if a local docs/settings.md is out of date
+  python tools/check_settings.py --write   also writes docs/settings.md
 """
 import json
 import re
@@ -61,7 +62,7 @@ def main():
     text = document(settings) + "\n"
     if "--write" in sys.argv:
         DOC.write_text(text, encoding="utf-8", newline="\n")
-    elif not DOC.is_file() or DOC.read_text(encoding="utf-8") != text:
+    elif DOC.is_file() and DOC.read_text(encoding="utf-8") != text:
         problems.append("docs/settings.md is out of date: run tools/check_settings.py --write")
 
     for problem in problems:

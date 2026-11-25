@@ -12,7 +12,7 @@ This repository contains **no game data**. You need your own legally dumped copy
 | --- | --- |
 | `tools/` | ELF analysis, recomp config generation, VU0/VU1 microcode translation, source packing |
 | `tools/testing/` | Replay runs, frame comparison, GIF capture reader, profiler (see its README) |
-| `docs/` | Technical notes, such as the movie corruption investigation |
+| `docs/` | Local notes, not committed. `python tools/check_settings.py --write` writes the options list there |
 | `input_recordings/` | Recorded pad input, replayed for testing. Local only, ignored by git |
 | `recomp/` | `recompile.txt`, the library functions to translate. PS2Recomp's config and function map are generated here from your disc |
 | `src/` | Game-specific runtime overrides (translated VU programs are generated here at build time) |
@@ -62,7 +62,7 @@ For working on the port, the Visual Studio build below is the one the testing to
 ## Options
 
 The launcher's tabs cover the common options. All of them, with their values and defaults, are in
-[docs/settings.md](docs/settings.md). Each is an environment variable; without the launcher, put
+[tools/settings.json](tools/settings.json). Each is an environment variable; without the launcher, put
 `NAME=value` lines in `ps2x.ini` in the game's folder, for example:
 
 ```
@@ -80,7 +80,7 @@ to `screenshots\` in the game's folder.
 | --- | --- |
 | The window opens but stays black, or the log says `PCSX2's GS did not start` | The renderer DLL, its DLLs or PCSX2's `resources` folder are missing from `pcsx2-gs\` next to the runner (build step 5). Try another graphics API with `PS2X_PCSX2_RENDERER=dx11`. |
 | The game runs below 60 VSync/s (F3 shows the counter in the top-left corner) | Lower the internal resolution with F5. Check the runner was built as Release. |
-| A movie stutters when it starts or ends | Movies switch to PCSX2's software renderer and back, see [docs/movie-corruption.md](docs/movie-corruption.md). |
+| A movie stutters when it starts or ends | Movies switch to PCSX2's software renderer and back. |
 | Something on screen is stretched or misplaced in 16:9 | 16:9 is experimental. Press F12 and report it with the screenshot; 4:3 is unaffected. |
 | The game closes with no message | Run `launch_game.bat` and look at `launch_console.log`. |
 

@@ -107,7 +107,7 @@ folder, and the `mc0` memory card is found next to it. If either is missing, set
 The game is drawn by PCSX2's GS. F5 steps the internal resolution from 1x to 8x while playing and
 shows the new one in the top-left corner; enlarge the window to see the extra detail. F12 saves a
 screenshot to `screenshots\` in the game's folder. Every option is described in
-[`docs/settings.md`](../docs/settings.md); those without a control on a tab, such as the saves
+[`tools/settings.json`](../tools/settings.json); those without a control on a tab, such as the saves
 folder, pad recording or scripted presses, can be added to `ps2x.ini` by hand.
 
 ### Controls

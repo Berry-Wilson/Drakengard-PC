@@ -1,5 +1,5 @@
 {
-  "about": "Every PS2X_* option the game reads, in one place. tools/check_settings.py fails if this list and the code disagree, and writes docs/settings.md from it. An option is an environment variable; the same names work as NAME=value lines in ps2x.ini beside the game (the environment wins).",
+  "about": "Every PS2X_* option the game reads, in one place. tools/check_settings.py fails if this list and the code disagree, and writes a local docs/settings.md from it. An option is an environment variable; the same names work as NAME=value lines in ps2x.ini beside the game (the environment wins).",
   "settings": [
     {"name": "PS2X_ASPECT", "group": "Video", "values": "16:9", "default": "4:3", "help": "Widescreen. The 3D view shows more at the sides; menus stay a centred 4:3 layout."},
     {"name": "PS2X_WINDOW_SIZE", "group": "Video", "values": "WIDTHxHEIGHT, such as 1280x896", "default": "640x448 (796x448 in 16:9)", "help": "The game window's size when it opens."},
@@ -38,7 +38,7 @@
 
     {"name": "PS2X_AUTOPAD", "group": "Developer: running", "values": "start:duration:hexmask;... in seconds", "default": "", "help": "Scripted button presses, counted from the first pad read. 0008 is Start, 4000 is Cross."},
     {"name": "PS2X_MAX_TICKS", "group": "Developer: running", "values": "a number of frames", "default": "", "help": "Exits after that many frames."},
-    {"name": "PS2X_PCSX2_MOVIE_RENDERER", "group": "Developer: running", "values": "hardware", "default": "software during movies", "help": "Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them (docs/movie-corruption.md). hardware keeps the GPU renderer, for checking that corruption."},
+    {"name": "PS2X_PCSX2_MOVIE_RENDERER", "group": "Developer: running", "values": "hardware", "default": "software during movies", "help": "Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them. hardware keeps the GPU renderer, for checking that corruption."},
     {"name": "PS2X_DUMP_FRAMES_DIR", "group": "Developer: running", "values": "a folder path", "default": "", "help": "Saves frames as PNGs there."},
     {"name": "PS2X_DUMP_FRAMES_EVERY", "group": "Developer: running", "values": "vsyncs", "default": "", "help": "Gap between saved frames."},
     {"name": "PS2X_DUMP_FRAMES_AFTER", "group": "Developer: running", "values": "seconds", "default": "0", "help": "Time before the first saved frame."},

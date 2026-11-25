@@ -38,7 +38,7 @@ PYTHON_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON
 # What the package takes from this repository is read from git, so a new source file or setup script
 # is in the next package without a list to keep: everything tracked in these folders, and these files.
 PROJECT_FOLDERS = ("src/", "recomp/", "tools/")
-PROJECT_FILES = ("LICENSE", "docs/settings.md")
+PROJECT_FILES = ("LICENSE", "tools/settings.json")
 # Tools for working on the project, which setup doesn't run.
 DEVELOPER_ONLY = ("tools/testing/", "tools/make_release.py", "tools/make_launcher_icon.py", "tools/check_settings.py",
                   "tools/build_launcher.py",
@@ -62,7 +62,7 @@ launcher's icon is the game's crest.
    (llvm-mingw, CMake and Ninja, about {tools_mb} MB, kept in the toolchain folder).
 4. Press Play.
 
-Saves are in iso_extracted\\mc0. docs\\settings.md lists every option. If setup fails, setup.log in this folder has the details.
+Saves are in iso_extracted\\mc0. tools\\settings.json lists every option. If setup fails, setup.log in this folder has the details.
 """
 
 NOTICES = """Third-party software in this package
