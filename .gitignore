@@ -49,8 +49,8 @@ mc0/
 /Launcher.ini
 /controls.ini
 
-# Local handoff notes
-docs/handoff-performance-and-pcsx2.md
+# Docs folder: local notes, not committed (files already tracked stay tracked)
+docs/
 
 # Recorded pad input: stays on this PC, never committed
 input_recordings/
