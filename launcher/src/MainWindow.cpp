@@ -102,7 +102,7 @@ MainWindow::MainWindow()
     m_pages = new QStackedWidget;
     m_pages->addWidget(main);
     setCentralWidget(m_pages);
-    resize(860, 720);
+    resize(1080, 940); // room for the Controls tab's controller diagram
 
     m_process = new QProcess(this);
     m_process->setProcessChannelMode(QProcess::MergedChannels);

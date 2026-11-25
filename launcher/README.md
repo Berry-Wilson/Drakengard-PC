@@ -99,7 +99,7 @@ folder, and the `mc0` memory card is found next to it. If either is missing, set
 
 | Tab | Controls |
 | --- | --- |
-| Controls | Keyboard and controller bindings for every PS2 button and stick direction, and which controller stick drives each PS2 stick |
+| Controls | Keyboard and controller bindings for every PS2 button and stick direction |
 | Video | Aspect ratio, window size, full screen, internal resolution, full-height picture, fog distance, sharpening, renderer |
 | Picture | PCSX2's blending, texture filtering, trilinear, dithering and upscaling fixes |
 | Log | Game output and the console log file's path |
@@ -112,10 +112,21 @@ folder, pad recording or scripted presses, can be added to `ps2x.ini` by hand.
 
 ### Controls
 
-Click a slot, then press a key, or a controller button, trigger or stick direction. Right-click a
-slot to clear it, and press Escape to cancel. Each PS2 input takes up to two keys and two controller
-inputs, and every controller connected counts. F1, F5 and F12 are kept for the game. If a controller
-was connected after the launcher started, press **Find controllers**.
+The tab shows a controller with a box for each PS2 button, joined to it by a line; the stick
+directions are grouped under each stick. Click a box, then press a key or a controller button (or
+push a stick or trigger): whichever comes first is bound, and replaces that box's key or controller
+input. Each box shows both. Right-click a box to clear its key, its controller input or both; Escape
+or a second click cancels. Every controller connected counts. F1, F3, F5, F11 and F12 are kept for
+the game. If a controller was connected after the launcher started, press **Find controllers**.
+
+- **Bind all** goes through every PS2 button and stick direction in turn, lighting up each box and
+  binding it to the next key or controller input pressed. **Skip** leaves one as it is; **Stop**,
+  Escape, or clicking a box ends the run. Inputs bound so far are kept.
+- **Unbind All** removes every key and controller binding at once, after asking. **Restore
+  defaults** brings back the default controls.
+
+The picture is `launcher/res/controller.png`, built into the exe as a Qt resource. The file format allows two keys and two controller inputs per PS2 input; a second one added to
+`controls.ini` by hand shows in its box as "first / second", and binding the box replaces both.
 
 Changes are saved at once to `controls.ini` in the game's folder, or to the file `PS2X_CONTROLS`
 names in `ps2x.ini`, a readable text file. The game reads the same file, and otherwise uses the defaults shown on

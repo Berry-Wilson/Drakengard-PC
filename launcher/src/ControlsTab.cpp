@@ -1,15 +1,16 @@
 #include "ControlsTab.h"
 
+#include "ControllerDiagram.h"
+
 #include <QApplication>
-#include <QCheckBox>
-#include <QComboBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -23,8 +24,8 @@ namespace
 {
     constexpr int kPollMs = 16;
     constexpr int kCaptureTimeoutMs = 8000;
-    const QString kWaitingKey = "Press a key...";
-    const QString kWaitingButton = "Press a button...";
+    constexpr int kBindAllPauseMs = 350;
+    constexpr int kStatusMs = 5000;
 
     // GLFW decides keys by scancode on Windows (win32_init.c, createKeyTables), so the same table
     // here makes a captured key exactly what the game will see. The 0x100 bit marks extended keys,
@@ -169,19 +170,27 @@ namespace
         }
     }
 
-    const char *kStickNames[2] = {"Left Stick", "Right Stick"};
-
-    // "Left stick up" -> "Left Stick Up": the shared action names are written for the game's
-    // messages; the launcher's labels capitalize every word.
-    QString titleCase(const QString &text)
+    // Each box's line color: the face buttons match the picture, the rest go by group.
+    QColor lineColor(Action action)
     {
-        QString out = text;
-        for (int i = 0; i < out.size(); ++i)
+        switch (action)
         {
-            if (i == 0 || QString(" -(/").contains(out[i - 1]))
-                out[i] = out[i].toUpper();
+        case Action::Triangle: return QColor(0x22c55e);
+        case Action::Square: return QColor(0xec4899);
+        case Action::Circle: return QColor(0xef4444);
+        case Action::Cross: return QColor(0x3b82f6);
+        case Action::Up:
+        case Action::Down:
+        case Action::Left:
+        case Action::Right: return QColor(0xf59e0b);
+        case Action::L1:
+        case Action::L2:
+        case Action::R1:
+        case Action::R2: return QColor(0xa78bfa);
+        case Action::Start:
+        case Action::Select: return QColor(0x2dd4bf);
+        default: return QColor(0xd1d5db); // sticks and L3/R3
         }
-        return out;
     }
 }
 
@@ -191,114 +200,179 @@ ControlsTab::ControlsTab(const QString &filePath, QWidget *parent)
     if (QFileInfo::exists(m_path))
         loadFile(QDir::toNativeSeparators(m_path).toStdString(), m_bindings);
 
-    auto *grid = new QGridLayout;
-    grid->setHorizontalSpacing(8);
-    const char *headers[] = {"PS2 Pad", "Key 1", "Key 2", "Controller 1", "Controller 2"};
-    for (int c = 0; c < 5; ++c)
+    m_diagram = new ControllerDiagram;
+    constexpr double W = 176, H = 56, Left = 10, Right = ControllerDiagram::kWidth - 10 - W;
+    // Stick directions sit in a framed group per stick, under the picture.
+    constexpr double SW = 150, GroupTop = 474, StickTop = GroupTop + 22, LeftStickX = 160, RightStickX = 512;
+    const QPointF noLine(-1, -1);
+    // Layout-space box, and the pixel in the controller picture its line points to.
+    struct Place
     {
-        auto *header = new QLabel(QString("<b>%1</b>").arg(headers[c]));
-        grid->addWidget(header, 0, c);
+        Action action;
+        const char *title;
+        QRectF rect;
+        QPointF anchor;
+    };
+    const Place places[] = {
+        {Action::L2, "L2", {Left, 10, W, H}, {88, 9}},
+        {Action::L1, "L1", {Left, 74, W, H}, {112, 11}},
+        {Action::Up, "D-Pad Up", {Left, 150, W, H}, {99, 95}},
+        {Action::Left, "D-Pad Left", {Left, 212, W, H}, {77, 116}},
+        {Action::Right, "D-Pad Right", {Left, 274, W, H}, {121, 116}},
+        {Action::Down, "D-Pad Down", {Left, 336, W, H}, {99, 138}},
+        {Action::L3, "L3 (Press Left Stick)", {Left, 404, W, H}, {140, 205}},
+        {Action::R2, "R2", {Right, 10, W, H}, {372, 9}},
+        {Action::R1, "R1", {Right, 74, W, H}, {348, 11}},
+        {Action::Triangle, "Triangle", {Right, 150, W, H}, {360, 84}},
+        {Action::Square, "Square", {Right, 212, W, H}, {327, 116}},
+        {Action::Circle, "Circle", {Right, 274, W, H}, {393, 116}},
+        {Action::Cross, "Cross", {Right, 336, W, H}, {360, 149}},
+        {Action::R3, "R3 (Press Right Stick)", {Right, 404, W, H}, {318, 205}},
+        {Action::Select, "Select", {300, 10, W, H}, {196, 119}},
+        {Action::Start, "Start", {504, 10, W, H}, {263, 120}},
+        {Action::LeftStickUp, "Up", {LeftStickX + 8, StickTop, SW, H}, noLine},
+        {Action::LeftStickDown, "Down", {LeftStickX + 8 + SW + 6, StickTop, SW, H}, noLine},
+        {Action::LeftStickLeft, "Left", {LeftStickX + 8, StickTop + H + 6, SW, H}, noLine},
+        {Action::LeftStickRight, "Right", {LeftStickX + 8 + SW + 6, StickTop + H + 6, SW, H}, noLine},
+        {Action::RightStickUp, "Up", {RightStickX + 8, StickTop, SW, H}, noLine},
+        {Action::RightStickDown, "Down", {RightStickX + 8 + SW + 6, StickTop, SW, H}, noLine},
+        {Action::RightStickLeft, "Left", {RightStickX + 8, StickTop + H + 6, SW, H}, noLine},
+        {Action::RightStickRight, "Right", {RightStickX + 8 + SW + 6, StickTop + H + 6, SW, H}, noLine},
+    };
+    const double groupWidth = 2 * SW + 6 + 16, groupHeight = ControllerDiagram::kHeight - GroupTop - 2;
+    m_diagram->addGroup("Left Stick", {LeftStickX, GroupTop, groupWidth, groupHeight}, {163, 191}, lineColor(Action::LeftStickUp));
+    m_diagram->addGroup("Right Stick", {RightStickX, GroupTop, groupWidth, groupHeight}, {295, 191}, lineColor(Action::RightStickUp));
+    m_boxes.assign(kActionCount, nullptr);
+    for (const Place &place : places)
+    {
+        const int action = static_cast<int>(place.action);
+        auto *box = new BindingBox(place.title);
+        // Stick boxes are titled by direction inside their group; messages name the stick too.
+        const bool leftStick = place.action >= Action::LeftStickUp && place.action <= Action::LeftStickRight;
+        const bool rightStick = place.action >= Action::RightStickUp;
+        m_names[action] = (leftStick ? "Left Stick " : rightStick ? "Right Stick " : "") + QString(place.title);
+        m_boxes[action] = box;
+        m_diagram->addBox(box, place.rect, place.anchor, lineColor(place.action));
+        connect(box, &BindingBox::clicked, this, [this, action] {
+            endBindAll();
+            if (m_capturing == action)
+            {
+                stopCapture();
+                setStatus("Cancelled.");
+            }
+            else
+                startCapture(action);
+        });
+        connect(box, &BindingBox::contextMenuRequested, this, [this, action](const QPoint &pos) {
+            endBindAll();
+            showClearMenu(action, pos);
+        });
     }
 
-    int row = 1;
-    for (int action = 0; action < kActionCount; ++action)
-    {
-        if (action == kButtonActionCount)
-        {
-            auto *note = new QLabel("<b>Stick Directions</b> (keys, or controller inputs, that push a PS2 stick fully)");
-            note->setContentsMargins(0, 10, 0, 2);
-            grid->addWidget(note, row++, 0, 1, 5);
-        }
-        grid->addWidget(new QLabel(titleCase(actionLabel(static_cast<Action>(action)))), row, 0);
-        for (int column = 0; column < kKeyboardSlots + kControllerSlots; ++column)
-        {
-            const bool keyboard = column < kKeyboardSlots;
-            auto *button = new QPushButton;
-            button->setMinimumWidth(140);
-            button->setContextMenuPolicy(Qt::CustomContextMenu);
-            button->setToolTip(keyboard ? "Click, then press a key. Right-click to clear."
-                                        : "Click, then press a controller button or move a stick or trigger. "
-                                          "Right-click to clear.");
-            const int slotIndex = static_cast<int>(m_slots.size());
-            m_slots.push_back({button, action, keyboard, keyboard ? column : column - kKeyboardSlots});
-            connect(button, &QPushButton::clicked, this, [this, slotIndex] {
-                if (m_capturing == slotIndex)
-                    stopCapture();
-                else
-                    startCapture(slotIndex);
-            });
-            connect(button, &QPushButton::customContextMenuRequested, this, [this, slotIndex] { clearSlot(slotIndex); });
-            grid->addWidget(button, row, column + 1);
-        }
-        ++row;
-    }
-
-    auto *table = new QWidget;
-    table->setLayout(grid);
     auto *scroll = new QScrollArea;
-    scroll->setWidget(table);
+    scroll->setWidget(m_diagram);
     scroll->setWidgetResizable(true);
-    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scroll->setMinimumWidth(table->sizeHint().width() + scroll->verticalScrollBar()->sizeHint().width() + 4);
-
-    auto *sticks = new QGroupBox("Controller Sticks");
-    auto *sticksLayout = new QGridLayout(sticks);
-    for (int s = 0; s < 2; ++s)
-    {
-        m_stickSource[s] = new QComboBox;
-        m_stickSource[s]->addItem("Controller left stick", static_cast<int>(StickSettings::Source::LeftStick));
-        m_stickSource[s]->addItem("Controller right stick", static_cast<int>(StickSettings::Source::RightStick));
-        m_stickSource[s]->addItem("Nothing", static_cast<int>(StickSettings::Source::None));
-        m_invertX[s] = new QCheckBox("Invert Left/Right");
-        m_invertY[s] = new QCheckBox("Invert Up/Down");
-        sticksLayout->addWidget(new QLabel(QString("PS2 %1 Reads").arg(kStickNames[s])), s, 0);
-        sticksLayout->addWidget(m_stickSource[s], s, 1);
-        sticksLayout->addWidget(m_invertX[s], s, 2);
-        sticksLayout->addWidget(m_invertY[s], s, 3);
-        sticksLayout->setColumnStretch(4, 1);
-
-        auto apply = [this, s] {
-            StickSettings &settings = s == 0 ? m_bindings.leftStick : m_bindings.rightStick;
-            settings.source = static_cast<StickSettings::Source>(m_stickSource[s]->currentData().toInt());
-            settings.invertX = m_invertX[s]->isChecked();
-            settings.invertY = m_invertY[s]->isChecked();
-            save();
-        };
-        connect(m_stickSource[s], &QComboBox::activated, this, apply);
-        connect(m_invertX[s], &QCheckBox::clicked, this, apply);
-        connect(m_invertY[s], &QCheckBox::clicked, this, apply);
-    }
+    scroll->setFrameShape(QFrame::NoFrame);
 
     auto *defaults = new QPushButton("Restore defaults");
     connect(defaults, &QPushButton::clicked, this, [this] {
+        endBindAll();
         stopCapture();
         m_bindings = Bindings::defaults();
         save();
         refresh();
         setStatus("Restored the default controls.");
     });
+    auto *clearAll = new QPushButton("Unbind All");
+    clearAll->setToolTip("Remove every key and controller binding.");
+    // Dark red, since it throws away every binding; the confirmation's button matches.
+    static const QString kDangerStyle = "QPushButton { background: #7f1d1d; color: white; border: 1px solid #991b1b;"
+                                        " border-radius: 4px; padding: 3px 12px; }"
+                                        "QPushButton:hover { background: #991b1b; border-color: #b91c1c; }"
+                                        "QPushButton:pressed { background: #651515; }";
+    clearAll->setStyleSheet(kDangerStyle);
+    connect(clearAll, &QPushButton::clicked, this, [this] {
+        endBindAll();
+        stopCapture();
+        QMessageBox confirm(QMessageBox::Warning, "Unbind All", "Are you sure?", QMessageBox::NoButton, this);
+        QPushButton *unbind = confirm.addButton("Unbind All", QMessageBox::DestructiveRole);
+        unbind->setStyleSheet(kDangerStyle);
+        confirm.addButton(QMessageBox::Cancel);
+        confirm.setDefaultButton(QMessageBox::Cancel);
+        confirm.exec();
+        if (confirm.clickedButton() != unbind)
+            return;
+        for (int action = 0; action < kActionCount; ++action)
+        {
+            m_bindings.keyboard[action] = {};
+            m_bindings.controller[action] = {};
+        }
+        save();
+        refresh();
+        setStatus("Cleared every key and controller binding.");
+    });
     auto *rescan = new QPushButton("Find controllers");
     rescan->setToolTip("Look again for controllers connected since the launcher started.");
     connect(rescan, &QPushButton::clicked, this, [this] {
+        endBindAll();
         stopCapture();
         m_pads.rescan();
         refreshGamepadLabel();
     });
 
+    m_bindAllButton = new QPushButton("Bind all");
+    m_bindAllButton->setToolTip("Go through every PS2 button and stick direction in turn, binding each to the next key "
+                                "or controller input you press.");
+    connect(m_bindAllButton, &QPushButton::clicked, this, [this] {
+        if (m_bindAll)
+            endBindAll("Stopped binding all buttons.");
+        else
+            startBindAll();
+    });
+    m_skipButton = new QPushButton("Skip");
+    m_skipButton->setToolTip("Leave this one as it is and go to the next.");
+    m_skipButton->setVisible(false);
+    connect(m_skipButton, &QPushButton::clicked, this, [this] {
+        m_lastResult = QString("Skipped %1.").arg(m_names[m_bindAllNext]);
+        ++m_bindAllNext;
+        captureNext();
+    });
+    m_nextTimer.setSingleShot(true);
+    connect(&m_nextTimer, &QTimer::timeout, this, &ControlsTab::captureNext);
+
     m_padLabel = new QLabel;
     m_status = new QLabel;
     m_status->setWordWrap(true);
+    // Room for two lines, so Bind all's two-line messages don't move the buttons.
+    m_status->setMinimumHeight(m_status->fontMetrics().lineSpacing() * 2 + 2);
+    m_status->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     auto *bottom = new QHBoxLayout;
-    bottom->addWidget(m_padLabel, 1);
-    bottom->addWidget(rescan);
-    bottom->addWidget(defaults);
+    // Unbind All sits under Bind all.
+    auto *bindButtons = new QVBoxLayout;
+    bindButtons->addWidget(m_bindAllButton);
+    bindButtons->addWidget(clearAll);
+    bottom->addLayout(bindButtons);
+    // Skip and the controller list line up with Bind all, on the top row.
+    m_padLabel->setMinimumHeight(m_bindAllButton->sizeHint().height());
+    bottom->addWidget(m_skipButton, 0, Qt::AlignTop);
+    bottom->addWidget(m_padLabel, 1, Qt::AlignTop);
+    // Restore defaults sits under Find controllers.
+    auto *resetButtons = new QVBoxLayout;
+    resetButtons->addWidget(rescan);
+    resetButtons->addWidget(defaults);
+    bottom->addLayout(resetButtons);
 
     auto *layout = new QVBoxLayout(this);
     layout->addWidget(scroll, 1);
-    layout->addWidget(sticks);
     layout->addLayout(bottom);
     layout->addWidget(m_status);
+
+    m_statusTimer.setSingleShot(true);
+    connect(&m_statusTimer, &QTimer::timeout, this, [this] {
+        if (m_capturing < 0)
+            m_status->clear();
+    });
 
     m_pollTimer.setInterval(kPollMs);
     connect(&m_pollTimer, &QTimer::timeout, this, &ControlsTab::pollGamepads);
@@ -315,11 +389,6 @@ ControlsTab::~ControlsTab()
     stopCapture();
 }
 
-Binding &ControlsTab::bindingFor(const Slot &slot)
-{
-    return slot.keyboard ? m_bindings.keyboard[slot.action][slot.index] : m_bindings.controller[slot.action][slot.index];
-}
-
 void ControlsTab::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -330,32 +399,23 @@ void ControlsTab::showEvent(QShowEvent *event)
     }
 }
 
-void ControlsTab::startCapture(int slotIndex)
+// A box listens for a key and for a controller input at the same time; whichever comes first is
+// bound. Controllers are read only if one is connected.
+void ControlsTab::startCapture(int action)
 {
     stopCapture();
-    const Slot &slot = m_slots[slotIndex];
-    if (!slot.keyboard)
-    {
-        if (m_pads.names().empty())
-            m_pads.rescan();
-        refreshGamepadLabel();
-        if (m_pads.names().empty())
-        {
-            setStatus("No controller found. Connect one, then click the slot again.");
-            return;
-        }
-        m_baseline = m_pads.read();
-    }
-    m_capturing = slotIndex;
-    slot.button->setText(slot.keyboard ? kWaitingKey : kWaitingButton);
-    slot.button->setDown(true);
+    if (m_pads.names().empty())
+        m_pads.rescan();
+    refreshGamepadLabel();
+    m_baseline = m_pads.read();
+    m_capturing = action;
+    m_boxes[action]->setWaiting(true);
     qApp->installEventFilter(this);
     m_captureClock.start();
     m_pollTimer.start();
-    setStatus(slot.keyboard ? "Press the key for " + QString(actionLabel(static_cast<Action>(slot.action))) +
-                                  ". Escape cancels."
-                            : "Press the controller input for " + QString(actionLabel(static_cast<Action>(slot.action))) +
-                                  ". Escape cancels.");
+    const QString name = m_names[action];
+    setStatus(m_pads.names().empty() ? "Press the key for " + name + ". No controller is connected. Escape cancels."
+                                     : "Press a key or a controller input for " + name + ". Escape cancels.");
 }
 
 void ControlsTab::stopCapture()
@@ -364,33 +424,101 @@ void ControlsTab::stopCapture()
         return;
     qApp->removeEventFilter(this);
     m_pollTimer.stop();
-    m_slots[m_capturing].button->setDown(false);
+    m_boxes[m_capturing]->setWaiting(false);
     m_capturing = -1;
     refresh();
 }
 
-void ControlsTab::finishCapture(const Binding &binding)
+// The new input replaces the box's keys (or controller inputs); the other kind is kept.
+void ControlsTab::finishCapture(const Binding &binding, bool keyboard)
 {
-    const Slot slot = m_slots[m_capturing];
+    const int action = m_capturing;
     stopCapture();
-    bindingFor(slot) = binding;
+    auto &inputs = keyboard ? m_bindings.keyboard[action] : m_bindings.controller[action];
+    for (Binding &slot : inputs)
+        slot = Binding{};
+    inputs[0] = binding;
     save();
     refresh();
-    QString text = QString("%1 is now %2.").arg(actionLabel(static_cast<Action>(slot.action)),
+    QString text = QString("%1 is now %2.").arg(m_names[action],
                                                QString::fromStdString(bindingLabel(binding)));
-    const QString conflict = conflictNote(binding, slot.action, slot.keyboard);
+    const QString conflict = conflictNote(binding, action, keyboard);
     if (!conflict.isEmpty())
         text += " " + conflict;
     setStatus(text);
+
+    if (m_bindAll)
+    {
+        // A short pause shows the new binding before the next box lights up.
+        m_lastResult = text;
+        ++m_bindAllNext;
+        m_nextTimer.start(kBindAllPauseMs);
+    }
 }
 
-void ControlsTab::clearSlot(int slotIndex)
+void ControlsTab::startBindAll()
+{
+    m_bindAll = true;
+    m_bindAllNext = 0;
+    m_lastResult.clear();
+    m_bindAllButton->setText("Stop");
+    m_skipButton->setVisible(true);
+    captureNext();
+}
+
+void ControlsTab::captureNext()
+{
+    if (!m_bindAll)
+        return;
+    if (m_bindAllNext >= kActionCount)
+    {
+        endBindAll(m_lastResult + (m_lastResult.isEmpty() ? "" : " ") + "Every button has been gone through.");
+        return;
+    }
+    startCapture(m_bindAllNext);
+    const QString prompt = QString("<b>Bind all (%1 of %2):</b> press a key or a controller input for <b>%3</b>. "
+                                   "Skip leaves it as it is; Escape or Stop ends.")
+                               .arg(m_bindAllNext + 1)
+                               .arg(kActionCount)
+                               .arg(m_names[m_bindAllNext].toHtmlEscaped());
+    setStatus(m_lastResult.isEmpty() ? prompt : m_lastResult.toHtmlEscaped() + "<br>" + prompt);
+}
+
+void ControlsTab::endBindAll(const QString &message)
+{
+    if (!m_bindAll)
+        return;
+    m_bindAll = false;
+    m_nextTimer.stop();
+    m_bindAllButton->setText("Bind all");
+    m_skipButton->setVisible(false);
+    stopCapture();
+    if (!message.isEmpty())
+        setStatus(message);
+}
+
+void ControlsTab::clearBindings(int action, bool keys, bool controller)
 {
     stopCapture();
-    bindingFor(m_slots[slotIndex]) = Binding{};
+    if (keys)
+        m_bindings.keyboard[action] = {};
+    if (controller)
+        m_bindings.controller[action] = {};
     save();
     refresh();
-    setStatus(QString("Cleared a binding for %1.").arg(actionLabel(static_cast<Action>(m_slots[slotIndex].action))));
+    setStatus(QString("Cleared %1 for %2.")
+                  .arg(keys && controller ? "the bindings" : keys ? "the keys" : "the controller inputs",
+                       m_names[action]));
+}
+
+void ControlsTab::showClearMenu(int action, const QPoint &globalPos)
+{
+    stopCapture();
+    QMenu menu(this);
+    menu.addAction("Clear key", this, [this, action] { clearBindings(action, true, false); });
+    menu.addAction("Clear controller input", this, [this, action] { clearBindings(action, false, true); });
+    menu.addAction("Clear both", this, [this, action] { clearBindings(action, true, true); });
+    menu.exec(globalPos);
 }
 
 bool ControlsTab::eventFilter(QObject *watched, QEvent *event)
@@ -405,12 +533,15 @@ bool ControlsTab::eventFilter(QObject *watched, QEvent *event)
         }
         if (key->key() == Qt::Key_Escape)
         {
-            stopCapture();
-            setStatus("Cancelled.");
+            if (m_bindAll)
+                endBindAll("Stopped binding all buttons.");
+            else
+            {
+                stopCapture();
+                setStatus("Cancelled.");
+            }
             return true;
         }
-        if (!m_slots[m_capturing].keyboard)
-            return true; // waiting for the controller; swallow other keys
         int glfwKey = key->nativeScanCode() ? glfwKeyFromScancode(key->nativeScanCode()) : 0;
         if (!glfwKey)
             glfwKey = glfwKeyFromQt(key);
@@ -421,12 +552,12 @@ bool ControlsTab::eventFilter(QObject *watched, QEvent *event)
         }
         if (isReservedKey(glfwKey))
         {
-            setStatus(QString("%1 is kept for the game itself (F1 debug panel, F5 super-sampling, F12 screenshot). "
-                              "Try another key.")
+            setStatus(QString("%1 is kept for the game itself (F1 statistics, F3 speed counter, F5 internal resolution, "
+                              "F11 full screen, F12 screenshot). Try another key.")
                           .arg(QString::fromStdString(bindingLabel(Binding::key(glfwKey)))));
             return true;
         }
-        finishCapture(Binding::key(glfwKey));
+        finishCapture(Binding::key(glfwKey), true);
         return true;
     }
     return QWidget::eventFilter(watched, event);
@@ -465,18 +596,16 @@ void ControlsTab::pollGamepads()
 {
     if (m_capturing < 0)
         return;
-    if (m_captureClock.elapsed() > kCaptureTimeoutMs)
+    if (!m_bindAll && m_captureClock.elapsed() > kCaptureTimeoutMs)
     {
         stopCapture();
         setStatus("Nothing was pressed, so the binding is unchanged.");
         return;
     }
-    if (m_slots[m_capturing].keyboard)
-        return;
     const std::vector<GamepadState> now = m_pads.read();
     if (const auto binding = detectGamepadInput(now))
     {
-        finishCapture(*binding);
+        finishCapture(*binding, false);
         return;
     }
     // Inputs held when the capture began count once they are released and pressed again.
@@ -505,7 +634,7 @@ QString ControlsTab::conflictNote(const Binding &binding, int action, bool keybo
             {
                 if (b == binding)
                 {
-                    others << actionLabel(static_cast<Action>(a));
+                    others << m_names[a];
                     return;
                 }
             }
@@ -522,20 +651,19 @@ QString ControlsTab::conflictNote(const Binding &binding, int action, bool keybo
 
 void ControlsTab::refresh()
 {
-    for (size_t i = 0; i < m_slots.size(); ++i)
+    const auto describe = [](const auto &inputs) {
+        QStringList names;
+        for (const Binding &binding : inputs)
+        {
+            if (!binding.isNone())
+                names << QString::fromStdString(bindingLabel(binding));
+        }
+        return names.isEmpty() ? QStringLiteral("—") : names.join(" / ");
+    };
+    for (int action = 0; action < kActionCount; ++action)
     {
-        if (static_cast<int>(i) == m_capturing)
-            continue;
-        const Binding &binding = bindingFor(m_slots[i]);
-        m_slots[i].button->setText(binding.isNone() ? QStringLiteral("—") : QString::fromStdString(bindingLabel(binding)));
-    }
-    const StickSettings *settings[2] = {&m_bindings.leftStick, &m_bindings.rightStick};
-    for (int s = 0; s < 2; ++s)
-    {
-        const int index = m_stickSource[s]->findData(static_cast<int>(settings[s]->source));
-        m_stickSource[s]->setCurrentIndex(index);
-        m_invertX[s]->setChecked(settings[s]->invertX);
-        m_invertY[s]->setChecked(settings[s]->invertY);
+        if (action != m_capturing && m_boxes[action])
+            m_boxes[action]->setBindings(describe(m_bindings.keyboard[action]), describe(m_bindings.controller[action]));
     }
 }
 
@@ -562,7 +690,9 @@ void ControlsTab::save()
         setStatus(QString("Could not save %1.").arg(QDir::toNativeSeparators(m_path)));
 }
 
+// Messages clear themselves after a few seconds. A prompt waiting for input stays.
 void ControlsTab::setStatus(const QString &text)
 {
     m_status->setText(text);
+    m_statusTimer.start(kStatusMs);
 }

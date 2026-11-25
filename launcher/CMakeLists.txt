@@ -34,11 +34,16 @@ qt_add_executable(drakengard-launcher WIN32
     src/SetupPage.h
     src/ControlsTab.cpp
     src/ControlsTab.h
+    src/ControllerDiagram.cpp
+    src/ControllerDiagram.h
     src/GamepadReader.cpp
     src/GamepadReader.h
     "${PS2X_RUNTIME_DIR}/src/lib/input_bindings.cpp"
     "${PS2X_RUNTIME_DIR}/include/runtime/input_bindings.h"
 )
+# The Controls tab's controller picture, built into the exe.
+qt_add_resources(drakengard-launcher "images" PREFIX "/" BASE res FILES res/controller.png)
+
 target_include_directories(drakengard-launcher PRIVATE "${PS2X_RUNTIME_DIR}/include")
 target_link_libraries(drakengard-launcher PRIVATE Qt6::Widgets glfw)
 
