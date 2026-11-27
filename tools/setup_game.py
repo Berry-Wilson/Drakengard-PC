@@ -299,7 +299,9 @@ def parallel_jobs():
     memory = Memory()
     memory.length = ctypes.sizeof(Memory)
     ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(memory))
-    return max(1, min(os.cpu_count() or 1, memory.total // (4 * GB)))
+    # Compiling the largest file of translated code peaks at about 0.4 GB, so a job per GB, after
+    # 2 GB for Windows and the rest, leaves room. The link runs on its own after the compiles.
+    return max(1, min(os.cpu_count() or 1, memory.total // GB - 2))
 
 
 def run(command, cwd=ROOT, on_line=None, env=None):
