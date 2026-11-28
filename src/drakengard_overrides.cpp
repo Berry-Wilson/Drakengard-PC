@@ -3,6 +3,7 @@
 #include "ps2_runtime_macros.h"
 #include "ps2_stubs.h"
 #include "ps2_recompiled_functions.h"
+#include <cstdlib>
 #include <iostream>
 
 void applyDrakengardWidescreen(PS2Runtime &runtime); // drakengard_widescreen.cpp
@@ -43,9 +44,29 @@ namespace
         ctx->pc = GPR_U32(ctx, 31);
     }
 
+    // PCSX2's game database turns merge sprite on for this game ("fixes misaligned white lines").
+    // Above 1x it takes any draw whose sprites are all the same size and come from a rendered
+    // picture to be one picture laid in tiles, and redraws it as a single sprite from the leftmost
+    // edge to the rightmost, without checking that the sprites touch. The distant enemies in the
+    // flying missions are such sprites, so two of them in one draw showed as one stretched block
+    // between their places. Flying and ground replays at 2x showed no white lines with it off, so
+    // this game starts with it off; PS2X_PCSX2_MERGE_SPRITE=1 still turns it on. PCSX2 is opened on
+    // first use, after this runs.
+    void defaultMergeSpriteOff()
+    {
+        if (std::getenv("PS2X_PCSX2_MERGE_SPRITE"))
+            return;
+#if defined(_WIN32)
+        _putenv_s("PS2X_PCSX2_MERGE_SPRITE", "0");
+#else
+        setenv("PS2X_PCSX2_MERGE_SPRITE", "0", 1);
+#endif
+    }
+
     void applyDrakengardOverrides(PS2Runtime &runtime)
     {
         std::cerr << "[DrakengardPC] Applying runtime overrides for Drakengard (USA) [SLUS_207.32]..." << std::endl;
+        defaultMergeSpriteOff();
 
         // Bind un-named / differently-named SDK functions in SLUS_207.32 to the runtime stubs
         runtime.registerFunction(0x00306428u, ps2_stubs::sceCdSearchFile); // sceCdLayerSearchFile

@@ -282,7 +282,8 @@ QWidget *MainWindow::buildPictureTab()
                                                 {"Aggressive (upscaled)", "4"}},
                                                "Upscaling fix.", "0"));
     form->addRow("Align Sprite", optionCheck("On", "PS2X_PCSX2_ALIGN_SPRITE", false, "Upscaling fix."));
-    form->addRow("Merge Sprite", optionCheck("On", "PS2X_PCSX2_MERGE_SPRITE", true, "Upscaling fix."));
+    form->addRow("Merge Sprite", optionCheck("On", "PS2X_PCSX2_MERGE_SPRITE", false,
+                                              "Upscaling fix. Off by default: it stretches distant enemies in the flying missions."));
     return tab;
 }
 
