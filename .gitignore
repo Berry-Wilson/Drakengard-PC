@@ -1,6 +1,7 @@
 # --- Game data (copyrighted; supply your own legally dumped ISO) ---
 iso/
 iso_extracted/
+SLES_52322/
 unpacked/
 *.iso
 *.bin
