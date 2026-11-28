@@ -225,6 +225,10 @@ QWidget *MainWindow::buildVideoTab()
                                         "full screen and a window of the size above while playing.");
     form->addRow("Full Screen", fullScreen);
 
+    form->addRow("Vsync", optionCheck("On", "PS2X_VSYNC", true,
+                                      "Shows each picture at the screen's next refresh, so it never tears. On a 60 or 120 Hz "
+                                      "screen the game's frames also line up with the refreshes, for even motion."));
+
     Choices scales;
     for (int scale = 1; scale <= 8; ++scale)
         scales.push_back({QString("%1x").arg(scale), scale == 2 ? QString() : QString::number(scale)}); // 2x is the game's default

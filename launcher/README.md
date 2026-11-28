@@ -100,7 +100,7 @@ folder, and the `mc0` memory card is found next to it. If either is missing, set
 | Tab | Controls |
 | --- | --- |
 | Controls | Keyboard and controller bindings for every PS2 button and stick direction |
-| Video | Aspect ratio, window size, full screen, internal resolution, full-height picture, fog distance, sharpening, renderer |
+| Video | Aspect ratio, window size, full screen, vsync, internal resolution, fog distance, sharpening, renderer, full-height picture |
 | Picture | PCSX2's blending, texture filtering, trilinear, dithering and upscaling fixes |
 | Log | Game output and the console log file's path |
 
