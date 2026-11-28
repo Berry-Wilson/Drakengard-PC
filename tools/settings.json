@@ -23,7 +23,6 @@
     {"name": "PS2X_PCSX2_ROUND_SPRITE", "group": "PCSX2 picture settings", "values": "0, 1, 2", "default": "0", "help": "Upscaling fix; only matters above 1x."},
     {"name": "PS2X_PCSX2_NATIVE_SCALING", "group": "PCSX2 picture settings", "values": "PCSX2's native scaling modes, from 0", "default": "0", "help": "Upscaling fix; only matters above 1x."},
     {"name": "PS2X_PCSX2_ALIGN_SPRITE", "group": "PCSX2 picture settings", "values": "0, 1", "default": "0", "help": "Upscaling fix; only matters above 1x."},
-    {"name": "PS2X_PCSX2_MERGE_SPRITE", "group": "PCSX2 picture settings", "values": "0, 1", "default": "0", "help": "Upscaling fix; only matters above 1x. PCSX2's game database turns it on for Drakengard, but it then joins distant enemies in the flying missions into one stretched block, so it starts off."},
 
     {"name": "PS2X_CONTROLS", "group": "Game", "values": "a file path", "default": "controls.ini in the game's folder, else built-in bindings", "help": "The key and controller bindings file. The launcher's Controls tab writes one."},
     {"name": "PS2X_MEMCARD_DIR", "group": "Game", "values": "a folder path", "default": "mc0 in the game's folder", "help": "Where memory card saves are kept."},
@@ -40,6 +39,7 @@
     {"name": "PS2X_AUTOPAD", "group": "Developer: running", "values": "start:duration:hexmask;... in seconds", "default": "", "help": "Scripted button presses, counted from the first pad read. 0008 is Start, 4000 is Cross."},
     {"name": "PS2X_MAX_TICKS", "group": "Developer: running", "values": "a number of frames", "default": "", "help": "Exits after that many frames."},
     {"name": "PS2X_PCSX2_MOVIE_RENDERER", "group": "Developer: running", "values": "hardware", "default": "software during movies", "help": "Movies are drawn with PCSX2's software renderer, as its GPU renderers garble them. hardware keeps the GPU renderer, for checking that corruption."},
+    {"name": "PS2X_PCSX2_MERGE_SPRITE", "group": "Developer: running", "values": "0, 1", "default": "0", "help": "Upscaling fix; only matters above 1x. PCSX2's game database turns it on for Drakengard, but it then joins distant enemies in the flying missions into one stretched block, so it starts off."},
     {"name": "PS2X_DUMP_FRAMES_DIR", "group": "Developer: running", "values": "a folder path", "default": "", "help": "Saves frames as PNGs there."},
     {"name": "PS2X_DUMP_FRAMES_EVERY", "group": "Developer: running", "values": "vsyncs", "default": "", "help": "Gap between saved frames."},
     {"name": "PS2X_DUMP_FRAMES_AFTER", "group": "Developer: running", "values": "seconds", "default": "0", "help": "Time before the first saved frame."},
